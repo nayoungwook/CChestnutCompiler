@@ -1,0 +1,17 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: 중간 디렉터리(x64\Debug\)에 다른 프로젝트(ChestnutCompiler.vcxproj)에서 공유하는 파일이 포함되어 있습니다.  이로 인해 잘못된 정리 및 다시 빌드 동작이 수행될 수 있습니다.
+  main.c
+  parser.c
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\parser.c(12,23): error C2143: 구문 오류: ';'이(가) ':' 앞에 없습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\parser.c(34,10): error C2065: 'ast': 선언되지 않은 식별자입니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\parser.c(34,3): warning C4047: 'return': 'void *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\parser.c(39,2): error C2059: 구문 오류: 'return'
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\parser.c(40,1): error C2059: 구문 오류: '}'
+  token.c
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\token.c(200,16): warning C4133: '함수': 'wchar_t *'과(와) 'const char *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\token.c(200,21): warning C4133: '함수': 'unsigned short [4]'과(와) 'const char *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\token.c(203,21): warning C4133: '함수': 'wchar_t *'과(와) 'const char *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\token.c(203,26): warning C4133: '함수': 'unsigned short [3]'과(와) 'const char *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\token.c(206,21): warning C4133: '함수': 'wchar_t *'과(와) 'const char *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\token.c(206,26): warning C4133: '함수': 'unsigned short [4]'과(와) 'const char *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\token.c(238,7): warning C4047: '=': 'wchar_t **'의 간접 참조 수준이 'wchar_t *'과(와) 다릅니다.
+  코드를 생성하고 있습니다...
