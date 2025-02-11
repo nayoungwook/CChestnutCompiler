@@ -169,8 +169,7 @@ enum TokenType
 	return type;
 }
 
-Token* pull_token(wchar_t** line) {
-	Token* result = NULL;
+Token pull_token(wchar_t** line) {
 	int result_len = 0;
 
 	wchar_t* str = (wchar_t*)malloc(sizeof(wchar_t) * MAX_TOKEN_STR);
@@ -228,17 +227,13 @@ Token* pull_token(wchar_t** line) {
 		}
 
 		*line = c;
-		Token* tok = (Token*)malloc(sizeof(Token));
-		tok->str = str;
-		tok->type = type;
+		Token tok = { str, type };
 
 		return tok;
 	}
 
 	line = c;
-	Token* eof_token = (Token*)malloc(sizeof(Token));
-	eof_token->type = TokEOF;
-	eof_token->str = L"EOF";
+	Token eof_token = { L"EOF" , TokEOF };
 
 	return eof_token;
 }

@@ -62,4 +62,4 @@ typedef struct _Token {
 } Token;
 
 short is_special_character(const wchar_t wc);
-Token* pull_token(wchar_t** line);
+Token pull_token(wchar_t** line);
