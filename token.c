@@ -114,7 +114,7 @@ enum TokenType
 #pragma region BASIC_OPS
 
 	case L'+': {
-		type = TokPlus;
+		type = TokAdd;
 		if (*(c + 1) == L'=') {
 			type = TokPlusAssign;
 			c++;
@@ -128,7 +128,7 @@ enum TokenType
 	}
 
 	case L'-': {
-		type = TokMinus;
+		type = TokSub;
 		if (*(c + 1) == L'=') {
 			type = TokMinusAssign;
 			c++;
@@ -142,7 +142,7 @@ enum TokenType
 	}
 
 	case L'*': {
-		type = TokMult;
+		type = TokMul;
 		if (*(c + 1) == L'=') {
 			type = TokMultAssign;
 			c++;
@@ -169,28 +169,39 @@ enum TokenType
 	return type;
 }
 
-Token pull_token(wchar_t** line) {
+static int read_index = 0;
+
+Token* peek_token(wchar_t* line) {
+	int backup_read_index = read_index;
+	Token* result = pull_token(line);
+	read_index = backup_read_index;
+	return result;
+}
+
+Token* pull_token(wchar_t* line) {
 	int result_len = 0;
 
 	wchar_t* str = (wchar_t*)malloc(sizeof(wchar_t) * MAX_TOKEN_STR);
-	wchar_t* c = *line;
 	int str_len = 0;
 	enum TokenType type = TokEOF;
+	wchar_t c = *(line + read_index);
 
-	while (*c != '\0') {
+	while (c != '\0') {
 		str_len = 0;
-		memset(str, L' ', sizeof(wchar_t) * MAX_TOKEN_STR);
+		memset(str, L'\0', sizeof(wchar_t) * MAX_TOKEN_STR);
 
-		if (isspace(*c)) {
-			c++;
+		if (isspace(c)) {
+			read_index++;
+			c = *(line + read_index);
 			continue;
 		}
 
-		if (isalpha(*c)) {
-			while (isalnum(*c) || *c == L'_') {
-				str[str_len] = *c;
+		if (isalpha(c)) {
+			while (isalnum(c) || c == L'_') {
+				str[str_len] = c;
 				str_len++;
-				c++;
+				read_index++;
+				c = *(line + read_index);
 			}
 			str[str_len] = L'\0';
 
@@ -206,34 +217,38 @@ Token pull_token(wchar_t** line) {
 				type = TokFor;
 			}
 		}
-		else if (is_special_character(*c)) {
-			str[str_len] = *c;
+		else if (is_special_character(c)) {
+			str[str_len] = c;
 			str_len++;
 
-			type = get_token_type_of_special_character(c);
-			c++;
+			type = get_token_type_of_special_character(line + read_index);
+			read_index++;
+			c = *(line + read_index);
 
 			str[str_len] = L'\0';
 		}
-		else if (isdigit(*c)) {
-			while (isdigit(*c) || *c == L'.') {
-				str[str_len] = *c;
+		else if (isdigit(c)) {
+			while (isdigit(c) || c == L'.') {
+				str[str_len] = c;
 				str_len++;
-				c++;
+				read_index++;
+				c = *(line + read_index);
 			}
 			str[str_len] = L'\0';
 
 			type = TokNumberLiteral;
 		}
 
-		*line = c;
-		Token tok = { str, type };
+		Token* tok = (Token*)malloc(sizeof(Token));
+		tok->str = str;
+		tok->type = type;
 
 		return tok;
 	}
 
-	line = c;
-	Token eof_token = { L"EOF" , TokEOF };
+	Token* eof_token = (Token*)malloc(sizeof(Token));
+	eof_token->str = L"EOF";
+	eof_token->type = TokEOF;
 
-	return eof_token;
+	return &eof_token;
 }

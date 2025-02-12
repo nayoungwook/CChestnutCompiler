@@ -9,7 +9,7 @@
 
 #define MAX_TOKEN_STR 512
 
-enum TokenType {
+typedef enum {
 	TokEOF = -1,
 	TokIdent = 0,
 	TokNumberLiteral = 1,
@@ -24,9 +24,9 @@ enum TokenType {
 	TokEqualLesser = 9,
 	TokGreater = 10,
 	TokEqualGreater = 11,
-	TokPlus = 12,
-	TokMinus = 13,
-	TokMult = 14,
+	TokAdd = 12,
+	TokSub = 13,
+	TokMul = 14,
 	TokDiv = 15,
 	TokLParen = 16,
 	TokRParen = 17,
@@ -54,12 +54,16 @@ enum TokenType {
 	TokVar = 35,
 	TokIf = 36,
 	TokFor = 37,
-};
+}TokenType;
 
 typedef struct _Token {
 	wchar_t* str;
 	enum TokenType type;
 } Token;
 
+enum TokenType
+	get_token_type_of_special_character(wchar_t* c);
 short is_special_character(const wchar_t wc);
-Token pull_token(wchar_t** line);
+
+Token* pull_token(wchar_t* line);
+Token* peek_token(wchar_t* line);
