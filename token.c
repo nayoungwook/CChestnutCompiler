@@ -13,7 +13,7 @@ short is_special_character(const wchar_t wc) {
 }
 
 enum TokenType
-	get_token_type_of_special_character(wchar_t* c) {
+	get_token_type_of_special_character(wchar_t* str, int* str_len, int* read_index, wchar_t* c) {
 
 	enum TokenType type = TokEOF;
 
@@ -24,6 +24,10 @@ enum TokenType
 		if (*(c + 1) == L'=') {
 			type = TokEqual;
 			c++;
+
+			str[*str_len] = c;
+			(*str_len)++;
+			(*read_index)++;
 		}
 		break;
 	}
@@ -33,6 +37,10 @@ enum TokenType
 		if (*(c + 1) == L'=') {
 			type = TokNotEqual;
 			c++;
+
+			str[*str_len] = c;
+			(*str_len)++;
+			(*read_index)++;
 		}
 		break;
 	}
@@ -48,6 +56,10 @@ enum TokenType
 		if (*(c + 1) == L'=') {
 			type = TokEqualLesser;
 			c++;
+
+			str[*str_len] = c;
+			(*str_len)++;
+			(*read_index)++;
 		}
 		break;
 	}
@@ -57,6 +69,10 @@ enum TokenType
 		if (*(c + 1) == L'=') {
 			type = TokEqualGreater;
 			c++;
+
+			str[*str_len] = c;
+			(*str_len)++;
+			(*read_index)++;
 		}
 		break;
 	}
@@ -118,10 +134,18 @@ enum TokenType
 		if (*(c + 1) == L'=') {
 			type = TokPlusAssign;
 			c++;
+
+			str[*str_len] = c;
+			(*str_len)++;
+			(*read_index)++;
 		}
 		if (*(c + 1) == L'+') {
 			type = TokIncrease;
 			c++;
+
+			str[*str_len] = c;
+			(*str_len)++;
+			(*read_index)++;
 		}
 
 		break;
@@ -132,10 +156,18 @@ enum TokenType
 		if (*(c + 1) == L'=') {
 			type = TokMinusAssign;
 			c++;
+
+			str[*str_len] = c;
+			(*str_len)++;
+			(*read_index)++;
 		}
 		if (*(c + 1) == L'-') {
 			type = TokDecrease;
 			c++;
+
+			str[*str_len] = c;
+			(*str_len)++;
+			(*read_index)++;
 		}
 
 		break;
@@ -146,10 +178,18 @@ enum TokenType
 		if (*(c + 1) == L'=') {
 			type = TokMultAssign;
 			c++;
+
+			str[*str_len] = c;
+			(*str_len)++;
+			(*read_index)++;
 		}
 		if (*(c + 1) == L'*') {
 			type = TokPow;
 			c++;
+
+			str[*str_len] = c;
+			(*str_len)++;
+			(*read_index)++;
 		}
 
 		break;
@@ -160,6 +200,10 @@ enum TokenType
 		if (*(c + 1) == L'=') {
 			type = TokDivAssign;
 			c++;
+
+			str[*str_len] = c;
+			(*str_len)++;
+			(*read_index)++;
 		}
 		break;
 	}
@@ -207,13 +251,13 @@ Token* pull_token(wchar_t* line) {
 
 			type = TokIdent;
 
-			if (!strcmp(str, L"var")) {
+			if (!wcscmp(str, L"var")) {
 				type = TokVar;
 			}
-			else if (!strcmp(str, L"if")) {
+			else if (!wcscmp(str, L"if")) {
 				type = TokIf;
 			}
-			else if (!strcmp(str, L"for")) {
+			else if (!wcscmp(str, L"for")) {
 				type = TokFor;
 			}
 		}
@@ -221,7 +265,7 @@ Token* pull_token(wchar_t* line) {
 			str[str_len] = c;
 			str_len++;
 
-			type = get_token_type_of_special_character(line + read_index);
+			type = get_token_type_of_special_character(str, &str_len, &read_index, line + read_index);
 			read_index++;
 			c = *(line + read_index);
 

@@ -6,6 +6,7 @@ typedef enum {
 	AST_VariableDeclaration = 2,
 	AST_VariableDeclarationBundle = 3,
 	AST_BinExpr = 4,
+	AST_IfStatement = 5,
 }ASTType;
 
 typedef struct {
@@ -30,10 +31,17 @@ typedef struct {
 	int variable_count;
 } VariableDeclarationBundleAST;
 
-typedef enum { OpADD, OpSUB, OpMUL, OpDIV } OperatorType;
+typedef enum { OpADD, OpSUB, OpMUL, OpDIV, OpEQUAL, OpNOTEQUAL } OperatorType;
 
-typedef struct _BinExprAST {
+typedef struct {
 	ASTType TYPE;
 	void* left, * right;
 	OperatorType opType;
 }BinExprAST;
+
+typedef struct {
+	ASTType TYPE;
+	void* condition;
+	void** body;
+	int body_count;
+} IfStatementAST;

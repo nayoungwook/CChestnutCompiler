@@ -30,7 +30,7 @@ void* parse_term(wchar_t* str) {
 	return node;
 }
 
-void* parse_expression(wchar_t* str) {
+void* parse_simple_expression(wchar_t* str) {
 	void* node = parse_term(str); // for term
 
 	while (peek_token(str)->type == TokAdd || peek_token(str)->type == TokSub) {
@@ -60,14 +60,42 @@ void* parse_expression(wchar_t* str) {
 	return node;
 }
 
+void* parse_expression(wchar_t* str) {
+	void* node = parse_simple_expression(str); // for term
+
+	while (peek_token(str)->type == TokEqual || peek_token(str)->type == TokNotEqual) {
+		enum TokType op = pull_token(str)->type;
+		void* right = parse_simple_expression(str);
+
+		enum OperatorType op_type;
+
+		switch (op) {
+		case TokEqual:
+			op_type = OpEQUAL;
+			break;
+		case TokNotEqual:
+			op_type = OpNOTEQUAL;
+			break;
+		}
+
+		BinExprAST* bin_expr = (BinExprAST*)malloc(sizeof(BinExprAST));
+		bin_expr->TYPE = AST_BinExpr;
+		bin_expr->left = node;
+		bin_expr->right = right;
+		bin_expr->opType = op_type;
+
+		node = bin_expr;
+	}
+
+	return node;
+}
+
 void* parse(wchar_t* str) {
 	Token* tok = pull_token(str);
 
 	switch (tok->type) {
 
 	case TokLParen: {
-		pull_token(str); // consume (
-
 		void* node = parse_expression(str);
 
 		pull_token(str); // consume )
@@ -81,6 +109,47 @@ void* parse(wchar_t* str) {
 		literal->number_literal = tok->str;
 
 		return literal;
+	}
+
+	case TokIf: {
+		IfStatementAST* if_statement = (IfStatementAST*)malloc(sizeof(IfStatementAST));
+
+		if_statement->TYPE = AST_IfStatement;
+		if_statement->body_count = 0;
+
+		pull_token(str); // consume (
+
+		void* condition = parse(str);
+
+		if_statement->condition = condition;
+
+		pull_token(str); // consume {
+
+		while (peek_token(str)->type != TokRBracket) {
+			void* body_element = parse(str);
+
+			if (if_statement->body_count == 0) {
+				if_statement->body = (void**)malloc(sizeof(void*));
+			}
+			else {
+				if_statement->body = (void**)realloc(if_statement->body, sizeof(void*) * (if_statement->body_count + 1));
+			}
+
+			if_statement->body[if_statement->body_count] = body_element;
+
+			if_statement->body_count++;
+		}
+
+		return if_statement;
+	}
+
+	case TokIdent: {
+		IdentifierAST* identifier = (IdentifierAST*)malloc(sizeof(IdentifierAST));
+
+		identifier->TYPE = AST_Identifier;
+		identifier->identifier = tok->str;
+
+		return identifier;
 	}
 
 	case TokVar: {
