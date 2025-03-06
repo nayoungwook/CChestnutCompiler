@@ -25,7 +25,7 @@ enum TokenType
 			type = TokEqual;
 			c++;
 
-			str[*str_len] = c;
+			str[*str_len] = *c;
 			(*str_len)++;
 			(*read_index)++;
 		}
@@ -38,7 +38,7 @@ enum TokenType
 			type = TokNotEqual;
 			c++;
 
-			str[*str_len] = c;
+			str[*str_len] = *c;
 			(*str_len)++;
 			(*read_index)++;
 		}
@@ -57,7 +57,7 @@ enum TokenType
 			type = TokEqualLesser;
 			c++;
 
-			str[*str_len] = c;
+			str[*str_len] = *c;
 			(*str_len)++;
 			(*read_index)++;
 		}
@@ -70,7 +70,7 @@ enum TokenType
 			type = TokEqualGreater;
 			c++;
 
-			str[*str_len] = c;
+			str[*str_len] = *c;
 			(*str_len)++;
 			(*read_index)++;
 		}
@@ -135,7 +135,7 @@ enum TokenType
 			type = TokPlusAssign;
 			c++;
 
-			str[*str_len] = c;
+			str[*str_len] = *c;
 			(*str_len)++;
 			(*read_index)++;
 		}
@@ -143,7 +143,7 @@ enum TokenType
 			type = TokIncrease;
 			c++;
 
-			str[*str_len] = c;
+			str[*str_len] = *c;
 			(*str_len)++;
 			(*read_index)++;
 		}
@@ -157,7 +157,7 @@ enum TokenType
 			type = TokMinusAssign;
 			c++;
 
-			str[*str_len] = c;
+			str[*str_len] = *c;
 			(*str_len)++;
 			(*read_index)++;
 		}
@@ -165,7 +165,7 @@ enum TokenType
 			type = TokDecrease;
 			c++;
 
-			str[*str_len] = c;
+			str[*str_len] = *c;
 			(*str_len)++;
 			(*read_index)++;
 		}
@@ -179,7 +179,7 @@ enum TokenType
 			type = TokMultAssign;
 			c++;
 
-			str[*str_len] = c;
+			str[*str_len] = *c;
 			(*str_len)++;
 			(*read_index)++;
 		}
@@ -187,7 +187,7 @@ enum TokenType
 			type = TokPow;
 			c++;
 
-			str[*str_len] = c;
+			str[*str_len] = *c;
 			(*str_len)++;
 			(*read_index)++;
 		}
@@ -294,5 +294,5 @@ Token* pull_token(wchar_t* line) {
 	eof_token->str = L"EOF";
 	eof_token->type = TokEOF;
 
-	return &eof_token;
+	return eof_token;
 }

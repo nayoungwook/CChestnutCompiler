@@ -1,24 +1,19 @@
 #include "parser.h"
 
 void* parse_term(wchar_t* str) {
-	void* node = parse(str);  // for factor
+	void* node = parse(str);
 
-	while (peek_token(str)->type == TokMul || peek_token(str)->type == TokDiv) {
+	while (peek_token(str) && (peek_token(str)->type == TokMul || peek_token(str)->type == TokDiv)) {
 		enum TokType op = pull_token(str)->type;
 		void* right = parse(str);
 
-		enum OperatorType op_type;
-
-		switch (op) {
-		case TokMul:
-			op_type = OpMUL;
-			break;
-		case TokDiv:
-			op_type = OpDIV;
-			break;
-		}
+		enum OperatorType op_type = (op == TokMul) ? OpMUL : OpDIV;
 
 		BinExprAST* bin_expr = (BinExprAST*)malloc(sizeof(BinExprAST));
+		if (!bin_expr) {
+			fprintf(stderr, "Memory allocation failed\n");
+			exit(1);
+		}
 		bin_expr->TYPE = AST_BinExpr;
 		bin_expr->left = node;
 		bin_expr->right = right;
@@ -26,29 +21,23 @@ void* parse_term(wchar_t* str) {
 
 		node = bin_expr;
 	}
-
 	return node;
 }
 
 void* parse_simple_expression(wchar_t* str) {
-	void* node = parse_term(str); // for term
+	void* node = parse_term(str);
 
-	while (peek_token(str)->type == TokAdd || peek_token(str)->type == TokSub) {
+	while (peek_token(str) && (peek_token(str)->type == TokAdd || peek_token(str)->type == TokSub)) {
 		enum TokType op = pull_token(str)->type;
 		void* right = parse_term(str);
 
-		enum OperatorType op_type;
-
-		switch (op) {
-		case TokAdd:
-			op_type = OpADD;
-			break;
-		case TokSub:
-			op_type = OpSUB;
-			break;
-		}
+		enum OperatorType op_type = (op == TokAdd) ? OpADD : OpSUB;
 
 		BinExprAST* bin_expr = (BinExprAST*)malloc(sizeof(BinExprAST));
+		if (!bin_expr) {
+			fprintf(stderr, "Memory allocation failed\n");
+			exit(1);
+		}
 		bin_expr->TYPE = AST_BinExpr;
 		bin_expr->left = node;
 		bin_expr->right = right;
@@ -56,29 +45,48 @@ void* parse_simple_expression(wchar_t* str) {
 
 		node = bin_expr;
 	}
-
 	return node;
 }
 
-void* parse_expression(wchar_t* str) {
-	void* node = parse_simple_expression(str); // for term
+void* parse_unary_expression(wchar_t* str) {
+	if (peek_token(str) && peek_token(str)->type == TokNot) {
+		pull_token(str); // Consume '!'
+		UnaryExprAST* unary_expr = (UnaryExprAST*)malloc(sizeof(UnaryExprAST));
+		if (!unary_expr) {
+			fprintf(stderr, "Memory allocation failed\n");
+			exit(1);
+		}
+		unary_expr->TYPE = AST_UnaryExpr;
+		unary_expr->expr = parse_unary_expression(str);
+		return unary_expr;
+	}
+	return parse_simple_expression(str);
+}
 
-	while (peek_token(str)->type == TokEqual || peek_token(str)->type == TokNotEqual) {
+void* parse_expression(wchar_t* str) {
+	void* node = parse_unary_expression(str);
+
+	while (peek_token(str) && (peek_token(str)->type == TokEqual || peek_token(str)->type == TokNotEqual ||
+		peek_token(str)->type == TokGreater || peek_token(str)->type == TokLesser ||
+		peek_token(str)->type == TokEqualGreater || peek_token(str)->type == TokEqualLesser)) {
 		enum TokType op = pull_token(str)->type;
-		void* right = parse_simple_expression(str);
+		void* right = parse_unary_expression(str);
 
 		enum OperatorType op_type;
-
 		switch (op) {
-		case TokEqual:
-			op_type = OpEQUAL;
-			break;
-		case TokNotEqual:
-			op_type = OpNOTEQUAL;
-			break;
+		case TokEqual: op_type = OpEQUAL; break;
+		case TokNotEqual: op_type = OpNOTEQUAL; break;
+		case TokGreater: op_type = OpGREATER; break;
+		case TokLesser: op_type = OpLESSER; break;
+		case TokEqualGreater: op_type = OpEQUALGREATER; break;
+		case TokEqualLesser: op_type = OpEQUALLESSER; break;
 		}
 
 		BinExprAST* bin_expr = (BinExprAST*)malloc(sizeof(BinExprAST));
+		if (!bin_expr) {
+			fprintf(stderr, "Memory allocation failed\n");
+			exit(1);
+		}
 		bin_expr->TYPE = AST_BinExpr;
 		bin_expr->left = node;
 		bin_expr->right = right;
@@ -86,7 +94,6 @@ void* parse_expression(wchar_t* str) {
 
 		node = bin_expr;
 	}
-
 	return node;
 }
 
