@@ -118,6 +118,75 @@ void* parse(wchar_t* str) {
 		return literal;
 	}
 
+	case TokFunc: {
+		// func add(a: int, b: int): int {}
+		FunctionDeclarationAST* function_declaration_ast = (FunctionDeclarationAST*)malloc(sizeof(FunctionDeclarationAST));
+		function_declaration_ast->TYPE = AST_FunctionDeclaration;
+		wchar_t* function_name = pull_token(str)->str;
+
+		VariableDeclarationBundleAST* parameters = (VariableDeclarationBundleAST*)malloc(sizeof(VariableDeclarationBundleAST));
+
+		pull_token(str); // consume (
+
+		while (peek_token(str)->type != TokRParen) {
+			Token* parameter_name_token = pull_token(str);
+			wchar_t* parameter_name = parameter_name_token->str;
+			// assert parameter_name_token is type identifier
+
+			pull_token(str); // consume :
+
+			Token* parameter_type_token = pull_token(str);
+			wchar_t* parameter_type = parameter_type_token->str;
+			// assert parameter_name_token is type string for type.
+
+			if (peek_token(str)->type == TokComma) {
+				pull_token(str); // consume ,
+			}
+
+			VariableDeclarationAST* variable = (VariableDeclarationAST*)malloc(sizeof(VariableDeclarationAST));
+			variable->TYPE = AST_VariableDeclaration;
+			variable->variable_name = parameter_name;
+			variable->variable_type = parameter_type;
+			variable->declaration = NULL;
+
+			if (parameters->variable_count == 0) {
+				parameters->variable_declarations = (VariableDeclarationAST*)malloc(sizeof(VariableDeclarationAST) * 1);
+			}
+			else {
+				parameters->variable_declarations
+					= (VariableDeclarationAST*)realloc(parameters->variable_declarations, sizeof(VariableDeclarationAST) * (parameters->variable_count + 1));
+			}
+
+			parameters->variable_declarations[parameters->variable_count] = variable;
+			parameters->variable_count++;
+		}
+
+		pull_token(str); // consume }
+		pull_token(str); // consume :
+
+		wchar_t* return_type = pull_token(str)->str;
+		function_declaration_ast->return_type = return_type;
+
+		pull_token(str); // consume {
+
+		while (peek_token(str)->type != TokRBracket) {
+			void* body_element = parse(str);
+
+			if (function_declaration_ast->body_count == 0) {
+				function_declaration_ast->body = (void**)malloc(sizeof(void*));
+			}
+			else {
+				function_declaration_ast->body = (void**)realloc(function_declaration_ast->body, sizeof(void*) * (function_declaration_ast->body_count + 1));
+			}
+
+			function_declaration_ast->body[function_declaration_ast->body_count] = body_element;
+
+			function_declaration_ast->body_count++;
+		}
+
+		return function_declaration_ast;
+	}
+
 	case TokIf: {
 		IfStatementAST* if_statement = (IfStatementAST*)malloc(sizeof(IfStatementAST));
 
@@ -190,6 +259,7 @@ void* parse(wchar_t* str) {
 			VariableDeclarationAST* variable = (VariableDeclarationAST*)malloc(sizeof(VariableDeclarationAST));
 			variable->TYPE = AST_VariableDeclaration;
 			variable->variable_name = name;
+			variable->variable_type = type;
 			variable->declaration = declaration;
 
 			if (bundles->variable_count == 0) {

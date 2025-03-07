@@ -260,6 +260,9 @@ Token* pull_token(wchar_t* line) {
 			else if (!wcscmp(str, L"for")) {
 				type = TokFor;
 			}
+			else if (!wcscmp(str, L"func")) {
+				type = TokFunc;
+			}
 		}
 		else if (is_special_character(c)) {
 			str[str_len] = c;

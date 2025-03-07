@@ -8,6 +8,7 @@ typedef enum {
 	AST_BinExpr = 4,
 	AST_IfStatement = 5,
 	AST_UnaryExpr = 6,
+	AST_FunctionDeclaration = 7,
 }ASTType;
 
 typedef struct {
@@ -23,6 +24,7 @@ typedef struct {
 typedef struct {
 	ASTType TYPE;
 	wchar_t* variable_name;
+	wchar_t* variable_type;
 	void* declaration;
 } VariableDeclarationAST;
 
@@ -51,3 +53,12 @@ typedef struct {
 	void** body;
 	int body_count;
 } IfStatementAST;
+
+typedef struct {
+	ASTType TYPE;
+	wchar_t* function_name;
+	wchar_t* return_type;
+	VariableDeclarationBundleAST* parameters;
+	void** body;
+	int body_count;
+} FunctionDeclarationAST;

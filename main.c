@@ -65,12 +65,7 @@ void printAST(void* node, int depth) {
 	}
 }
 
-
-int main(int arc, char* args[]) {
-
-	wchar_t* str = L"var a: bool = !(3 == 3);";
-
-	/*
+void print_tokens(wchar_t* str) {
 	while (1) {
 		Token* tok = pull_token(str);
 
@@ -78,7 +73,10 @@ int main(int arc, char* args[]) {
 
 		if (tok->type == TokEOF) break;
 	}
-	*/
+}
+
+int main(int arc, char* args[]) {
+	wchar_t* str = L"func main(): void {}";
 
 	printAST(parse(str), 0);
 
