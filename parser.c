@@ -97,6 +97,15 @@ void* parse_expression(wchar_t* str) {
 	return node;
 }
 
+void* consume(wchar_t* str, TokenType expected_type) {
+	Token* tok = pull_token(str);
+
+	if (tok->type != expected_type) {
+		// Throw error.
+		printf("Unexpected token : %d %d\n", tok->type, expected_type);
+	}
+}
+
 void* parse(wchar_t* str) {
 	Token* tok = pull_token(str);
 
@@ -105,7 +114,7 @@ void* parse(wchar_t* str) {
 	case TokLParen: {
 		void* node = parse_expression(str);
 
-		pull_token(str); // consume )
+		consume(str, TokRParen); // consume )
 
 		return node;
 	}
@@ -122,25 +131,30 @@ void* parse(wchar_t* str) {
 		// func add(a: int, b: int): int {}
 		FunctionDeclarationAST* function_declaration_ast = (FunctionDeclarationAST*)malloc(sizeof(FunctionDeclarationAST));
 		function_declaration_ast->TYPE = AST_FunctionDeclaration;
+		function_declaration_ast->body_count = 0;
+
 		wchar_t* function_name = pull_token(str)->str;
+		function_declaration_ast->function_name = function_name;
 
 		VariableDeclarationBundleAST* parameters = (VariableDeclarationBundleAST*)malloc(sizeof(VariableDeclarationBundleAST));
+		parameters->variable_count = 0;
+		parameters->variable_declarations = NULL;
 
-		pull_token(str); // consume (
+		consume(str, TokLParen); // consume (
 
 		while (peek_token(str)->type != TokRParen) {
 			Token* parameter_name_token = pull_token(str);
 			wchar_t* parameter_name = parameter_name_token->str;
 			// assert parameter_name_token is type identifier
 
-			pull_token(str); // consume :
+			consume(str, TokColon); // consume :
 
 			Token* parameter_type_token = pull_token(str);
 			wchar_t* parameter_type = parameter_type_token->str;
 			// assert parameter_name_token is type string for type.
 
 			if (peek_token(str)->type == TokComma) {
-				pull_token(str); // consume ,
+				consume(str, TokComma); // consume ,
 			}
 
 			VariableDeclarationAST* variable = (VariableDeclarationAST*)malloc(sizeof(VariableDeclarationAST));
@@ -161,13 +175,15 @@ void* parse(wchar_t* str) {
 			parameters->variable_count++;
 		}
 
-		pull_token(str); // consume }
-		pull_token(str); // consume :
+		function_declaration_ast->parameters = parameters;
+
+		consume(str, TokRParen); // consume )
+		consume(str, TokColon); // consume :
 
 		wchar_t* return_type = pull_token(str)->str;
 		function_declaration_ast->return_type = return_type;
 
-		pull_token(str); // consume {
+		consume(str, TokLBracket); // consume {
 
 		while (peek_token(str)->type != TokRBracket) {
 			void* body_element = parse(str);
@@ -193,13 +209,13 @@ void* parse(wchar_t* str) {
 		if_statement->TYPE = AST_IfStatement;
 		if_statement->body_count = 0;
 
-		pull_token(str); // consume (
+		consume(str, TokLParen); // consume (
 
 		void* condition = parse(str);
 
 		if_statement->condition = condition;
 
-		pull_token(str); // consume {
+		consume(str, TokLBracket); // consume {
 
 		while (peek_token(str)->type != TokRBracket) {
 			void* body_element = parse(str);
@@ -239,7 +255,7 @@ void* parse(wchar_t* str) {
 			Token* name_token = pull_token(str);
 			wchar_t* name = name_token->str;
 
-			pull_token(str);
+			consume(str, TokColon);
 
 			wchar_t* type = pull_token(str)->str;
 
