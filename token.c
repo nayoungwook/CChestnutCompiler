@@ -19,6 +19,26 @@ enum TokenType
 
 	switch (*c) {
 
+	case L'\"': {
+		type = TokStringLiteral;
+
+		while (*(c + 1) != L'\"' && *c != '\\') {
+			c++;
+
+			str[*str_len] = *c;
+			(*str_len)++;
+			(*read_index)++;
+		}
+
+		c++;
+
+		str[*str_len] = *c;
+		(*str_len)++;
+		(*read_index)++;
+
+		break;
+	}
+
 	case L'=': {
 		type = TokAssign;
 		if (*(c + 1) == L'=') {

@@ -9,12 +9,19 @@ typedef enum {
 	AST_IfStatement = 5,
 	AST_UnaryExpr = 6,
 	AST_FunctionDeclaration = 7,
+	AST_FunctionCall = 8,
+	AST_StringLiteral = 9,
 }ASTType;
 
 typedef struct {
 	ASTType TYPE;
 	wchar_t* number_literal;
 } NumberLiteralAST;
+
+typedef struct {
+	ASTType TYPE;
+	wchar_t* string_literal;
+} StringLiteralAST;
 
 typedef struct {
 	ASTType TYPE;
@@ -34,7 +41,7 @@ typedef struct {
 	int variable_count;
 } VariableDeclarationBundleAST;
 
-typedef enum { OpADD, OpSUB, OpMUL, OpDIV, OpEQUAL, OpNOTEQUAL, OpGREATER, OpLESSER, OpEQUALGREATER, OpEQUALLESSER } OperatorType;
+typedef enum { OpADD, OpSUB, OpMUL, OpDIV, OpEQUAL, OpNOTEQUAL, OpGREATER, OpLESSER, OpEQUALGREATER, OpEQUALLESSER, OpASSIGN } OperatorType;
 
 typedef struct {
 	ASTType TYPE;
@@ -62,3 +69,10 @@ typedef struct {
 	void** body;
 	int body_count;
 } FunctionDeclarationAST;
+
+typedef struct {
+	ASTType TYPE;
+	wchar_t* function_name;
+	void** parameters;
+	int parameter_count;
+} FunctionCallAST;

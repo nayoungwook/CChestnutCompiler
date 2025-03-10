@@ -68,7 +68,7 @@ void* parse_expression(wchar_t* str) {
 
 	while (peek_token(str) && (peek_token(str)->type == TokEqual || peek_token(str)->type == TokNotEqual ||
 		peek_token(str)->type == TokGreater || peek_token(str)->type == TokLesser ||
-		peek_token(str)->type == TokEqualGreater || peek_token(str)->type == TokEqualLesser)) {
+		peek_token(str)->type == TokEqualGreater || peek_token(str)->type == TokEqualLesser || peek_token(str)->type == TokAssign)) {
 		enum TokType op = pull_token(str)->type;
 		void* right = parse_unary_expression(str);
 
@@ -80,6 +80,7 @@ void* parse_expression(wchar_t* str) {
 		case TokLesser: op_type = OpLESSER; break;
 		case TokEqualGreater: op_type = OpEQUALGREATER; break;
 		case TokEqualLesser: op_type = OpEQUALLESSER; break;
+		case TokAssign: op_type = OpASSIGN; break;
 		}
 
 		BinExprAST* bin_expr = (BinExprAST*)malloc(sizeof(BinExprAST));
@@ -119,12 +120,67 @@ void* parse(wchar_t* str) {
 		return node;
 	}
 
+	case TokStringLiteral: {
+		StringLiteralAST* literal = (StringLiteralAST*)malloc(sizeof(StringLiteralAST));
+		literal->TYPE = AST_StringLiteral;
+		literal->string_literal = tok->str;
+
+		return literal;
+	}
+
 	case TokNumberLiteral: {
 		NumberLiteralAST* literal = (NumberLiteralAST*)malloc(sizeof(NumberLiteralAST));
 		literal->TYPE = AST_NumberLiteral;
 		literal->number_literal = tok->str;
 
 		return literal;
+	}
+
+	case TokIdent: {
+		void* result = NULL;
+
+		Token* next_token = peek_token(str);
+
+		if (next_token->type == TokLParen) { // identifier ( 
+			result = (FunctionCallAST*)malloc(sizeof(FunctionCallAST));
+			((FunctionCallAST*)result)->TYPE = AST_FunctionCall;
+			((FunctionCallAST*)result)->parameter_count = 0;
+
+			consume(str, TokLParen);
+
+			while (peek_token(str)->type != TokRParen) {
+				void* parameter = parse(str);
+
+				if (((FunctionCallAST*)result)->parameter_count == 0) {
+					((FunctionCallAST*)result)->parameters = (void**)malloc(sizeof(void*));
+				}
+				else {
+					((FunctionCallAST*)result)->parameters = (void**)realloc(((FunctionCallAST*)result)->parameters, sizeof(void*) * (((FunctionCallAST*)result)->parameter_count + 1));
+				}
+
+				((FunctionCallAST*)result)->parameters[((FunctionCallAST*)result)->parameter_count] = parameter;
+				((FunctionCallAST*)result)->parameter_count++;
+
+				if (peek_token(str)->type == TokComma) {
+					consume(str, TokComma);
+				}
+			}
+
+			consume(str, TokRParen);
+
+			if (peek_token(str)->type == TokSemiColon) {
+				consume(str, TokSemiColon);
+			}
+
+			((FunctionCallAST*)result)->function_name = tok->str;
+		}
+		else {
+			result = (IdentifierAST*)malloc(sizeof(IdentifierAST));
+			((IdentifierAST*)result)->TYPE = AST_Identifier;
+			((IdentifierAST*)result)->identifier = tok->str;
+		}
+
+		return result;
 	}
 
 	case TokFunc: {
@@ -186,7 +242,7 @@ void* parse(wchar_t* str) {
 		consume(str, TokLBracket); // consume {
 
 		while (peek_token(str)->type != TokRBracket) {
-			void* body_element = parse(str);
+			void* body_element = parse_expression(str);
 
 			if (function_declaration_ast->body_count == 0) {
 				function_declaration_ast->body = (void**)malloc(sizeof(void*));
@@ -218,7 +274,7 @@ void* parse(wchar_t* str) {
 		consume(str, TokLBracket); // consume {
 
 		while (peek_token(str)->type != TokRBracket) {
-			void* body_element = parse(str);
+			void* body_element = parse_expression(str);
 
 			if (if_statement->body_count == 0) {
 				if_statement->body = (void**)malloc(sizeof(void*));
@@ -233,15 +289,6 @@ void* parse(wchar_t* str) {
 		}
 
 		return if_statement;
-	}
-
-	case TokIdent: {
-		IdentifierAST* identifier = (IdentifierAST*)malloc(sizeof(IdentifierAST));
-
-		identifier->TYPE = AST_Identifier;
-		identifier->identifier = tok->str;
-
-		return identifier;
 	}
 
 	case TokVar: {

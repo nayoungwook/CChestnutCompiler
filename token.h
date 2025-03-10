@@ -55,6 +55,7 @@ typedef enum {
 	TokIf = 36,
 	TokFor = 37,
 	TokFunc = 38,
+
 }TokenType;
 
 typedef struct _Token {
