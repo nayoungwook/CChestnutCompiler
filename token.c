@@ -234,15 +234,22 @@ enum TokenType
 }
 
 static int read_index = 0;
+static Token* token_cache = NULL;
 
 Token* peek_token(wchar_t* line) {
 	int backup_read_index = read_index;
-	Token* result = pull_token(line);
-	read_index = backup_read_index;
+	Token* result = token_cache;
+	if (!result) {
+		result = pull_token(line);
+		read_index = backup_read_index;
+		token_cache = result;
+	}
+
 	return result;
 }
 
 Token* pull_token(wchar_t* line) {
+	token_cache = NULL;
 	int result_len = 0;
 
 	wchar_t* str = (wchar_t*)malloc(sizeof(wchar_t) * MAX_TOKEN_STR);

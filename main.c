@@ -115,7 +115,7 @@ void print_tokens(wchar_t* str) {
 }
 
 int main(int arc, char* args[]) {
-	wchar_t* str = L"add(\"asdf\", 5)";
+	wchar_t* str = L"a(3) = add(\"asdf\", 5)";
 
 	//	print_tokens(str);
 

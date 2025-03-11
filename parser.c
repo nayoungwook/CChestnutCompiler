@@ -68,7 +68,7 @@ void* parse_expression(wchar_t* str) {
 
 	while (peek_token(str) && (peek_token(str)->type == TokEqual || peek_token(str)->type == TokNotEqual ||
 		peek_token(str)->type == TokGreater || peek_token(str)->type == TokLesser ||
-		peek_token(str)->type == TokEqualGreater || peek_token(str)->type == TokEqualLesser || peek_token(str)->type == TokAssign)) {
+		peek_token(str)->type == TokEqualGreater || peek_token(str)->type == TokEqualLesser)) {
 		enum TokType op = pull_token(str)->type;
 		void* right = parse_unary_expression(str);
 
@@ -80,7 +80,6 @@ void* parse_expression(wchar_t* str) {
 		case TokLesser: op_type = OpLESSER; break;
 		case TokEqualGreater: op_type = OpEQUALGREATER; break;
 		case TokEqualLesser: op_type = OpEQUALLESSER; break;
-		case TokAssign: op_type = OpASSIGN; break;
 		}
 
 		BinExprAST* bin_expr = (BinExprAST*)malloc(sizeof(BinExprAST));
@@ -178,6 +177,24 @@ void* parse(wchar_t* str) {
 			result = (IdentifierAST*)malloc(sizeof(IdentifierAST));
 			((IdentifierAST*)result)->TYPE = AST_Identifier;
 			((IdentifierAST*)result)->identifier = tok->str;
+		}
+
+		// check for assign
+		if (peek_token(str)->type == TokAssign) {
+			consume(str, TokAssign);
+			void* right = parse_unary_expression(str);
+
+			BinExprAST* bin_expr = (BinExprAST*)malloc(sizeof(BinExprAST));
+			if (!bin_expr) {
+				fprintf(stderr, "Memory allocation failed\n");
+				exit(1);
+			}
+			bin_expr->TYPE = AST_BinExpr;
+			bin_expr->left = result;
+			bin_expr->right = right;
+			bin_expr->opType = OpASSIGN;
+
+			result = bin_expr;
 		}
 
 		return result;
