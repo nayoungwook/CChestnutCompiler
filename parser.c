@@ -148,7 +148,7 @@ void* parse(wchar_t* str) {
 			consume(str, TokLParen);
 
 			while (peek_token(str)->type != TokRParen) {
-				void* parameter = parse(str);
+				void* parameter = parse_expression(str);
 
 				if (((FunctionCallAST*)result)->parameter_count == 0) {
 					((FunctionCallAST*)result)->parameters = (void**)malloc(sizeof(void*));
@@ -284,7 +284,9 @@ void* parse(wchar_t* str) {
 
 		consume(str, TokLParen); // consume (
 
-		void* condition = parse(str);
+		void* condition = parse_expression(str);
+
+		consume(str, TokRParen); // consume )
 
 		if_statement->condition = condition;
 
@@ -304,6 +306,8 @@ void* parse(wchar_t* str) {
 
 			if_statement->body_count++;
 		}
+
+		consume(str, TokRBracket); // consume }
 
 		return if_statement;
 	}

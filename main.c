@@ -92,7 +92,7 @@ void print_ast(void* ast, ASTType type, int indent) {
 
 		int i;
 		for (i = 0; i < node->parameter_count; i++) {
-			print_ast(node->parameters[i], AST_NumberLiteral, indent + 2);
+			print_ast(node->parameters[i], *((ASTType*)node->parameters[i]), indent + 2);
 		}
 
 		break;
@@ -115,12 +115,14 @@ void print_tokens(wchar_t* str) {
 }
 
 int main(int arc, char* args[]) {
-	wchar_t* str = L"a(3) = add(\"asdf\", 5)";
+	wchar_t* str = L"func add(a: int, b: int): void { var a: int = 0; print(a + 3); }";
 
 	//	print_tokens(str);
 
-	void* ast = parse_expression(str);
+	void* ast = parse(str);
 	print_ast(ast, *((ASTType*)ast), 0);
+
+	printf("%S", generate_ir(ast));
 
 	return 0;
 }

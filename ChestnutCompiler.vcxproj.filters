@@ -25,6 +25,12 @@
     <Filter Include="소스 파일\parser">
       <UniqueIdentifier>{89f29286-9ad9-437d-90a7-0472ca0840e6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\ir">
+      <UniqueIdentifier>{56d14dd9-a99a-45f3-90be-93998fd7caeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\ir">
+      <UniqueIdentifier>{210b62ab-4c33-419d-ad43-827c3219b880}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -38,6 +44,9 @@
     </ClCompile>
     <ClCompile Include="util.c">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ir.c">
+      <Filter>소스 파일\ir</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="util.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ir.h">
+      <Filter>헤더 파일\ir</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

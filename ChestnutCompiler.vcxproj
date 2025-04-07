@@ -128,6 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ir.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="parser.c" />
     <ClCompile Include="token.c" />
@@ -135,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ast.h" />
+    <ClInclude Include="ir.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="token.h" />
