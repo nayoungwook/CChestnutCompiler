@@ -139,7 +139,6 @@ void* parse(wchar_t* str) {
 		void* result = NULL;
 
 		Token* next_token = peek_token(str);
-
 		if (next_token->type == TokLParen) { // identifier ( 
 			result = (FunctionCallAST*)malloc(sizeof(FunctionCallAST));
 			((FunctionCallAST*)result)->TYPE = AST_FunctionCall;
@@ -173,28 +172,46 @@ void* parse(wchar_t* str) {
 
 			((FunctionCallAST*)result)->function_name = tok->str;
 		}
+		else if (next_token->type == TokIncrease || next_token->type == TokDecrease) {
+			if (next_token->type == TokIncrease) {
+				consume(str, TokIncrease);
+				result = (IdentIncreaseAST*)malloc(sizeof(IdentIncreaseAST));
+				((IdentIncreaseAST*)result)->identifier = tok->str;
+				((IdentIncreaseAST*)result)->TYPE = AST_IdentIncrease;
+			}
+			if (next_token->type == TokDecrease) {
+				consume(str, TokDecrease);
+				result = (IdentDecreaseAST*)malloc(sizeof(IdentDecreaseAST));
+				((IdentDecreaseAST*)result)->identifier = tok->str;
+				((IdentDecreaseAST*)result)->TYPE = AST_IdentDecrease;
+			}
+
+			if (peek_token(str)->type == TokSemiColon) {
+				consume(str, TokSemiColon);
+			}
+		}
 		else {
 			result = (IdentifierAST*)malloc(sizeof(IdentifierAST));
 			((IdentifierAST*)result)->TYPE = AST_Identifier;
 			((IdentifierAST*)result)->identifier = tok->str;
-		}
 
-		// check for assign
-		if (peek_token(str)->type == TokAssign) {
-			consume(str, TokAssign);
-			void* right = parse_unary_expression(str);
+			// check for assign
+			if (peek_token(str)->type == TokAssign) {
+				consume(str, TokAssign);
+				void* right = parse_unary_expression(str);
 
-			BinExprAST* bin_expr = (BinExprAST*)malloc(sizeof(BinExprAST));
-			if (!bin_expr) {
-				fprintf(stderr, "Memory allocation failed\n");
-				exit(1);
+				BinExprAST* bin_expr = (BinExprAST*)malloc(sizeof(BinExprAST));
+				if (!bin_expr) {
+					fprintf(stderr, "Memory allocation failed\n");
+					exit(1);
+				}
+				bin_expr->TYPE = AST_BinExpr;
+				bin_expr->left = result;
+				bin_expr->right = right;
+				bin_expr->opType = OpASSIGN;
+
+				result = bin_expr;
 			}
-			bin_expr->TYPE = AST_BinExpr;
-			bin_expr->left = result;
-			bin_expr->right = right;
-			bin_expr->opType = OpASSIGN;
-
-			result = bin_expr;
 		}
 
 		return result;
@@ -274,6 +291,50 @@ void* parse(wchar_t* str) {
 		}
 
 		return function_declaration_ast;
+	}
+
+	case TokFor: {
+		ForStatementAST* for_statement = (ForStatementAST*)malloc(sizeof(ForStatementAST));
+
+		for_statement->TYPE = AST_ForStatement;
+		for_statement->body_count = 0;
+
+		consume(str, TokLParen); // consume (
+
+		void* init = parse_expression(str);
+		void* condition = parse_expression(str);
+		
+		if (peek_token(str)->type == TokSemiColon)
+			pull_token(str);
+
+		void* step = parse_expression(str);
+
+		consume(str, TokRParen); // consume )
+
+		for_statement->init = init;
+		for_statement->condition = condition;
+		for_statement->step = step;
+
+		consume(str, TokLBracket); // consume {
+
+		while (peek_token(str)->type != TokRBracket) {
+			void* body_element = parse_expression(str);
+
+			if (for_statement->body_count == 0) {
+				for_statement->body = (void**)malloc(sizeof(void*));
+			}
+			else {
+				for_statement->body = (void**)realloc(for_statement->body, sizeof(void*) * (for_statement->body_count + 1));
+			}
+
+			for_statement->body[for_statement->body_count] = body_element;
+
+			for_statement->body_count++;
+		}
+
+		consume(str, TokRBracket); // consume }
+
+		return for_statement;
 	}
 
 	case TokIf: {

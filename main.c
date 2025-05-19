@@ -71,6 +71,29 @@ void print_ast(void* ast, ASTType type, int indent) {
 		}
 		break;
 	}
+	case AST_ForStatement: {
+		ForStatementAST* node = (ForStatementAST*)ast;
+		wprintf(L"ForStatement:\n");
+
+		print_indent(indent + 1);
+		wprintf(L"Init:\n");
+		print_ast(node->init, ((NumberLiteralAST*)node->init)->TYPE, indent + 2);
+
+		print_indent(indent + 1);
+		wprintf(L"Condition:\n");
+		print_ast(node->condition, ((NumberLiteralAST*)node->condition)->TYPE, indent + 2);
+
+		print_indent(indent + 1);
+		wprintf(L"Step:\n");
+		print_ast(node->step, ((NumberLiteralAST*)node->step)->TYPE, indent + 2);
+
+		print_indent(indent + 1);
+		wprintf(L"Body:\n");
+		for (int i = 0; i < node->body_count; i++) {
+			print_ast(node->body[i], ((NumberLiteralAST*)node->body[i])->TYPE, indent + 2);
+		}
+		break;
+	}
 	case AST_FunctionDeclaration: {
 		FunctionDeclarationAST* node = (FunctionDeclarationAST*)ast;
 		wprintf(L"FunctionDeclaration: %ls -> %ls\n", node->function_name, node->return_type);
@@ -84,6 +107,17 @@ void print_ast(void* ast, ASTType type, int indent) {
 		}
 		break;
 	}
+	case AST_IdentIncrease: {
+		IdentIncreaseAST* node = (IdentIncreaseAST*)ast;
+		wprintf(L"Identifier Increase: %ls\n", node->identifier);
+		break;
+	}
+	case AST_IdentDecrease: {
+		IdentDecreaseAST* node = (IdentDecreaseAST*)ast;
+		wprintf(L"Identifier Decrease: %ls\n", node->identifier);
+		break;
+	}
+
 	case AST_FunctionCall: {
 		FunctionCallAST* node = (FunctionCallAST*)ast;
 		wprintf(L"FunctionCall: %ls\n", node->function_name);
@@ -115,9 +149,9 @@ void print_tokens(wchar_t* str) {
 }
 
 int main(int arc, char* args[]) {
-	wchar_t* str = L"func add(a: int, b: int): void { var a: int = 0; print(a + 3); }";
+	wchar_t* str = L"func add(a: int, b: int): void { for(var i:int =0; i<10; i++){ print(i); } }";
 
-	//	print_tokens(str);
+	// print_tokens(str);
 
 	void* ast = parse(str);
 	print_ast(ast, *((ASTType*)ast), 0);

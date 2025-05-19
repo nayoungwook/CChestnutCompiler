@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdio.h>
+
 typedef enum {
 	AST_NumberLiteral = 0,
 	AST_Identifier = 1,
@@ -11,6 +13,9 @@ typedef enum {
 	AST_FunctionDeclaration = 7,
 	AST_FunctionCall = 8,
 	AST_StringLiteral = 9,
+	AST_ForStatement = 10,
+	AST_IdentIncrease = 11,
+	AST_IdentDecrease = 12,
 }ASTType;
 
 typedef struct {
@@ -76,3 +81,22 @@ typedef struct {
 	void** parameters;
 	int parameter_count;
 } FunctionCallAST;
+
+typedef struct {
+	ASTType TYPE;
+	wchar_t* identifier;
+} IdentIncreaseAST;
+
+typedef struct {
+	ASTType TYPE;
+	wchar_t* identifier;
+} IdentDecreaseAST;
+
+typedef struct {
+	ASTType TYPE;
+	void* init;
+	void* condition;
+	void* step;
+	void** body;
+	int body_count;
+} ForStatementAST;
