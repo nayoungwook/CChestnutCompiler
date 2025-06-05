@@ -1,5 +1,7 @@
 #include "main.h"
 
+#include <limits.h>
+
 void print_indent(int indent) {
 	for (int i = 0; i < indent; i++) {
 		wprintf(L"  ");
@@ -148,15 +150,42 @@ void print_tokens(wchar_t* str) {
 	}
 }
 
+wchar_t* read_file(char* const file_path) {
+	FILE* fp = fopen(file_path, "r, ccs=UTF-8");
+	if (!fp) {
+		perror("파일 열기 실패");
+		return 1;
+	}
+
+	fseek(fp, 0, SEEK_END);
+	long byte_len = ftell(fp);
+	rewind(fp);
+
+	size_t wchar_estimate = byte_len + 1;
+	wchar_t* str = (wchar_t*)malloc(sizeof(wchar_t) * wchar_estimate);
+	if (str == NULL) {
+		perror("메모리 할당 실패");
+		fclose(fp);
+		return 1;
+	}
+
+	size_t i = 0;
+	while (fgetws(str + i, (int)(wchar_estimate - i), fp)) {
+		i = wcslen(str);
+	}
+
+	return str;
+}
+
 int main(int arc, char* args[]) {
-	wchar_t* str = L"func add(a: int, b: int): void { for(var i:int =0; i<10; i++){ print(i); } }";
+	setlocale(LC_ALL, "");
+	
+	wchar_t* file = read_file("main.cn");
 
-	// print_tokens(str);
-
-	void* ast = parse(str);
+	void* ast = parse(file);
 	print_ast(ast, *((ASTType*)ast), 0);
 
-	printf("%S", generate_ir(ast));
+	//printf("%S", generate_ir(ast));
 
 	return 0;
 }

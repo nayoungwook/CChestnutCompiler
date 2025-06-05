@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <locale.h>
 
 #include "util.h"
 #include "token.h"

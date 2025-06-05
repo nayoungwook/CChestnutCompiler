@@ -1,0 +1,4 @@
+
+func main(): void {
+  var i: int = 10;
+}
