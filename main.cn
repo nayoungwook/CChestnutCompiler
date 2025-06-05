@@ -1,4 +1,6 @@
 
-func main(): void {
-  var i: int = 10;
+func main(a: int, b: float): void {
+  for(var i: int =0; i<10; i++){
+    print(i, " ");
+  }
 }

@@ -147,6 +147,33 @@ enum TokenType
 		break;
 	}
 
+	case L'|': {
+		type = TokBitOr;
+
+		if (*(c + 1) == L'|') {
+			type = TokOr;
+			c++;
+
+			str[*str_len] = *c;
+			(*str_len)++;
+			(*read_index)++;
+		}
+		break;
+	}
+
+	case L'&': {
+		type = TokBitAnd;
+
+		if (*(c + 1) == L'&') {
+			type = TokAnd;
+			c++;
+
+			str[*str_len] = *c;
+			(*str_len)++;
+			(*read_index)++;
+		}
+		break;
+	}
 #pragma region BASIC_OPS
 
 	case L'+': {

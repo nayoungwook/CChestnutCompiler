@@ -3,7 +3,8 @@
 #include <limits.h>
 
 void print_indent(int indent) {
-	for (int i = 0; i < indent; i++) {
+	int i;
+	for (i = 0; i < indent; i++) {
 		wprintf(L"  ");
 	}
 }
@@ -42,7 +43,8 @@ void print_ast(void* ast, ASTType type, int indent) {
 	case AST_VariableDeclarationBundle: {
 		VariableDeclarationBundleAST* node = (VariableDeclarationBundleAST*)ast;
 		wprintf(L"VariableDeclarationBundle:\n");
-		for (int i = 0; i < node->variable_count; i++) {
+		int i;
+		for (i = 0; i < node->variable_count; i++) {
 			print_ast(node->variable_declarations[i], AST_VariableDeclaration, indent + 1);
 		}
 		break;
@@ -183,9 +185,12 @@ int main(int arc, char* args[]) {
 	wchar_t* file = read_file("main.cn");
 
 	void* ast = parse(file);
+
 	print_ast(ast, *((ASTType*)ast), 0);
 
-	//printf("%S", generate_ir(ast));
+	symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable)); // for global scope.
+	symbol_table->size = 0;
+	printf("%S", generate_ir(ast));
 
 	return 0;
 }

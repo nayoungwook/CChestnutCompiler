@@ -63,7 +63,7 @@ void* parse_unary_expression(wchar_t* str) {
 	return parse_simple_expression(str);
 }
 
-void* parse_expression(wchar_t* str) {
+void* parse_compare_expression(wchar_t* str) {
 	void* node = parse_unary_expression(str);
 
 	while (peek_token(str) && (peek_token(str)->type == TokEqual || peek_token(str)->type == TokNotEqual ||
@@ -80,6 +80,34 @@ void* parse_expression(wchar_t* str) {
 		case TokLesser: op_type = OpLESSER; break;
 		case TokEqualGreater: op_type = OpEQUALGREATER; break;
 		case TokEqualLesser: op_type = OpEQUALLESSER; break;
+		}
+
+		BinExprAST* bin_expr = (BinExprAST*)malloc(sizeof(BinExprAST));
+		if (!bin_expr) {
+			fprintf(stderr, "Memory allocation failed\n");
+			exit(1);
+		}
+		bin_expr->TYPE = AST_BinExpr;
+		bin_expr->left = node;
+		bin_expr->right = right;
+		bin_expr->opType = op_type;
+
+		node = bin_expr;
+	}
+	return node;
+}
+
+void* parse_expression(wchar_t* str) {
+	void* node = parse_compare_expression(str);
+
+	while (peek_token(str) && (peek_token(str)->type == TokOr || peek_token(str)->type == TokAnd)) {
+		enum TokType op = pull_token(str)->type;
+		void* right = parse_compare_expression(str);
+
+		enum OperatorType op_type;
+		switch (op) {
+		case TokOr: op_type = OpOR; break;
+		case TokAnd: op_type = OpAND; break;
 		}
 
 		BinExprAST* bin_expr = (BinExprAST*)malloc(sizeof(BinExprAST));
@@ -144,31 +172,31 @@ void* parse(wchar_t* str) {
 			((FunctionCallAST*)result)->TYPE = AST_FunctionCall;
 			((FunctionCallAST*)result)->parameter_count = 0;
 
-			consume(str, TokLParen);
+				consume(str, TokLParen);
 
 			while (peek_token(str)->type != TokRParen) {
 				void* parameter = parse_expression(str);
 
-				if (((FunctionCallAST*)result)->parameter_count == 0) {
-					((FunctionCallAST*)result)->parameters = (void**)malloc(sizeof(void*));
+					if (((FunctionCallAST*)result)->parameter_count == 0) {
+						((FunctionCallAST*)result)->parameters = (void**)malloc(sizeof(void*));
+					}
+					else {
+						((FunctionCallAST*)result)->parameters = (void**)realloc(((FunctionCallAST*)result)->parameters, sizeof(void*) * (((FunctionCallAST*)result)->parameter_count + 1));
+					}
+
+					((FunctionCallAST*)result)->parameters[((FunctionCallAST*)result)->parameter_count] = parameter;
+					((FunctionCallAST*)result)->parameter_count++;
+
+					if (peek_token(str)->type == TokComma) {
+						consume(str, TokComma);
+					}
 				}
-				else {
-					((FunctionCallAST*)result)->parameters = (void**)realloc(((FunctionCallAST*)result)->parameters, sizeof(void*) * (((FunctionCallAST*)result)->parameter_count + 1));
+
+				consume(str, TokRParen);
+
+				if (peek_token(str)->type == TokSemiColon) {
+					consume(str, TokSemiColon);
 				}
-
-				((FunctionCallAST*)result)->parameters[((FunctionCallAST*)result)->parameter_count] = parameter;
-				((FunctionCallAST*)result)->parameter_count++;
-
-				if (peek_token(str)->type == TokComma) {
-					consume(str, TokComma);
-				}
-			}
-
-			consume(str, TokRParen);
-
-			if (peek_token(str)->type == TokSemiColon) {
-				consume(str, TokSemiColon);
-			}
 
 			((FunctionCallAST*)result)->function_name = tok->str;
 		}
