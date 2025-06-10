@@ -179,9 +179,11 @@ wchar_t* read_file(char* const file_path) {
 	return str;
 }
 
+extern SymbolTable* symbol_table;
+
 int main(int arc, char* args[]) {
 	setlocale(LC_ALL, "");
-	
+
 	wchar_t* file = read_file("main.cn");
 
 	void* ast = parse(file);
@@ -189,8 +191,12 @@ int main(int arc, char* args[]) {
 	print_ast(ast, *((ASTType*)ast), 0);
 
 	symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable)); // for global scope.
-	symbol_table->size = 0;
-	printf("%S", generate_ir(ast));
+	if (symbol_table) {
+		symbol_table->size = 0;
+		symbol_table->prev = NULL;
+	}
+
+	printf("%S", generate_ir(ast, 0));
 
 	return 0;
 }

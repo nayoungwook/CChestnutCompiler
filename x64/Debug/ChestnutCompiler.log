@@ -1,8 +1,10 @@
-﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(534,5): warning MSB8028: 중간 디렉터리(x64\Debug\)에 다른 프로젝트(ChestnutCompiler.vcxproj)에서 공유하는 파일이 포함되어 있습니다.  이로 인해 잘못된 정리 및 다시 빌드 동작이 수행될 수 있습니다.
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: 중간 디렉터리(x64\Debug\)에 다른 프로젝트(ChestnutCompiler.vcxproj)에서 공유하는 파일이 포함되어 있습니다.  이로 인해 잘못된 정리 및 다시 빌드 동작이 수행될 수 있습니다.
   ir.c
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(26,9): warning C4013: 'strcmp'이(가) 정의되지 않았습니다. extern은 int형을 반환하는 것으로 간주합니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(60,58): warning C4028: 정식 매개 변수 2이(가) 선언과 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(64,16): warning C4013: 'wcslen'이(가) 정의되지 않았습니다. extern은 int형을 반환하는 것으로 간주합니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(72,2): warning C4013: 'wcscpy'이(가) 정의되지 않았습니다. extern은 int형을 반환하는 것으로 간주합니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(73,2): warning C4013: 'wcscat'이(가) 정의되지 않았습니다. extern은 int형을 반환하는 것으로 간주합니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(61,16): warning C4133: '함수': 'const wchar_t *'과(와) 'const char *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(61,28): warning C4133: '함수': 'const wchar_t *'과(와) 'const char *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(65,31): warning C4133: '함수': 'const wchar_t *'과(와) 'const char *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(65,43): warning C4133: '함수': 'const wchar_t *'과(와) 'const char *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(87,34): warning C4047: '함수': 'int'의 간접 참조 수준이 'void *'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(87,34): warning C4024: 'memset': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(310,11): warning C4101: 'for_str_buffer' :참조되지 않은 지역 변수입니다.
   ChestnutCompiler.vcxproj -> C:\Users\nayou\source\repos\CChestnut\x64\Debug\CChestnutCompiler.exe

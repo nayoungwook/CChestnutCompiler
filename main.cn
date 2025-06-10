@@ -1,6 +1,17 @@
 
 func main(a: int, b: float): void {
-  for(var i: int =0; i<10; i++){
+  for(var i: int=0.1f; i<10; i++){
     print(i, " ");
+    print(a);
   }
+
+  var i: int = 0;
+  var j: int = 2;
+  var k: int = 5;
+
+  print(a);
+  print(b);
+  print(i);
+  print(j);
+  print(k);
 }

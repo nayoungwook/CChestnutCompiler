@@ -329,7 +329,7 @@ Token* pull_token(wchar_t* line) {
 			str[str_len] = L'\0';
 		}
 		else if (isdigit(c)) {
-			while (isdigit(c) || c == L'.') {
+			while (isdigit(c) || c == L'.' || c == L'f') {
 				str[str_len] = c;
 				str_len++;
 				read_index++;
