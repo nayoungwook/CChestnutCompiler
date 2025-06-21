@@ -16,6 +16,7 @@ typedef enum {
 	AST_ForStatement = 10,
 	AST_IdentIncrease = 11,
 	AST_IdentDecrease = 12,
+	AST_Return = 13,
 }ASTType;
 
 typedef struct {
@@ -100,3 +101,8 @@ typedef struct {
 	void** body;
 	int body_count;
 } ForStatementAST;
+
+typedef struct {
+	ASTType TYPE;
+	void* expression;
+} ReturnAST;

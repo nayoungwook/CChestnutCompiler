@@ -21,6 +21,12 @@ typedef struct _VariableData {
 
 VariableData* create_variable_data(const wchar_t* type, const wchar_t* name);
 
+typedef struct _FunctionData {
+	const wchar_t* return_type;
+	const wchar_t* name;
+	const wchar_t* mangled_name;
+} FunctionData;
+
 typedef struct _Symbol {
 	const wchar_t* symbol;
 	unsigned int hash;

@@ -163,6 +163,19 @@ void* parse(wchar_t* str) {
 		return literal;
 	}
 
+	case TokReturn: {
+		void* result = NULL;
+		void* expression = parse_expression(str);
+
+		result = (ReturnAST*)malloc(sizeof(ReturnAST));
+		((ReturnAST*)result)->expression = expression;
+		((ReturnAST*)result)->TYPE = AST_Return;
+
+		consume(str, TokSemiColon);
+
+		return result;
+	}
+
 	case TokIdent: {
 		void* result = NULL;
 
@@ -172,31 +185,31 @@ void* parse(wchar_t* str) {
 			((FunctionCallAST*)result)->TYPE = AST_FunctionCall;
 			((FunctionCallAST*)result)->parameter_count = 0;
 
-				consume(str, TokLParen);
+			consume(str, TokLParen);
 
 			while (peek_token(str)->type != TokRParen) {
 				void* parameter = parse_expression(str);
 
-					if (((FunctionCallAST*)result)->parameter_count == 0) {
-						((FunctionCallAST*)result)->parameters = (void**)malloc(sizeof(void*));
-					}
-					else {
-						((FunctionCallAST*)result)->parameters = (void**)realloc(((FunctionCallAST*)result)->parameters, sizeof(void*) * (((FunctionCallAST*)result)->parameter_count + 1));
-					}
-
-					((FunctionCallAST*)result)->parameters[((FunctionCallAST*)result)->parameter_count] = parameter;
-					((FunctionCallAST*)result)->parameter_count++;
-
-					if (peek_token(str)->type == TokComma) {
-						consume(str, TokComma);
-					}
+				if (((FunctionCallAST*)result)->parameter_count == 0) {
+					((FunctionCallAST*)result)->parameters = (void**)malloc(sizeof(void*));
+				}
+				else {
+					((FunctionCallAST*)result)->parameters = (void**)realloc(((FunctionCallAST*)result)->parameters, sizeof(void*) * (((FunctionCallAST*)result)->parameter_count + 1));
 				}
 
-				consume(str, TokRParen);
+				((FunctionCallAST*)result)->parameters[((FunctionCallAST*)result)->parameter_count] = parameter;
+				((FunctionCallAST*)result)->parameter_count++;
 
-				if (peek_token(str)->type == TokSemiColon) {
-					consume(str, TokSemiColon);
+				if (peek_token(str)->type == TokComma) {
+					consume(str, TokComma);
 				}
+			}
+
+			consume(str, TokRParen);
+
+			if (peek_token(str)->type == TokSemiColon) {
+				consume(str, TokSemiColon);
+			}
 
 			((FunctionCallAST*)result)->function_name = tok->str;
 		}
@@ -331,7 +344,7 @@ void* parse(wchar_t* str) {
 
 		void* init = parse_expression(str);
 		void* condition = parse_expression(str);
-		
+
 		if (peek_token(str)->type == TokSemiColon)
 			pull_token(str);
 

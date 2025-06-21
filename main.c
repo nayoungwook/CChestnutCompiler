@@ -135,6 +135,15 @@ void print_ast(void* ast, ASTType type, int indent) {
 
 		break;
 	}
+	case AST_Return: {
+		ReturnAST* node = (ReturnAST*)ast;
+
+		wprintf(L"Return:\n");
+		print_ast(node->expression, *((ASTType*)node->expression), indent + 2);
+
+		break;
+	}
+
 	default:
 		wprintf(L"Unknown AST Type\n");
 		break;

@@ -1,6 +1,10 @@
 
+func add(a: double, b: double): double {
+  return a + b;
+}
+
 func main(a: int, b: float): void {
-  for(var i: int=0.1f; i<10; i++){
+  for(var i: int=0; i<10; i++){
     print(i, " ");
     print(a);
   }

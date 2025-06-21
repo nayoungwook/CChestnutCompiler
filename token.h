@@ -61,6 +61,8 @@ typedef enum {
 
 	TokBitOr = 41,
 	TokBitAnd = 42,
+
+	TokReturn = 43,
 }TokenType;
 
 typedef struct _Token {

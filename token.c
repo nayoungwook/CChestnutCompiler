@@ -317,6 +317,9 @@ Token* pull_token(wchar_t* line) {
 			else if (!wcscmp(str, L"func")) {
 				type = TokFunc;
 			}
+			else if (!wcscmp(str, L"return")) {
+				type = TokReturn;
+			}
 		}
 		else if (is_special_character(c)) {
 			str[str_len] = c;
