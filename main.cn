@@ -4,18 +4,11 @@ func add(a: double, b: double): double {
 }
 
 func main(a: int, b: float): void {
-  for(var i: int=0; i<10; i++){
-    print(i, " ");
-    print(a);
+  if(a == 3){
+    print("asdf\n");
+  }else if(a == 4){
+    print("qwer\n");
+  }else{
+    print("what the fuck\n");
   }
-
-  var i: int = 0;
-  var j: int = 2;
-  var k: int = 5;
-
-  print(a);
-  print(b);
-  print(i);
-  print(j);
-  print(k);
 }

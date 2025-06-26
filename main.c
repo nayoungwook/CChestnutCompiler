@@ -66,12 +66,21 @@ void print_ast(void* ast, ASTType type, int indent) {
 		IfStatementAST* node = (IfStatementAST*)ast;
 		wprintf(L"IfStatement:\n");
 		print_indent(indent + 1);
-		wprintf(L"Condition:\n");
-		print_ast(node->condition, ((NumberLiteralAST*)node->condition)->TYPE, indent + 2);
+		wprintf(L"Statement Type : %d\n", node->if_type);
+
+		if (node->condition != NULL) {
+			print_indent(indent + 1);
+			wprintf(L"Condition:\n");
+			print_ast(node->condition, ((NumberLiteralAST*)node->condition)->TYPE, indent + 2);
+		}
+
 		print_indent(indent + 1);
 		wprintf(L"Body:\n");
 		for (int i = 0; i < node->body_count; i++) {
 			print_ast(node->body[i], ((NumberLiteralAST*)node->body[i])->TYPE, indent + 2);
+		}
+		if (node->next_statement != NULL) {
+			print_ast(node->next_statement, ((IfStatementAST*)node->next_statement)->TYPE, indent);
 		}
 		break;
 	}
@@ -195,17 +204,19 @@ int main(int arc, char* args[]) {
 
 	wchar_t* file = read_file("main.cn");
 
-	void* ast = parse(file);
-
-	print_ast(ast, *((ASTType*)ast), 0);
-
 	symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable)); // for global scope.
 	if (symbol_table) {
 		symbol_table->size = 0;
 		symbol_table->prev = NULL;
 	}
 
-	printf("%S", generate_ir(ast, 0));
+	while (peek_token(file)->type != TokEOF) {
+		void* ast = parse(file);
+
+		print_ast(ast, *((ASTType*)ast), 0);
+
+		//printf("%S\n", generate_ir(ast, 0));
+	}
 
 	return 0;
 }

@@ -22,7 +22,7 @@ enum TokenType
 	case L'\"': {
 		type = TokStringLiteral;
 
-		while (*(c + 1) != L'\"' && *c != '\\') {
+		while (*(c + 1) != L'\"') {
 			c++;
 
 			str[*str_len] = *c;
@@ -319,6 +319,9 @@ Token* pull_token(wchar_t* line) {
 			}
 			else if (!wcscmp(str, L"return")) {
 				type = TokReturn;
+			}
+			else if (!wcscmp(str, L"else")) {
+				type = TokElse;
 			}
 		}
 		else if (is_special_character(c)) {

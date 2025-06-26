@@ -130,8 +130,68 @@ void* consume(wchar_t* str, TokenType expected_type) {
 
 	if (tok->type != expected_type) {
 		// Throw error.
-		printf("Unexpected token : %d %d\n", tok->type, expected_type);
+		printf("Unexpected token : %d, expected : %d\n", tok->type, expected_type);
 	}
+}
+
+void* create_if_statement_ast(wchar_t* str) {
+	IfStatementAST* if_statement = (IfStatementAST*)malloc(sizeof(IfStatementAST));
+
+	IfType if_type = StmtIf;
+
+	if (peek_token(str)->type == TokElse) {
+		consume(str, TokElse);
+
+		if (peek_token(str)->type == TokIf) {
+			if_type = StmtElseIf;
+
+			consume(str, TokIf);
+		}
+		else {
+			if_type = StmtElse;
+		}
+	}
+
+	if_statement->next_statement = NULL;
+	if_statement->if_type = if_type;
+	if_statement->TYPE = AST_IfStatement;
+	if_statement->body_count = 0;
+	if_statement->condition = NULL;
+
+	if (if_type != StmtElse) {
+		consume(str, TokLParen); // consume (
+
+		void* condition = parse_expression(str);
+
+		consume(str, TokRParen); // consume )
+
+		if_statement->condition = condition;
+	}
+
+	consume(str, TokLBracket); // consume {
+
+	while (peek_token(str)->type != TokRBracket) {
+		void* body_element = parse_expression(str);
+
+		if (if_statement->body_count == 0) {
+			if_statement->body = (void**)malloc(sizeof(void*));
+		}
+		else {
+			if_statement->body = (void**)realloc(if_statement->body, sizeof(void*) * (if_statement->body_count + 1));
+		}
+
+		if_statement->body[if_statement->body_count] = body_element;
+
+		if_statement->body_count++;
+	}
+
+	consume(str, TokRBracket); // consume }
+
+	if (peek_token(str)->type == TokElse) {
+		if_statement->next_statement = create_if_statement_ast(str);
+	}
+
+	return if_statement;
 }
 
 void* parse(wchar_t* str) {
@@ -331,6 +391,8 @@ void* parse(wchar_t* str) {
 			function_declaration_ast->body_count++;
 		}
 
+		consume(str, TokRBracket); // consume }
+
 		return function_declaration_ast;
 	}
 
@@ -379,37 +441,7 @@ void* parse(wchar_t* str) {
 	}
 
 	case TokIf: {
-		IfStatementAST* if_statement = (IfStatementAST*)malloc(sizeof(IfStatementAST));
-
-		if_statement->TYPE = AST_IfStatement;
-		if_statement->body_count = 0;
-
-		consume(str, TokLParen); // consume (
-
-		void* condition = parse_expression(str);
-
-		consume(str, TokRParen); // consume )
-
-		if_statement->condition = condition;
-
-		consume(str, TokLBracket); // consume {
-
-		while (peek_token(str)->type != TokRBracket) {
-			void* body_element = parse_expression(str);
-
-			if (if_statement->body_count == 0) {
-				if_statement->body = (void**)malloc(sizeof(void*));
-			}
-			else {
-				if_statement->body = (void**)realloc(if_statement->body, sizeof(void*) * (if_statement->body_count + 1));
-			}
-
-			if_statement->body[if_statement->body_count] = body_element;
-
-			if_statement->body_count++;
-		}
-
-		consume(str, TokRBracket); // consume }
+		IfStatementAST* if_statement = create_if_statement_ast(str);
 
 		return if_statement;
 	}

@@ -136,6 +136,70 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 	switch (*((ASTType*)ast)) {
 
+	case AST_Return: {
+		ReturnAST* return_ast = (ReturnAST*)ast;
+
+		result = join_string(result, generate_ir(return_ast->expression, indentation));
+
+		new_line(&result, indentation);
+		wchar_t* ret_str_buffer[128];
+		swprintf(ret_str_buffer, 128, L"@ret");
+		result = join_string(result, ret_str_buffer);
+		break;
+	}
+
+	case AST_BinExpr: {
+		BinExprAST* bin_expr_ast = (BinExprAST*)ast;
+
+		result = join_string(result, generate_ir(bin_expr_ast->left, indentation));
+		result = join_string(result, generate_ir(bin_expr_ast->right, indentation));
+
+		wchar_t* operator_str_buffer[128];
+		switch (bin_expr_ast->opType) {
+		case OpADD:
+			swprintf(operator_str_buffer, 128, L"@add");
+			break;
+		case OpSUB:
+			swprintf(operator_str_buffer, 128, L"@sub");
+			break;
+		case OpMUL:
+			swprintf(operator_str_buffer, 128, L"@mul");
+			break;
+		case OpDIV:
+			swprintf(operator_str_buffer, 128, L"@div");
+			break;
+		case OpEQUAL:
+			swprintf(operator_str_buffer, 128, L"@equal");
+			break;
+		case OpNOTEQUAL:
+			swprintf(operator_str_buffer, 128, L"@notequal");
+			break;
+		case OpGREATER:
+			swprintf(operator_str_buffer, 128, L"@greater");
+			break;
+		case OpLESSER:
+			swprintf(operator_str_buffer, 128, L"@lesser");
+			break;
+		case OpEQUALGREATER:
+			swprintf(operator_str_buffer, 128, L"@eqgreater");
+			break;
+		case OpEQUALLESSER:
+			swprintf(operator_str_buffer, 128, L"@eqlesser");
+			break;
+		case OpOR:
+			swprintf(operator_str_buffer, 128, L"@or");
+			break;
+		case OpAND:
+			swprintf(operator_str_buffer, 128, L"@and");
+			break;
+		}
+
+		new_line(&result, indentation);
+		result = join_string(result, operator_str_buffer);
+
+		break;
+	}
+
 	case AST_Identifier: {
 		IdentifierAST* identifier_ast = (IdentifierAST*)ast;
 
@@ -289,6 +353,18 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		wchar_t ident_decrease_str_buffer[128];
 		swprintf(ident_decrease_str_buffer, 128, L"@dec %d", ((VariableData*)symbol->data)->index);
 		result = join_string(result, ident_decrease_str_buffer);
+
+		break;
+	}
+
+	case AST_IfStatement: {
+		IfStatementAST* if_statement_ast = (IfStatementAST*)ast;
+
+		open_scope();
+
+		
+
+		close_scope();
 
 		break;
 	}

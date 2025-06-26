@@ -60,9 +60,13 @@ typedef struct {
 	void* expr;
 }UnaryExprAST;
 
+typedef enum { StmtIf, StmtElseIf, StmtElse } IfType;
+
 typedef struct {
 	ASTType TYPE;
+	IfType if_type;
 	void* condition;
+	void* next_statement;
 	void** body;
 	int body_count;
 } IfStatementAST;
