@@ -7,3 +7,5 @@
 #include "token.h"
 #include "parser.h"
 #include "ir.h"
+
+void initialize_global_symbol_table();

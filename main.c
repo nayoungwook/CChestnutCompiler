@@ -170,52 +170,36 @@ void print_tokens(wchar_t* str) {
 	}
 }
 
-wchar_t* read_file(char* const file_path) {
-	FILE* fp = fopen(file_path, "r, ccs=UTF-8");
-	if (!fp) {
-		perror("파일 열기 실패");
-		return 1;
+extern SymbolTable* variable_symbol_table;
+extern SymbolTable* function_symbol_table;
+
+void initialize_global_symbol_table() {
+	variable_symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable)); // for global scope.
+	if (variable_symbol_table) {
+		variable_symbol_table->size = 0;
+		variable_symbol_table->prev = NULL;
 	}
 
-	fseek(fp, 0, SEEK_END);
-	long byte_len = ftell(fp);
-	rewind(fp);
-
-	size_t wchar_estimate = byte_len + 1;
-	wchar_t* str = (wchar_t*)malloc(sizeof(wchar_t) * wchar_estimate);
-	if (str == NULL) {
-		perror("메모리 할당 실패");
-		fclose(fp);
-		return 1;
+	function_symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable)); // for global scope
+	if (function_symbol_table) {
+		function_symbol_table->size = 0;
+		function_symbol_table->prev = NULL;
 	}
-
-	size_t i = 0;
-	while (fgetws(str + i, (int)(wchar_estimate - i), fp)) {
-		i = wcslen(str);
-	}
-
-	return str;
 }
-
-extern SymbolTable* symbol_table;
 
 int main(int arc, char* args[]) {
 	setlocale(LC_ALL, "");
 
-	wchar_t* file = read_file("main.cn");
+	wchar_t* file = read_file("main.nut");
 
-	symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable)); // for global scope.
-	if (symbol_table) {
-		symbol_table->size = 0;
-		symbol_table->prev = NULL;
-	}
+	initialize_global_symbol_table();
 
 	while (peek_token(file)->type != TokEOF) {
 		void* ast = parse(file);
 
-		print_ast(ast, *((ASTType*)ast), 0);
+		//print_ast(ast, *((ASTType*)ast), 0);
 
-		//printf("%S\n", generate_ir(ast, 0));
+		printf("%S\n", generate_ir(ast, 0));
 	}
 
 	return 0;

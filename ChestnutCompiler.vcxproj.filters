@@ -31,6 +31,9 @@
     <Filter Include="헤더 파일\ir">
       <UniqueIdentifier>{210b62ab-4c33-419d-ad43-827c3219b880}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\util">
+      <UniqueIdentifier>{e12887f1-16ea-43ea-acc7-0241b5aa769e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -62,11 +65,11 @@
     <ClInclude Include="ast.h">
       <Filter>헤더 파일\parser</Filter>
     </ClInclude>
-    <ClInclude Include="util.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="ir.h">
       <Filter>헤더 파일\ir</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>헤더 파일\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

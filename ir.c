@@ -1,20 +1,10 @@
 #include "ir.h"
 
 int label_id = 0;
-SymbolTable* symbol_table;
+SymbolTable* variable_symbol_table;
 
-VariableData* create_variable_data(const wchar_t* type, const wchar_t* name) {
-	VariableData* result = (VariableData*)malloc(sizeof(VariableData));
-
-	result->type = type;
-	result->name = name;
-	result->index = symbol_table->size + get_prev_index_size() + 1;
-
-	return result;
-}
-
-int get_prev_index_size() {
-	SymbolTable* searcher_table = symbol_table;
+int get_prev_variable_index_size() {
+	SymbolTable* searcher_table = variable_symbol_table;
 
 	int _size = 0;
 
@@ -28,57 +18,27 @@ int get_prev_index_size() {
 
 void insert_variable_symbol(const wchar_t* name, VariableData* data) {
 	unsigned int _hash = hash(name);
-	symbol_table->size++;
+	variable_symbol_table->size++;
 
 	Symbol* symbol = (Symbol*)malloc(sizeof(Symbol));
 	symbol->data = data;
 	symbol->symbol = name;
 	symbol->hash = _hash;
-	symbol->next = symbol_table->table[_hash];
+	symbol->next = variable_symbol_table->table[_hash];
 
-	symbol_table->table[_hash] = symbol;
+	variable_symbol_table->table[_hash] = symbol;
 }
 
 void remove_symbol(const wchar_t* name) {
 	unsigned int _hash = hash(name);
-	symbol_table->size--;
-	Symbol* target_symbol = symbol_table->table[_hash];
-	symbol_table->table[_hash] = symbol_table->table[_hash]->next;
+	variable_symbol_table->size--;
+	Symbol* target_symbol = variable_symbol_table->table[_hash];
+	variable_symbol_table->table[_hash] = variable_symbol_table->table[_hash]->next;
 	free(target_symbol);
 }
 
-Symbol* find_symbol(const wchar_t* name) {
-	unsigned int _hash = hash(name);
-
-	SymbolTable* cur_symbol_table = symbol_table;
-	Symbol* result = cur_symbol_table->table[_hash];
-
-	while (result == NULL) {
-		cur_symbol_table = cur_symbol_table->prev;
-		result = cur_symbol_table->table[_hash];
-	}
-
-	while (strcmp(name, result->symbol)) {
-		result = result->next;
-	}
-
-	if (result == NULL || strcmp(name, result->symbol)) {
-		return NULL;
-	}
-
-	return result;
-}
-
-unsigned int hash(const wchar_t* str) {
-	unsigned int hash = 0;
-	while (*str) {
-		hash = (hash << 5) + *str++;
-	}
-	return hash % TABLE_SIZE;
-}
-
 void open_scope() {
-	SymbolTable* current_symbol_table = symbol_table;
+	SymbolTable* current_symbol_table = variable_symbol_table;
 
 	SymbolTable* new_symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable));
 	new_symbol_table->prev = current_symbol_table;
@@ -86,39 +46,13 @@ void open_scope() {
 
 	memset(new_symbol_table->table, NULL, sizeof(Symbol*) * TABLE_SIZE);
 
-	symbol_table = new_symbol_table;
+	variable_symbol_table = new_symbol_table;
 }
 
 void close_scope() {
-	SymbolTable* current_symbol_table = symbol_table;
-	symbol_table = symbol_table->prev;
+	SymbolTable* current_symbol_table = variable_symbol_table;
+	variable_symbol_table = variable_symbol_table->prev;
 	free(current_symbol_table);
-}
-
-wchar_t* join_string(const wchar_t* str1, const wchar_t* str2) {
-	if (!str1) str1 = L"";
-	if (!str2) str2 = L"";
-
-	size_t len1 = wcslen(str1);
-	size_t len2 = wcslen(str2);
-
-	wchar_t* result = (wchar_t*)malloc((len1 + len2 + 1) * sizeof(wchar_t));
-	if (!result) {
-		return NULL;
-	}
-
-	wcscpy_s(result, len1 + len2 + 1, str1);
-	wcscat_s(result, len1 + len2 + 1, str2);
-
-	return result;
-}
-
-int is_decimal(wchar_t* str) {
-	while (*str != L'\0') {
-		if (*str == L'.' || *str == L'f') return 1;
-		str++;
-	}
-	return 0;
 }
 
 void new_line(wchar_t** result, int indentation) {
@@ -203,7 +137,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_Identifier: {
 		IdentifierAST* identifier_ast = (IdentifierAST*)ast;
 
-		Symbol* symbol = find_symbol(identifier_ast->identifier);
+		Symbol* symbol = find_symbol(variable_symbol_table, identifier_ast->identifier);
 
 		new_line(&result, indentation);
 		wchar_t identifier_str_buffer[128];
@@ -334,7 +268,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IdentIncrease: {
 		IdentIncreaseAST* ident_increase_ast = (IdentIncreaseAST*)ast;
 
-		Symbol* symbol = find_symbol(ident_increase_ast->identifier);
+		Symbol* symbol = find_symbol(variable_symbol_table, ident_increase_ast->identifier);
 
 		new_line(&result, indentation);
 		wchar_t ident_increase_str_buffer[128];
@@ -347,7 +281,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IdentDecrease: {
 		IdentDecreaseAST* ident_decrease_ast = (IdentDecreaseAST*)ast;
 
-		Symbol* symbol = find_symbol(ident_decrease_ast->identifier);
+		Symbol* symbol = find_symbol(variable_symbol_table, ident_decrease_ast->identifier);
 
 		new_line(&result, indentation);
 		wchar_t ident_decrease_str_buffer[128];
@@ -362,7 +296,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 		open_scope();
 
-		
+
 
 		close_scope();
 
