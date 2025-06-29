@@ -46,6 +46,15 @@ unsigned int hash(const wchar_t* str) {
 	return hash % TABLE_SIZE;
 }
 
+SymbolTable* create_symbol_table() {
+	SymbolTable* symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable));
+	if (symbol_table) {
+		symbol_table->size = 0;
+		symbol_table->prev = NULL;
+	}
+	return symbol_table;
+}
+
 Symbol* find_symbol(SymbolTable* cur_symbol_table, const wchar_t* name) {
 	unsigned int _hash = hash(name);
 
@@ -63,19 +72,6 @@ Symbol* find_symbol(SymbolTable* cur_symbol_table, const wchar_t* name) {
 	if (result == NULL || strcmp(name, result->symbol)) {
 		return NULL;
 	}
-
-	return result;
-}
-
-extern SymbolTable* variable_symbol_table;
-VariableData* create_variable_data(const wchar_t* type, const wchar_t* name) {
-	VariableData* result = (VariableData*)malloc(sizeof(VariableData));
-	result->type = (wchar_t*)malloc(sizeof(wchar_t) * 128);
-	result->name = (wchar_t*)malloc(sizeof(wchar_t) * 256);
-
-	wcscpy_s(result->type, 128, type);
-	wcscpy_s(result->name, 256, name);
-	result->index = variable_symbol_table->size + get_prev_variable_index_size() + 1;
 
 	return result;
 }
@@ -134,23 +130,6 @@ const wchar_t* create_generalized_mangled_name(const wchar_t* name, VariableDecl
 		result = join_string(result, L"_");
 	}
 	result = join_string(result, name);
-
-	return result;
-}
-
-FunctionData* create_function_data(const wchar_t* name, const wchar_t* return_type, VariableDeclarationBundleAST* parameters) {
-	FunctionData* result = (FunctionData*)malloc(sizeof(FunctionData));
-
-	result->name = (wchar_t*)malloc(sizeof(wchar_t) * 256);
-	result->return_type = (wchar_t*)malloc(sizeof(wchar_t) * 128);
-	result->mangled_name = (wchar_t*)malloc(sizeof(wchar_t) * 1024);
-	result->generalized_mangled_name = (wchar_t*)malloc(sizeof(wchar_t) * 1024);
-	result->index = variable_symbol_table->size + get_prev_function_index_size() + 1;
-
-	wcscpy_s(result->name, 128, name);
-	wcscpy_s(result->return_type, 128, return_type);
-	wcscpy_s(result->mangled_name, 1024, create_mangled_name(name, parameters));
-	wcscpy_s(result->generalized_mangled_name, 1024, create_generalized_mangled_name(name, parameters));
 
 	return result;
 }

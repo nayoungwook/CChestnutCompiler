@@ -4,5 +4,7 @@ func add(a: double, b: double): double {
 }
 
 func main(k: int, l: float): void {
-  add(3, 5);
+  var a: int = 5;
+  var b: int = 10;
+  add(3, b);
 }

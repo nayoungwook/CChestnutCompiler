@@ -40,8 +40,6 @@ typedef struct _VariableData {
 	unsigned int index;
 } VariableData;
 
-VariableData* create_variable_data(const wchar_t* type, const wchar_t* name);
-
 typedef struct _FunctionData {
 	const wchar_t* name;
 	const wchar_t* return_type;
@@ -49,8 +47,9 @@ typedef struct _FunctionData {
 	const wchar_t* generalized_mangled_name;
 	unsigned int index;
 } FunctionData;
-FunctionData* create_function_data(const wchar_t* name, const wchar_t* return_type, VariableDeclarationBundleAST* parameters);
 
 const wchar_t* get_generalized_type(const wchar_t* type);
 const wchar_t* create_mangled_name(const wchar_t* name, VariableDeclarationBundleAST* parameters);
 const wchar_t* create_generalized_mangled_name(const wchar_t* name, VariableDeclarationBundleAST* parameters);
+
+SymbolTable* create_symbol_table();

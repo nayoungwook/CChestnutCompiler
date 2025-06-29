@@ -172,20 +172,27 @@ void print_tokens(wchar_t* str) {
 
 extern SymbolTable* variable_symbol_table;
 extern SymbolTable* function_symbol_table;
+extern SymbolTable* type_symbol_table;
 
 void initialize_global_symbol_table() {
-	variable_symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable)); // for global scope.
-	if (variable_symbol_table) {
-		variable_symbol_table->size = 0;
-		variable_symbol_table->prev = NULL;
-	}
-
-	function_symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable)); // for global scope
-	if (function_symbol_table) {
-		function_symbol_table->size = 0;
-		function_symbol_table->prev = NULL;
-	}
+	variable_symbol_table = create_symbol_table();
+	function_symbol_table = create_symbol_table();
 }
+
+/*
+*** Type Symbol Table Abstraction ***
+
+number
+	int
+	float
+	double
+
+A
+	B
+		D
+	C
+
+*/
 
 int main(int arc, char* args[]) {
 	setlocale(LC_ALL, "");

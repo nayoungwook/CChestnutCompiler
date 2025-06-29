@@ -1,59 +1,7 @@
 #include "ir.h"
 
-int label_id = 0;
-SymbolTable* variable_symbol_table;
-
-int get_prev_variable_index_size() {
-	SymbolTable* searcher_table = variable_symbol_table;
-
-	int _size = 0;
-
-	while (searcher_table->prev != NULL) {
-		searcher_table = searcher_table->prev;
-		_size += searcher_table->size;
-	}
-
-	return _size;
-}
-
-void insert_variable_symbol(const wchar_t* name, VariableData* data) {
-	unsigned int _hash = hash(name);
-	variable_symbol_table->size++;
-
-	Symbol* symbol = (Symbol*)malloc(sizeof(Symbol));
-	symbol->data = data;
-	symbol->symbol = name;
-	symbol->hash = _hash;
-	symbol->next = variable_symbol_table->table[_hash];
-
-	variable_symbol_table->table[_hash] = symbol;
-}
-
-void remove_symbol(const wchar_t* name) {
-	unsigned int _hash = hash(name);
-	variable_symbol_table->size--;
-	Symbol* target_symbol = variable_symbol_table->table[_hash];
-	variable_symbol_table->table[_hash] = variable_symbol_table->table[_hash]->next;
-	free(target_symbol);
-}
-
-void open_scope() {
-	SymbolTable* current_symbol_table = variable_symbol_table;
-
-	SymbolTable* new_symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable));
-	new_symbol_table->prev = current_symbol_table;
-	new_symbol_table->size = 0;
-
-	memset(new_symbol_table->table, NULL, sizeof(Symbol*) * TABLE_SIZE);
-
-	variable_symbol_table = new_symbol_table;
-}
-
-void close_scope() {
-	SymbolTable* current_symbol_table = variable_symbol_table;
-	variable_symbol_table = variable_symbol_table->prev;
-	free(current_symbol_table);
-}
+extern SymbolTable* variable_symbol_table;
+static int label_id = 0;
 
 void new_line(wchar_t** result, int indentation) {
 	int i;
@@ -137,11 +85,9 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_Identifier: {
 		IdentifierAST* identifier_ast = (IdentifierAST*)ast;
 
-		Symbol* symbol = find_symbol(variable_symbol_table, identifier_ast->identifier);
-
 		new_line(&result, indentation);
 		wchar_t identifier_str_buffer[128];
-		swprintf(identifier_str_buffer, 128, L"@load %d", ((VariableData*)symbol->data)->index);
+		swprintf(identifier_str_buffer, 128, L"@load %d", identifier_ast->index);
 		result = join_string(result, identifier_str_buffer);
 
 		break;
@@ -180,18 +126,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		wchar_t push_str_buffer[128];
 
 		new_line(&result, indentation);
-
-		if (is_decimal(number_literal)) {
-			if (number_literal[wcslen(number_literal) - 1] == L'f') {
-				swprintf(push_str_buffer, 128, L"@push float %s", number_literal);
-			}
-			else {
-				swprintf(push_str_buffer, 128, L"@push double %s", number_literal);
-			}
-		}
-		else {
-			swprintf(push_str_buffer, 128, L"@push int %s", number_literal);
-		}
+		swprintf(push_str_buffer, 128, L"@push %s %s", number_literal_ast->numeric_type, number_literal);
 
 		result = join_string(result, push_str_buffer);
 
@@ -203,18 +138,13 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 		wchar_t* parameter_buffer = L"";
 
-		open_scope();
-
 		VariableDeclarationBundleAST* parameters_ast = ((VariableDeclarationBundleAST*)function_declaration_ast->parameters);
 
 		for (i = 0; i < parameters_ast->variable_count; i++) {
 			VariableDeclarationAST* parameter = parameters_ast->variable_declarations[i];
 
-			VariableData* variable_data = create_variable_data(parameter->variable_type, parameter->variable_name);
-			insert_variable_symbol(parameter->variable_name, variable_data);
-
 			wchar_t single_parameter_buffer[512];
-			swprintf(single_parameter_buffer, 512, L"%ls %d ", parameter->variable_type, ((VariableData*)variable_data)->index);
+			swprintf(single_parameter_buffer, 512, L"%ls %d ", parameter->variable_type, parameter->index);
 
 			parameter_buffer = join_string(parameter_buffer, single_parameter_buffer);
 
@@ -229,8 +159,6 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		}
 
 		result = join_string(result, L"\n}");
-
-		close_scope();
 
 		break;
 	}
@@ -248,9 +176,6 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_VariableDeclaration: {
 		VariableDeclarationAST* variable_declaration_ast = (VariableDeclarationAST*)ast;
 
-		VariableData* variable_data = create_variable_data(variable_declaration_ast->variable_type, variable_declaration_ast->variable_name);
-		insert_variable_symbol(variable_declaration_ast->variable_name, variable_data);
-
 		if (variable_declaration_ast->declaration) {
 			result = join_string(result, generate_ir(variable_declaration_ast->declaration, indentation));
 		}
@@ -258,7 +183,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		wchar_t store_str_buffer[128];
 
 		new_line(&result, indentation);
-		swprintf(store_str_buffer, 128, L"@store %d", variable_data->index);
+		swprintf(store_str_buffer, 128, L"@store %d", variable_declaration_ast->index);
 
 		result = join_string(result, store_str_buffer);
 
@@ -268,11 +193,9 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IdentIncrease: {
 		IdentIncreaseAST* ident_increase_ast = (IdentIncreaseAST*)ast;
 
-		Symbol* symbol = find_symbol(variable_symbol_table, ident_increase_ast->identifier);
-
 		new_line(&result, indentation);
 		wchar_t ident_increase_str_buffer[128];
-		swprintf(ident_increase_str_buffer, 128, L"@inc %d", ((VariableData*)symbol->data)->index);
+		swprintf(ident_increase_str_buffer, 128, L"@inc %d", ident_increase_ast->index);
 		result = join_string(result, ident_increase_str_buffer);
 
 		break;
@@ -281,11 +204,9 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IdentDecrease: {
 		IdentDecreaseAST* ident_decrease_ast = (IdentDecreaseAST*)ast;
 
-		Symbol* symbol = find_symbol(variable_symbol_table, ident_decrease_ast->identifier);
-
 		new_line(&result, indentation);
 		wchar_t ident_decrease_str_buffer[128];
-		swprintf(ident_decrease_str_buffer, 128, L"@dec %d", ((VariableData*)symbol->data)->index);
+		swprintf(ident_decrease_str_buffer, 128, L"@dec %d", ident_decrease_ast->index);
 		result = join_string(result, ident_decrease_str_buffer);
 
 		break;
@@ -305,8 +226,6 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 	case AST_ForStatement: {
 		ForStatementAST* for_statement_ast = (ForStatementAST*)ast;
-
-		open_scope();
 
 		result = join_string(result, generate_ir(for_statement_ast->init, indentation));
 
@@ -342,8 +261,6 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		swprintf(label_str_buffer, 64, L"@for %x", begin_label_id);
 		new_line(&result, indentation);
 		result = join_string(result, label_str_buffer);
-
-		close_scope();
 
 		break;
 	}

@@ -22,6 +22,7 @@ typedef enum {
 typedef struct {
 	ASTType TYPE;
 	wchar_t* number_literal;
+	wchar_t* numeric_type;
 } NumberLiteralAST;
 
 typedef struct {
@@ -32,12 +33,14 @@ typedef struct {
 typedef struct {
 	ASTType TYPE;
 	wchar_t* identifier;
+	unsigned int index;
 } IdentifierAST;
 
 typedef struct {
 	ASTType TYPE;
 	wchar_t* variable_name;
 	wchar_t* variable_type;
+	unsigned int index;
 	void* declaration;
 } VariableDeclarationAST;
 
@@ -53,6 +56,7 @@ typedef struct {
 	ASTType TYPE;
 	void* left, * right;
 	OperatorType opType;
+	wchar_t* inferenced_type;
 }BinExprAST;
 
 typedef struct {
@@ -90,11 +94,13 @@ typedef struct {
 typedef struct {
 	ASTType TYPE;
 	wchar_t* identifier;
+	unsigned int index;
 } IdentIncreaseAST;
 
 typedef struct {
 	ASTType TYPE;
 	wchar_t* identifier;
+	unsigned int index;
 } IdentDecreaseAST;
 
 typedef struct {
