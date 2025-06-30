@@ -173,22 +173,30 @@ void print_tokens(wchar_t* str) {
 extern SymbolTable* variable_symbol_table;
 extern SymbolTable* function_symbol_table;
 extern SymbolTable* type_symbol_table;
+extern Set* primitive_types;
 
 void initialize_global_symbol_table() {
 	variable_symbol_table = create_symbol_table();
 	function_symbol_table = create_symbol_table();
+	type_symbol_table = create_symbol_table();
+}
+
+void initialize_primitive_types() {
+	primitive_types = create_set();
+
+	insert_set_symbol(primitive_types, L"number");
+	insert_set_symbol(primitive_types, L"int");
+	insert_set_symbol(primitive_types, L"float");
+	insert_set_symbol(primitive_types, L"double");
+	insert_set_symbol(primitive_types, L"bool");
+	insert_set_symbol(primitive_types, L"char");
 }
 
 /*
 *** Type Symbol Table Abstraction ***
 
-number
-	int
-	float
-	double
-
-A
-	B
+A->next
+	B->next
 		D
 	C
 
@@ -197,8 +205,9 @@ A
 int main(int arc, char* args[]) {
 	setlocale(LC_ALL, "");
 
-	wchar_t* file = read_file("main.nut");
+	wchar_t* file = read_file("main.cnut");
 
+	initialize_primitive_types();
 	initialize_global_symbol_table();
 
 	while (peek_token(file)->type != TokEOF) {

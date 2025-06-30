@@ -4,6 +4,8 @@ SymbolTable* function_symbol_table;
 SymbolTable* type_symbol_table;
 SymbolTable* variable_symbol_table;
 
+Set* primitive_types;
+
 int get_prev_variable_index_size() {
 	SymbolTable* searcher_table = variable_symbol_table;
 
@@ -28,6 +30,19 @@ void insert_variable_symbol(const wchar_t* name, VariableData* data) {
 	symbol->next = variable_symbol_table->table[_hash];
 
 	variable_symbol_table->table[_hash] = symbol;
+}
+
+void insert_set_symbol(Set* target_set, const wchar_t* str) {
+	unsigned int _hash = hash(str);
+	target_set->size++;
+
+	Symbol* symbol = (Symbol*)malloc(sizeof(Symbol));
+	symbol->data = str;
+	symbol->symbol = str;
+	symbol->hash = _hash;
+	symbol->next = target_set->table[_hash];
+
+	target_set->table[_hash] = symbol;
 }
 
 void remove_variable_symbol(const wchar_t* name) {
@@ -70,11 +85,9 @@ FunctionData* create_function_data(const wchar_t* name, const wchar_t* return_ty
 void open_scope() {
 	SymbolTable* current_symbol_table = variable_symbol_table;
 
-	SymbolTable* new_symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable));
+	SymbolTable* new_symbol_table = create_symbol_table();
 	new_symbol_table->prev = current_symbol_table;
 	new_symbol_table->size = 0;
-
-	memset(new_symbol_table->table, NULL, sizeof(Symbol*) * TABLE_SIZE);
 
 	variable_symbol_table = new_symbol_table;
 }
@@ -444,33 +457,77 @@ void* create_identifier_ast(Token* tok, wchar_t* str) {
 	return result;
 }
 
+int check_castability(const wchar_t* from, const wchar_t* to) {
+	int primitive_count = 0;
+
+	if (is_primitive_type(from)) primitive_count++;
+	if (is_primitive_type(to)) primitive_count++;
+
+	if (primitive_count == 2) { // both are primitive type.
+		return 1;
+	}
+	else if (primitive_count == 1) { // only one type is primitive type.
+		return 0;
+	}
+
+	// check for the castability between classes.
+	Symbol* from_symbol = find_symbol(type_symbol_table, from);
+	Symbol* to_symbol = find_symbol(type_symbol_table, to);
+
+	if (from_symbol) { // are both classes?
+		Type* from_type = ((Type*)from_symbol->data);
+		Type* to_type = ((Type*)to_symbol->data);
+		while (1) {
+			// to -> next search find from.
+			// up casting.
+
+			if (!strcmp(from_type->type_str, to_type->type_str)) return 1;
+
+			if (!from_type->parent_type) {
+				return 0;
+			}
+
+			from_type = from_type->parent_type;
+		}
+		return 1;
+	}
+	else {
+		printf("[Temporary error] Error at util.c %s is not a class.\n");
+		return 0;
+	}
+
+	return 0;
+}
+
+Symbol* create_type_symbol(const wchar_t* type_str, Type* type) {
+	Symbol* symbol = (Symbol*)malloc(sizeof(Symbol));
+
+	unsigned int _hash = hash(type_str);
+
+	symbol->data = type;
+	symbol->symbol = type_str;
+	symbol->hash = _hash;
+}
+
 void insert_type_symbol(Type* target_type, const wchar_t* type_str) {
 	Type* child = (Type*)malloc(sizeof(Type));
 	child->type_str = type_str;
 	child->parent_type = target_type;
 	child->child_types = NULL;
 
-	Symbol* symbol = (Symbol*)malloc(sizeof(Symbol));
+	Symbol* child_symbol = create_type_symbol(type_str, child);
+	child_symbol->next = type_symbol_table->table[child_symbol->hash];
+	type_symbol_table->table[child_symbol->hash] = child_symbol;
 
-	unsigned int _hash = hash(type_str);
-
-	symbol->data = child;
-	symbol->symbol = type_str;
-	symbol->hash = _hash;
-
-	if (!target_type) {
-		type_symbol_table = create_symbol_table();
-
-		type_symbol_table->size++;
-		type_symbol_table->table[_hash] = symbol;
-	}
-	else {
+	if (target_type) {
 		if (!target_type->child_types) {
 			target_type->child_types = create_symbol_table();
 		}
 
+		Symbol* child_symbol = create_type_symbol(type_str, child);
+		child_symbol->next = target_type->child_types->table[child_symbol->hash];
+		target_type->child_types->table[child_symbol->hash] = child_symbol;
 		target_type->child_types->size++;
-		target_type->child_types->table[_hash] = symbol;
 	}
 }
 

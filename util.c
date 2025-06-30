@@ -52,7 +52,40 @@ SymbolTable* create_symbol_table() {
 		symbol_table->size = 0;
 		symbol_table->prev = NULL;
 	}
+	memset(symbol_table->table, NULL, sizeof(Symbol*) * TABLE_SIZE);
+
 	return symbol_table;
+}
+
+Set* create_set() {
+	Set* set = (Set*)malloc(sizeof(Set));
+
+	if (set) {
+		set->size = 0;
+	}
+	memset(set->table, NULL, sizeof(Symbol*) * TABLE_SIZE);
+
+	return set;
+}
+
+Symbol* find_symbol_from_set(Set* target_set, const wchar_t* name) {
+	unsigned int _hash = hash(name);
+
+	Symbol* result = target_set->table[_hash];
+
+	if (result == NULL) {
+		return NULL;
+	}
+
+	while (strcmp(name, result->symbol)) {
+		result = result->next;
+	}
+
+	if (result == NULL || strcmp(name, result->symbol)) {
+		return NULL;
+	}
+
+	return result;
 }
 
 Symbol* find_symbol(SymbolTable* cur_symbol_table, const wchar_t* name) {
@@ -74,6 +107,13 @@ Symbol* find_symbol(SymbolTable* cur_symbol_table, const wchar_t* name) {
 	}
 
 	return result;
+}
+
+extern Set* primitive_types;
+extern SymbolTable* type_symbol_table;
+
+int is_primitive_type(const wchar_t* type) {
+	return find_symbol_from_set(primitive_types, type) != NULL;
 }
 
 wchar_t* join_string(const wchar_t* str1, const wchar_t* str2) {

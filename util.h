@@ -34,6 +34,12 @@ typedef struct _SymbolTable {
 Symbol* find_symbol(SymbolTable* cur_symbol_table, const wchar_t* name);
 unsigned int hash(const wchar_t* str);
 
+typedef struct _Set {
+	Symbol* table[TABLE_SIZE];
+	unsigned int size;
+} Set;
+Symbol* find_symbol_from_set(Set* target_set, const wchar_t* name);
+
 typedef struct _VariableData {
 	const wchar_t* type;
 	const wchar_t* name;
@@ -53,3 +59,6 @@ const wchar_t* create_mangled_name(const wchar_t* name, VariableDeclarationBundl
 const wchar_t* create_generalized_mangled_name(const wchar_t* name, VariableDeclarationBundleAST* parameters);
 
 SymbolTable* create_symbol_table();
+Set* create_set();
+
+int is_primitive_type(const wchar_t* type);

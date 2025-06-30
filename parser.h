@@ -20,6 +20,7 @@ VariableData* create_variable_data(const wchar_t* type, const wchar_t* name);
 FunctionData* create_function_data(const wchar_t* name, const wchar_t* return_type, VariableDeclarationBundleAST* parameters);
 
 wchar_t* infer_type(void* ast);
+int check_castability(const wchar_t* from, const wchar_t* to);
 
 typedef struct _Type {
 	wchar_t* type_str;
@@ -37,6 +38,8 @@ int get_prev_variable_index_size();
 
 void insert_type_symbol(Type* target_type, const wchar_t* type_str);
 void remove_type_symbol(const wchar_t* type_str);
+
+void insert_set_symbol(Set* target_set, const wchar_t* str);
 
 // AST creating functions
 void* create_if_statement_ast(Token* tok, wchar_t* str);
