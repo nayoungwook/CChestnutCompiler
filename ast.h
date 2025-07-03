@@ -17,6 +17,7 @@ typedef enum {
 	AST_IdentIncrease = 11,
 	AST_IdentDecrease = 12,
 	AST_Return = 13,
+	AST_Class = 14,
 }ASTType;
 
 typedef struct {
@@ -33,15 +34,16 @@ typedef struct {
 typedef struct {
 	ASTType TYPE;
 	wchar_t* identifier;
-	unsigned int index;
+	int index;
 } IdentifierAST;
 
 typedef struct {
 	ASTType TYPE;
 	wchar_t* variable_name;
 	wchar_t* variable_type;
-	unsigned int index;
+	int index;
 	void* declaration;
+	wchar_t* access_modifier;
 } VariableDeclarationAST;
 
 typedef struct {
@@ -82,6 +84,7 @@ typedef struct {
 	VariableDeclarationBundleAST* parameters;
 	void** body;
 	int body_count;
+	wchar_t* access_modifier;
 } FunctionDeclarationAST;
 
 typedef struct {
@@ -94,13 +97,13 @@ typedef struct {
 typedef struct {
 	ASTType TYPE;
 	wchar_t* identifier;
-	unsigned int index;
+	int index;
 } IdentIncreaseAST;
 
 typedef struct {
 	ASTType TYPE;
 	wchar_t* identifier;
-	unsigned int index;
+	int index;
 } IdentDecreaseAST;
 
 typedef struct {
@@ -116,3 +119,20 @@ typedef struct {
 	ASTType TYPE;
 	void* expression;
 } ReturnAST;
+
+typedef struct {
+	ASTType TYPE;
+
+	void* initializer;
+	void* constructor;
+
+	VariableDeclarationBundleAST** member_variables;
+	FunctionDeclarationAST** member_functions;
+
+	unsigned int member_variable_bundle_count;
+	unsigned int member_function_count;
+
+	wchar_t* class_name;
+	wchar_t* parent_class_name;
+
+} ClassAST;

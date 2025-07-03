@@ -65,6 +65,12 @@ typedef enum {
 	TokReturn = 43,
 
 	TokElse = 44,
+	TokClass = 45,
+	TokExtends = 46,
+
+	TokPrivate = 47,
+	TokProtected = 48,
+	TokPublic = 49,
 }TokenType;
 
 typedef struct _Token {
@@ -72,8 +78,13 @@ typedef struct _Token {
 	enum TokenType type;
 } Token;
 
+typedef struct {
+	const wchar_t* keyword;
+	TokenType type;
+} KeywordEntry;
+
 enum TokenType
-	get_token_type_of_special_character(wchar_t* c);
+	get_token_type_of_special_character(wchar_t* str, int* str_len, int* read_index, wchar_t* c);
 short is_special_character(const wchar_t wc);
 
 Token* pull_token(wchar_t* line);

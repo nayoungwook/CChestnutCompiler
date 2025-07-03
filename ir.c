@@ -1,7 +1,53 @@
 #include "ir.h"
 
 extern SymbolTable* variable_symbol_table;
+extern SymbolTable* function_symbol_table;
+extern SymbolTable* type_symbol_table;
+extern SymbolTable* class_symbol_table;
+extern Set* primitive_types;
 static int label_id = 0;
+
+static int is_class_initializer = 0;
+static wchar_t* current_class = L"";
+
+int get_member_variable_index(const wchar_t* class_name, const wchar_t* ident) {
+	Symbol* class_symbol = find_symbol(class_symbol_table, class_name);
+
+	if (class_symbol == NULL) return -1;
+
+	ClassData* class_data = class_symbol->data;
+
+	Symbol* member_symbol = find_symbol(class_data->member_variables, ident);
+	if (member_symbol != NULL) {
+		VariableData* variable_data = member_symbol->data;
+		return variable_data->index + get_parent_member_variable_count(class_name);
+	}
+	else {
+
+		if (wcscmp(class_data->parent_class_name, L"")) {
+			return get_member_variable_index(class_data->parent_class_name, ident);
+		}
+
+		return -1;
+	}
+
+}
+
+int get_parent_member_variable_count(const wchar_t* class_name) {
+	int result = 0;
+
+	if (wcscmp(class_name, L"")) {
+		ClassData* current_class_data = find_symbol(class_symbol_table, class_name)->data;
+
+		if (wcscmp(current_class_data->parent_class_name, L"")) {
+			ClassData* parent_class_data = find_symbol(class_symbol_table, current_class_data->parent_class_name)->data;
+			result += parent_class_data->member_variables->size;
+			result += get_parent_member_variable_count(current_class_data->parent_class_name);
+		}
+	}
+
+	return result;
+}
 
 void new_line(wchar_t** result, int indentation) {
 	int i;
@@ -9,6 +55,27 @@ void new_line(wchar_t** result, int indentation) {
 	for (i = 0; i < indentation; i++) {
 		*result = join_string(*result, L"  ");
 	}
+}
+
+wchar_t* create_class_initializer(int indentation, ClassAST* class_ast) {
+	wchar_t* result = L"";
+	wchar_t* buffer[128];
+
+	new_line(&result, indentation + 1);
+	swprintf(buffer, 128, L"$initializer {");
+	result = join_string(result, buffer);
+	is_class_initializer = 1;
+
+	int i;
+	for (i = 0; i < class_ast->member_variable_bundle_count; i++) {
+		result = join_string(result, generate_ir(class_ast->member_variables[i], indentation + 2));
+	}
+
+	is_class_initializer = 0;
+	new_line(&result, indentation + 1);
+	result = join_string(result, L"}");
+
+	return result;
 }
 
 wchar_t* generate_ir(void* ast, int indentation) {
@@ -87,15 +154,21 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 		new_line(&result, indentation);
 		wchar_t identifier_str_buffer[128];
-		swprintf(identifier_str_buffer, 128, L"@load %d", identifier_ast->index);
-		result = join_string(result, identifier_str_buffer);
+
+		if (identifier_ast->index == MEMBER_VARIABLE) {
+			swprintf(identifier_str_buffer, 128, L"@mload %d", get_member_variable_index(current_class, identifier_ast->identifier));
+			result = join_string(result, identifier_str_buffer);
+		}
+		else {
+			swprintf(identifier_str_buffer, 128, L"@load %d", identifier_ast->index);
+			result = join_string(result, identifier_str_buffer);
+		}
 
 		break;
 	}
 
 	case AST_StringLiteral: {
 		StringLiteralAST* string_literal_ast = (StringLiteralAST*)ast;
-
 
 		wchar_t* string_literal = string_literal_ast->string_literal;
 		wchar_t push_str_buffer[128];
@@ -115,6 +188,10 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		for (int i = 0; i < function_call_ast->parameter_count; i++) {
 			result = join_string(result, generate_ir(function_call_ast->parameters[i], indentation));
 		}
+
+		new_line(&result, indentation);
+		wchar_t* function_call_buffer[512];
+		swprintf(function_call_buffer, 512, L"@call %S %d", function_call_ast->function_name, function_call_ast->parameter_count);
 
 		break;
 	}
@@ -150,15 +227,60 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 		}
 
+		Symbol* function_symbol = find_symbol(function_symbol_table, function_declaration_ast->function_name);
+
+		int should_find_member_function = function_symbol == NULL && wcscmp(current_class, L"");
+		if (should_find_member_function) {
+			ClassData* current_class_data = find_symbol(class_symbol_table, current_class)->data;
+			function_symbol = find_symbol(current_class_data->member_functions, function_declaration_ast->function_name);
+		}
+
+		FunctionData* function_data = function_symbol->data;
+
+		new_line(&result, indentation);
 		wchar_t buffer[256];
-		swprintf(buffer, 256, L". %ls %ls{", function_declaration_ast->function_name, parameter_buffer);
+		swprintf(buffer, 256, L".%d %ls{", (function_data->index), parameter_buffer);
 		result = join_string(result, buffer);
 
 		for (i = 0; i < function_declaration_ast->body_count; i++) {
 			result = join_string(result, generate_ir(function_declaration_ast->body[i], indentation + 1));
 		}
 
-		result = join_string(result, L"\n}");
+		new_line(&result, indentation);
+		result = join_string(result, L"}");
+
+		break;
+	}
+
+	case AST_Class: {
+		ClassAST* class_ast = (ClassAST*)ast;
+
+		ClassData* class_data = find_symbol(class_symbol_table, class_ast->class_name)->data;
+		Symbol* parent_symbol = find_symbol(class_symbol_table, class_ast->parent_class_name);
+		ClassData* parent_data = NULL;
+
+		current_class = class_ast->class_name;
+
+		if (parent_symbol != NULL) {
+			parent_data = parent_symbol->data;
+		}
+
+		wchar_t buffer[128];
+		new_line(&result, indentation);
+		swprintf(buffer, 128, L"class %d %d {", class_data->index, parent_data ? parent_data->index : 0);
+		result = join_string(result, buffer);
+
+		result = join_string(result, create_class_initializer(indentation, class_ast));
+
+		int i;
+		for (i = 0; i < class_ast->member_function_count; i++) {
+			result = join_string(result, generate_ir(class_ast->member_functions[i], indentation + 1));
+		}
+
+		new_line(&result, indentation);
+		result = join_string(result, L"}\n");
+
+		current_class = L"";
 
 		break;
 	}
@@ -180,10 +302,19 @@ wchar_t* generate_ir(void* ast, int indentation) {
 			result = join_string(result, generate_ir(variable_declaration_ast->declaration, indentation));
 		}
 
+		// indexing for additional parent class member variables.
+		int parent_variable_count = get_parent_member_variable_count(current_class);
+
 		wchar_t store_str_buffer[128];
 
 		new_line(&result, indentation);
-		swprintf(store_str_buffer, 128, L"@store %d", variable_declaration_ast->index);
+
+		if (is_class_initializer) {
+			swprintf(store_str_buffer, 128, L"%s %d", L"@mstore", variable_declaration_ast->index + parent_variable_count);
+		}
+		else {
+			swprintf(store_str_buffer, 128, L"%s %d", L"@store", variable_declaration_ast->index);
+		}
 
 		result = join_string(result, store_str_buffer);
 
@@ -215,17 +346,14 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IfStatement: {
 		IfStatementAST* if_statement_ast = (IfStatementAST*)ast;
 
-		open_scope();
-
-
-
-		close_scope();
 
 		break;
 	}
 
 	case AST_ForStatement: {
 		ForStatementAST* for_statement_ast = (ForStatementAST*)ast;
+
+		open_scope();
 
 		result = join_string(result, generate_ir(for_statement_ast->init, indentation));
 
@@ -261,6 +389,8 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		swprintf(label_str_buffer, 64, L"@for %x", begin_label_id);
 		new_line(&result, indentation);
 		result = join_string(result, label_str_buffer);
+
+		close_scope();
 
 		break;
 	}

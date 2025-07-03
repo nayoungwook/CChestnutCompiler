@@ -94,15 +94,17 @@ Symbol* find_symbol(SymbolTable* cur_symbol_table, const wchar_t* name) {
 	Symbol* result = cur_symbol_table->table[_hash];
 
 	while (result == NULL) {
+		if (cur_symbol_table->prev == NULL) return NULL;
 		cur_symbol_table = cur_symbol_table->prev;
+
 		result = cur_symbol_table->table[_hash];
 	}
 
-	while (strcmp(name, result->symbol)) {
+	while (wcscmp(name, result->symbol)) {
 		result = result->next;
 	}
 
-	if (result == NULL || strcmp(name, result->symbol)) {
+	if (result == NULL || wcscmp(name, result->symbol)) {
 		return NULL;
 	}
 
@@ -142,10 +144,6 @@ int is_decimal(wchar_t* str) {
 	return 0;
 }
 
-const wchar_t* get_generalized_type(const wchar_t* type) {
-	return type;
-}
-
 const wchar_t* create_mangled_name(const wchar_t* name, VariableDeclarationBundleAST* parameters) {
 	wchar_t* result = (wchar_t*)malloc(sizeof(wchar_t) * 1024);
 	result = L"";
@@ -153,20 +151,6 @@ const wchar_t* create_mangled_name(const wchar_t* name, VariableDeclarationBundl
 	int i = 0;
 	for (i = 0; i < parameters->variable_count; i++) {
 		result = join_string(result, parameters->variable_declarations[i]->variable_type);
-		result = join_string(result, L"_");
-	}
-	result = join_string(result, name);
-
-	return result;
-}
-
-const wchar_t* create_generalized_mangled_name(const wchar_t* name, VariableDeclarationBundleAST* parameters) {
-	wchar_t* result = (wchar_t*)malloc(sizeof(wchar_t) * 1024);
-	result = L"";
-
-	int i = 0;
-	for (i = 0; i < parameters->variable_count; i++) {
-		result = join_string(result, get_generalized_type(parameters->variable_declarations[i]->variable_type));
 		result = join_string(result, L"_");
 	}
 	result = join_string(result, name);

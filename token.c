@@ -12,6 +12,20 @@ short is_special_character(const wchar_t wc) {
 	return 0;
 }
 
+KeywordEntry keyword_table[] = {
+	{L"var", TokVar},
+	{L"if", TokIf},
+	{L"for", TokFor},
+	{L"func", TokFunc},
+	{L"return", TokReturn},
+	{L"else", TokElse},
+	{L"class", TokClass},
+	{L"extends", TokExtends},
+	{L"private", TokPrivate},
+	{L"public", TokPublic},
+	{L"protected", TokProtected},
+};
+
 enum TokenType
 	get_token_type_of_special_character(wchar_t* str, int* str_len, int* read_index, wchar_t* c) {
 
@@ -305,23 +319,11 @@ Token* pull_token(wchar_t* line) {
 
 			type = TokIdent;
 
-			if (!wcscmp(str, L"var")) {
-				type = TokVar;
-			}
-			else if (!wcscmp(str, L"if")) {
-				type = TokIf;
-			}
-			else if (!wcscmp(str, L"for")) {
-				type = TokFor;
-			}
-			else if (!wcscmp(str, L"func")) {
-				type = TokFunc;
-			}
-			else if (!wcscmp(str, L"return")) {
-				type = TokReturn;
-			}
-			else if (!wcscmp(str, L"else")) {
-				type = TokElse;
+			for (int i = 0; keyword_table[i].keyword != NULL; i++) {
+				if (!wcscmp(str, keyword_table[i].keyword)) {
+					type = keyword_table[i].type;
+					break;
+				}
 			}
 		}
 		else if (is_special_character(c)) {

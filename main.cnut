@@ -1,10 +1,31 @@
 
-func add(a: double, b: double): double {
-  return a + b;
+class Foo {
+  private var a: float = 0;
+  private var b: int = 4;
+}
+
+class Bar extends Foo {
+  private var c: int = 10;
+
+  private func bar(): void {
+    var i: int = 0;
+    i;
+    a;
+  }
+}
+
+class Test extends Foo {
+  private var k: int = 20;
+  private func test(): void {
+    a;
+  }
 }
 
 func main(k: int, l: float): void {
   var a: int = 5;
   var b: int = 10;
-  add(3, b);
+
+  for(var i:int =0; i<10; i++){
+
+  }
 }
