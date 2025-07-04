@@ -2,30 +2,33 @@
 class Foo {
   private var a: float = 0;
   private var b: int = 4;
+  private var foo: Foo = new Foo(3);
+  
+  constructor(b: int){
+
+  }
+  
+  private func foo(a: float): void {
+
+  }
+
+  private func test(): void {
+
+  }
 }
 
 class Bar extends Foo {
   private var c: int = 10;
 
-  private func bar(): void {
-    var i: int = 0;
-    i;
-    a;
+  constructor(a: int){
   }
-}
+  
+  private func bar(a: int): void {
 
-class Test extends Foo {
-  private var k: int = 20;
-  private func test(): void {
-    a;
   }
 }
 
 func main(k: int, l: float): void {
-  var a: int = 5;
-  var b: int = 10;
-
-  for(var i:int =0; i<10; i++){
-
-  }
+  var bar: Bar = new Bar(3);
+  bar.bar(5);
 }

@@ -51,7 +51,8 @@ typedef struct _FunctionData {
 	const wchar_t* name;
 	const wchar_t* return_type;
 	const wchar_t* mangled_name;
-	unsigned int index;
+	unsigned int parameter_count;
+	int index;
 	wchar_t** parameter_types;
 	wchar_t* access_modifier;
 } FunctionData;
@@ -64,6 +65,7 @@ typedef struct _ClassData {
 	unsigned int index;
 	SymbolTable* member_functions;
 	SymbolTable* member_variables;
+	FunctionData* constructor_data;
 } ClassData;
 
 SymbolTable* create_symbol_table();

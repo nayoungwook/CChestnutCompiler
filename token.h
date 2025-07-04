@@ -71,6 +71,9 @@ typedef enum {
 	TokPrivate = 47,
 	TokProtected = 48,
 	TokPublic = 49,
+
+	TokConstructor = 50,
+	TokNew = 51,
 }TokenType;
 
 typedef struct _Token {

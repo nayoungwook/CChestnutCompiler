@@ -24,6 +24,8 @@ KeywordEntry keyword_table[] = {
 	{L"private", TokPrivate},
 	{L"public", TokPublic},
 	{L"protected", TokProtected},
+	{L"constructor", TokConstructor},
+	{L"new", TokNew},
 };
 
 enum TokenType

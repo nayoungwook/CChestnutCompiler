@@ -5,6 +5,7 @@
 #include "util.h"
 
 #define MEMBER_VARIABLE -1
+#define MEMBER_FUNCTION -1
 
 void* parse(wchar_t* str);
 void* consume(wchar_t* str, TokenType expected_type);
@@ -14,7 +15,6 @@ void* parse_unary_expression(wchar_t* str);
 void* parse_simple_expression(wchar_t* str);
 void* parse_term(wchar_t* str);
 
-wchar_t* infer_type(void* ast);
 int check_castability(const wchar_t* from, const wchar_t* to);
 
 typedef struct _Type {
@@ -27,7 +27,7 @@ void remove_type_symbol(const wchar_t* type_str);
 
 void insert_set_symbol(Set* target_set, const wchar_t* str);
 
-FunctionData* create_function_data(const wchar_t* name, const wchar_t* return_type, VariableDeclarationBundleAST* parameters);
+FunctionData* create_function_data(SymbolTable* function_symbol_table, const wchar_t* name, const wchar_t* return_type, VariableDeclarationBundleAST* parameters);
 void insert_function_symbol(SymbolTable* function_symbol_table, FunctionDeclarationAST* ast);
 void remove_function_symbol(SymbolTable* function_symbol_table, const wchar_t* mangled_name);
 
@@ -55,3 +55,6 @@ void* create_function_declaration_ast(Token* tok, wchar_t* str);
 void* create_for_statement_ast(Token* tok, wchar_t* str);
 void* create_variable_declaration_ast(Token* tok, wchar_t* str);
 void* create_class_ast(Token* tok, wchar_t* str);
+void* create_constructor_ast(Token* tok, wchar_t* str);
+void* create_new_ast(Token* tok, wchar_t* str);
+VariableDeclarationBundleAST* create_function_parameters(wchar_t* str);

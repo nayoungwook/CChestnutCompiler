@@ -18,6 +18,8 @@ typedef enum {
 	AST_IdentDecrease = 12,
 	AST_Return = 13,
 	AST_Class = 14,
+	AST_Constructor = 15,
+	AST_New = 16,
 }ASTType;
 
 typedef struct {
@@ -35,6 +37,8 @@ typedef struct {
 	ASTType TYPE;
 	wchar_t* identifier;
 	int index;
+	void* attribute;
+	void* local_data;
 } IdentifierAST;
 
 typedef struct {
@@ -92,6 +96,8 @@ typedef struct {
 	wchar_t* function_name;
 	void** parameters;
 	int parameter_count;
+	int index;
+	void* attribute;
 } FunctionCallAST;
 
 typedef struct {
@@ -122,9 +128,17 @@ typedef struct {
 
 typedef struct {
 	ASTType TYPE;
+	VariableDeclarationBundleAST* parameters;
+	void** body;
+	int body_count;
+	wchar_t* access_modifier;
+} ConstructorAST;
+
+typedef struct {
+	ASTType TYPE;
 
 	void* initializer;
-	void* constructor;
+	ConstructorAST* constructor;
 
 	VariableDeclarationBundleAST** member_variables;
 	FunctionDeclarationAST** member_functions;
@@ -136,3 +150,10 @@ typedef struct {
 	wchar_t* parent_class_name;
 
 } ClassAST;
+
+typedef struct {
+	ASTType TYPE;
+	wchar_t* class_name;
+	void** parameters;
+	int parameter_count;
+} NewAST;
