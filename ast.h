@@ -62,7 +62,6 @@ typedef struct {
 	ASTType TYPE;
 	void* left, * right;
 	OperatorType opType;
-	wchar_t* inferenced_type;
 }BinExprAST;
 
 typedef struct {

@@ -441,7 +441,7 @@ void* create_function_call_ast(Token* tok, wchar_t* str) {
 	return result;
 }
 
-void* create_identifier_ast(Token* tok, wchar_t* str) {
+void* create_identifier_ast(Token* tok, wchar_t* str, int is_attribute_identifier) {
 	void* result = NULL;
 
 	Token* next_token = peek_token(str);
@@ -452,7 +452,7 @@ void* create_identifier_ast(Token* tok, wchar_t* str) {
 
 		if (peek_token(str)->type == TokDot) {
 			consume(str, TokDot);
-			((FunctionCallAST*)result)->attribute = create_identifier_ast(pull_token(str), str);
+			((FunctionCallAST*)result)->attribute = create_identifier_ast(pull_token(str), str, 1);
 		}
 	}
 	else {
@@ -478,24 +478,6 @@ void* create_identifier_ast(Token* tok, wchar_t* str) {
 			result = (IdentifierAST*)malloc(sizeof(IdentifierAST));
 			((IdentifierAST*)result)->TYPE = AST_Identifier;
 			((IdentifierAST*)result)->identifier = tok->str;
-
-			// check for assign
-			if (peek_token(str)->type == TokAssign) {
-				consume(str, TokAssign);
-				void* right = parse_unary_expression(str);
-
-				BinExprAST* bin_expr = (BinExprAST*)malloc(sizeof(BinExprAST));
-				if (!bin_expr) {
-					fprintf(stderr, "Memory allocation failed\n");
-					exit(1);
-				}
-				bin_expr->TYPE = AST_BinExpr;
-				bin_expr->left = result;
-				bin_expr->right = right;
-				bin_expr->opType = OpASSIGN;
-
-				result = bin_expr;
-			}
 		}
 
 		Symbol* variable_symbol = find_symbol(variable_symbol_table, ((IdentifierAST*)result)->identifier);
@@ -512,7 +494,23 @@ void* create_identifier_ast(Token* tok, wchar_t* str) {
 
 		if (peek_token(str)->type == TokDot) {
 			consume(str, TokDot);
-			((IdentifierAST*)result)->attribute = create_identifier_ast(pull_token(str), str);
+			((IdentifierAST*)result)->attribute = create_identifier_ast(pull_token(str), str, 1);
+		}
+
+		if (!is_attribute_identifier && peek_token(str)->type == TokAssign) {
+			consume(str, TokAssign);
+
+			void* right_term = parse_expression(str);
+
+			BinExprAST* bin_expr_ast = (BinExprAST*)malloc(sizeof(BinExprAST*));
+			bin_expr_ast->TYPE = AST_BinExpr;
+			bin_expr_ast->left = result;
+			bin_expr_ast->right = right_term;
+			bin_expr_ast->opType = OpASSIGN;
+
+			consume(str, TokSemiColon);
+
+			return bin_expr_ast;
 		}
 	}
 
@@ -1032,7 +1030,7 @@ void* parse(wchar_t* str) {
 		return create_return_ast(tok, str);
 
 	case TokIdent:
-		return create_identifier_ast(tok, str);
+		return create_identifier_ast(tok, str, 0);
 
 	case TokFunc:
 		return create_function_declaration_ast(tok, str);

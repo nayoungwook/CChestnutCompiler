@@ -1,8 +1,7 @@
 
 class Foo {
   public var a: string = "";
-  public var foo: Foo = new Foo();
-  
+
   public func test(): Foo {
   }
 
@@ -12,6 +11,6 @@ class Foo {
 
 func main(): void {
   var foo: Foo = new Foo();
-
-  foo.beautiful_ones().test().foo.a = "asdf";
+ 
+  foo.test().beautiful_ones().a = "asdf";
 }

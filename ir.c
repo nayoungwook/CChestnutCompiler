@@ -205,7 +205,15 @@ VariableData* find_variable_data(const wchar_t* class_name, IdentifierAST* ident
 	return (VariableData*)identifier_ast->local_data;
 }
 
-wchar_t* infer_type(void* ast) {
+FunctionData* find_function_data(const wchar_t* class_name, const wchar_t* function_name, FunctionCallAST* function_call_ast) {
+	if (function_call_ast->index == MEMBER_FUNCTION) {
+		return get_member_function_data(class_name, function_name);
+	}
+	FunctionData* function_data = find_symbol(function_symbol_table, function_call_ast->function_name)->data;
+	return function_data;
+}
+
+wchar_t* infer_type(void* ast, wchar_t* search_point_class_name) {
 	ASTType type = *((ASTType*)(ast));
 	switch (type) {
 	case AST_NumberLiteral:
@@ -221,8 +229,8 @@ wchar_t* infer_type(void* ast) {
 	case AST_BinExpr: {
 		BinExprAST* bin_expr_ast = (BinExprAST*)ast;
 
-		wchar_t* left_type = infer_type(bin_expr_ast->left);
-		wchar_t* right_type = infer_type(bin_expr_ast->right);
+		wchar_t* left_type = infer_type(bin_expr_ast->left, search_point_class_name);
+		wchar_t* right_type = infer_type(bin_expr_ast->right, search_point_class_name);
 
 		if (check_castability(left_type, right_type)) {
 			return right_type;
@@ -240,9 +248,8 @@ wchar_t* infer_type(void* ast) {
 
 	case AST_FunctionCall: {
 		FunctionCallAST* function_call_ast = (FunctionCallAST*)ast;
-		FunctionData* function_data = find_symbol(function_symbol_table, function_call_ast->function_name);
 
-		return function_data->return_type;
+		return find_function_data(search_point_class_name, function_call_ast->function_name, ast);;
 	}
 
 	case AST_New: {
@@ -293,7 +300,7 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 		for (i = 0; i < member_function_data->parameter_count; i++) {
 			*result = join_string(*result, generate_ir(function_call_ast->parameters[i], indentation));
 
-			wchar_t* infered_type = infer_type(function_call_ast->parameters[i]);
+			wchar_t* infered_type = infer_type(function_call_ast->parameters[i], target_class_name);
 
 			if (!check_castability(infered_type, member_function_data->parameter_types[i])) {
 				printf("[Temporary error] at ir.c Type not matched : %S, %S\n", infered_type, member_function_data->parameter_types[i]);
@@ -308,6 +315,88 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 			create_attribute_ir(member_function_data->return_type, function_call_ast->attribute, result, indentation);
 		}
 		break;
+	}
+}
+
+void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int indentation) {
+	*result = join_string(*result, generate_ir(right_ast, indentation));
+
+	// for non-attribute, direct assign
+	// a = 5;
+	switch (*((ASTType*)left_ast)) {
+	case AST_Identifier:
+		if (((IdentifierAST*)left_ast)->attribute == NULL) {
+			IdentifierAST* identifier_ast = (IdentifierAST*)left_ast;
+			wchar_t store_str_buffer[128];
+
+			if (identifier_ast->index == MEMBER_VARIABLE) {
+				swprintf(store_str_buffer, 128, L"@mstore %d", get_member_variable_index(current_class, identifier_ast->identifier));
+				*result = join_string(*result, store_str_buffer);
+			}
+			else {
+				swprintf(store_str_buffer, 128, L"@store %d", identifier_ast->index);
+				*result = join_string(*result, store_str_buffer);
+			}
+		}
+		break;
+	}
+
+	void* temp_left_ast = left_ast;
+	void* attribute_backup = left_ast;
+	void* last_ast = NULL;
+
+	int loop = 1;
+
+	while (loop) {
+		switch (*((ASTType*)left_ast)) {
+		case AST_Identifier: {
+
+			if (((IdentifierAST*)left_ast)->attribute == NULL) {
+
+				if (*((ASTType*)attribute_backup) == AST_Identifier) {
+					((IdentifierAST*)attribute_backup)->attribute = NULL;
+				}
+				else if (*((ASTType*)attribute_backup) == AST_FunctionCall) {
+					((FunctionCallAST*)attribute_backup)->attribute = NULL;
+				}
+
+				last_ast = left_ast;
+				loop = 0;
+				break;
+			}
+
+			attribute_backup = left_ast;
+			left_ast = ((IdentifierAST*)left_ast)->attribute;
+
+			break;
+		}
+
+		case AST_FunctionCall: {
+			attribute_backup = left_ast;
+			left_ast = ((FunctionCallAST*)left_ast)->attribute;
+
+			break;
+		}
+		}
+	}
+
+	*result = join_string(*result, generate_ir(temp_left_ast, indentation));
+
+	switch (*((ASTType*)last_ast)) {
+	case AST_Identifier: {
+		wchar_t* target_class_name = infer_type(temp_left_ast, L"");
+		Symbol* target_class_symbol = find_symbol(class_symbol_table, target_class_name);
+		ClassData* target_class = target_class_symbol->data;
+
+		int member_variable_index = get_member_variable_index(target_class_name, ((IdentifierAST*)last_ast)->identifier);
+		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((IdentifierAST*)last_ast)->identifier);
+
+		new_line(result, indentation);
+		wchar_t attr_str_buffer[128];
+		swprintf(attr_str_buffer, 128, L"@attr_store %d", member_variable_index);
+		*result = join_string(*result, attr_str_buffer);
+		break;
+	}
 	}
 }
 
@@ -331,6 +420,11 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 	case AST_BinExpr: {
 		BinExprAST* bin_expr_ast = (BinExprAST*)ast;
+
+		if (bin_expr_ast->opType == OpASSIGN) {
+			create_assign_ir(bin_expr_ast->left, bin_expr_ast->right, &result, indentation);
+			break;
+		}
 
 		result = join_string(result, generate_ir(bin_expr_ast->left, indentation));
 		result = join_string(result, generate_ir(bin_expr_ast->right, indentation));
@@ -397,7 +491,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		}
 
 		if (identifier_ast->attribute != NULL) {
-			wchar_t* target_class_name = infer_type(identifier_ast);
+			wchar_t* target_class_name = infer_type(identifier_ast, current_class);
 			create_attribute_ir(target_class_name, identifier_ast->attribute, &result, indentation);
 		}
 
@@ -436,7 +530,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		for (i = 0; i < new_ast->parameter_count; i++) {
 			result = join_string(result, generate_ir(new_ast->parameters[i], indentation));
 
-			wchar_t* infered_type = infer_type(new_ast->parameters[i]);
+			wchar_t* infered_type = infer_type(new_ast->parameters[i], current_class);
 
 			if (!check_castability(infered_type, constructor_data->parameter_types[i])) {
 				printf("[Temporary error] at ir.c Type not matched : %S, %S\n", infered_type, constructor_data->parameter_types[i]);
@@ -455,15 +549,13 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 	case AST_FunctionCall: {
 		FunctionCallAST* function_call_ast = (FunctionCallAST*)ast;
-		FunctionData* function_data = NULL;
+		FunctionData* function_data = find_function_data(current_class, function_call_ast->function_name, function_call_ast);
 
 		wchar_t* function_call_buffer[512];
 		if (function_call_ast->index == MEMBER_FUNCTION) {
 			swprintf(function_call_buffer, 128, L"@mcall %d %d", get_member_function_index(current_class, function_call_ast->function_name), function_call_ast->parameter_count);
-			function_data = get_member_function_data(current_class, function_call_ast->function_name);
 		}
 		else {
-			function_data = find_symbol(function_symbol_table, function_call_ast->function_name);
 			swprintf(function_call_buffer, 128, L"@call %d %d", function_call_ast->index, function_call_ast->parameter_count);
 		}
 
@@ -476,7 +568,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		for (i = 0; i < function_data->parameter_count; i++) {
 			result = join_string(result, generate_ir(function_call_ast->parameters[i], indentation));
 
-			wchar_t* infered_type = infer_type(function_call_ast->parameters[i]);
+			wchar_t* infered_type = infer_type(function_call_ast->parameters[i], current_class);
 
 			if (!check_castability(infered_type, function_data->parameter_types[i])) {
 				printf("[Temporary error] at ir.c Type not matched : %S, %S\n", infered_type, function_data->parameter_types[i]);
