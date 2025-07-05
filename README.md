@@ -16,6 +16,11 @@ this repository contains the source code of C chestnutcompiler
 ## Current Version
 
 - 0.1-(indev)
+
+## Structure Diagram
+
+![Compiler Structure Diagram](https://github.com/nayoungwook/CChestnutCompiler/blob/master/readme/CompilerStructure.png?raw=true)
+ 
 ## Support
 
 For support, email nayoungwook@kaist.ac.kr or join our [discord channel](https://discord.gg/bChGf7Yj)
