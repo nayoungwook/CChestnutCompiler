@@ -1,4 +1,4 @@
-#include "token.h"
+#include "includes/token.h"
 
 short is_special_character(const wchar_t wc) {
 	if (wc == L'_') return 0;

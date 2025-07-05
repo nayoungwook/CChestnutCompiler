@@ -1,4 +1,4 @@
-#include "ir.h"
+#include "includes/ir.h"
 
 extern SymbolTable* variable_symbol_table;
 extern SymbolTable* function_symbol_table;
@@ -9,6 +9,69 @@ static int label_id = 0;
 
 static int is_class_initializer = 0;
 static wchar_t* current_class = L"";
+
+void insert_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name, VariableData* data) {
+	unsigned int _hash = hash(name);
+	variable_symbol_table->size++;
+
+	Symbol* symbol = (Symbol*)malloc(sizeof(Symbol));
+	symbol->data = data;
+	symbol->symbol = name;
+	symbol->hash = _hash;
+	symbol->next = variable_symbol_table->table[_hash];
+
+	variable_symbol_table->table[_hash] = symbol;
+}
+
+void remove_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name) {
+	unsigned int _hash = hash(name);
+	variable_symbol_table->size--;
+	Symbol* target_symbol = variable_symbol_table->table[_hash];
+	variable_symbol_table->table[_hash] = variable_symbol_table->table[_hash]->next;
+	free(target_symbol);
+}
+
+VariableData* create_variable_data(SymbolTable* variable_symbol_table, const wchar_t* type, const wchar_t* name, const wchar_t* access_modifier) {
+	VariableData* result = (VariableData*)malloc(sizeof(VariableData));
+	result->type = (wchar_t*)malloc(sizeof(wchar_t) * 128);
+	result->name = (wchar_t*)malloc(sizeof(wchar_t) * 256);
+	result->index = variable_symbol_table->size + get_prev_variable_index_size(variable_symbol_table) + 1;
+	result->access_modifier = _wcsdup(access_modifier);
+
+	wcscpy_s(result->type, 128, type);
+	wcscpy_s(result->name, 256, name);
+
+	return result;
+}
+
+int get_prev_variable_index_size(SymbolTable* variable_symbol_table) {
+	SymbolTable* searcher_table = variable_symbol_table;
+
+	int _size = 0;
+
+	while (searcher_table->prev != NULL) {
+		searcher_table = searcher_table->prev;
+		_size += searcher_table->size;
+	}
+
+	return _size;
+}
+
+void open_scope() {
+	SymbolTable* current_symbol_table = variable_symbol_table;
+
+	SymbolTable* new_symbol_table = create_symbol_table();
+	new_symbol_table->prev = current_symbol_table;
+	new_symbol_table->size = 0;
+
+	variable_symbol_table = new_symbol_table;
+}
+
+void close_scope() {
+	SymbolTable* current_symbol_table = variable_symbol_table;
+	variable_symbol_table = variable_symbol_table->prev;
+	free(current_symbol_table);
+}
 
 FunctionData* get_member_function_data(const wchar_t* class_name, const wchar_t* function_name) {
 	Symbol* class_symbol = find_symbol(class_symbol_table, class_name);
@@ -188,8 +251,11 @@ wchar_t* create_parameter_buffer(VariableDeclarationBundleAST* parameters_ast) {
 	for (i = 0; i < parameters_ast->variable_count; i++) {
 		VariableDeclarationAST* parameter = parameters_ast->variable_declarations[i];
 
+		VariableData* variable_data = create_variable_data(variable_symbol_table, parameter->variable_type, parameter->variable_name, parameter->access_modifier);
+		insert_variable_symbol(variable_symbol_table, parameter->variable_name, variable_data);
+
 		wchar_t single_parameter_buffer[512];
-		swprintf(single_parameter_buffer, 512, L"%ls %d ", parameter->variable_type, parameter->index);
+		swprintf(single_parameter_buffer, 512, L"%ls ", parameter->variable_type);
 
 		parameter_buffer = join_string(parameter_buffer, single_parameter_buffer);
 
@@ -199,18 +265,25 @@ wchar_t* create_parameter_buffer(VariableDeclarationBundleAST* parameters_ast) {
 }
 
 VariableData* find_variable_data(const wchar_t* class_name, IdentifierAST* identifier_ast) {
-	if (identifier_ast->index == MEMBER_VARIABLE) {
+
+	Symbol* local_symbol = find_symbol(variable_symbol_table, identifier_ast->identifier);
+	if (local_symbol == NULL) {
 		return get_member_variable_data(class_name, identifier_ast->identifier);
 	}
-	return (VariableData*)identifier_ast->local_data;
+	else {
+		return local_symbol->data;
+	}
 }
 
 FunctionData* find_function_data(const wchar_t* class_name, const wchar_t* function_name, FunctionCallAST* function_call_ast) {
-	if (function_call_ast->index == MEMBER_FUNCTION) {
+	Symbol* local_symbol = find_symbol(function_symbol_table, function_name);
+	if (local_symbol == NULL) {
 		return get_member_function_data(class_name, function_name);
 	}
-	FunctionData* function_data = find_symbol(function_symbol_table, function_call_ast->function_name)->data;
-	return function_data;
+	else {
+		FunctionData* function_data = local_symbol->data;
+		return function_data;
+	}
 }
 
 wchar_t* infer_type(void* ast, wchar_t* search_point_class_name) {
@@ -223,6 +296,11 @@ wchar_t* infer_type(void* ast, wchar_t* search_point_class_name) {
 		return L"string";
 	case AST_Identifier:
 		IdentifierAST* ident_ast = (IdentifierAST*)ast;
+
+		if (!wcscmp(ident_ast->identifier, L"this")) {
+			return current_class;
+		}
+
 		VariableData* data = find_variable_data(current_class, ast);
 
 		return data->type;
@@ -326,19 +404,22 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 	switch (*((ASTType*)left_ast)) {
 	case AST_Identifier:
 		if (((IdentifierAST*)left_ast)->attribute == NULL) {
+			new_line(result, indentation);
 			IdentifierAST* identifier_ast = (IdentifierAST*)left_ast;
 			wchar_t store_str_buffer[128];
 
-			if (identifier_ast->index == MEMBER_VARIABLE) {
+			Symbol* local_symbol = find_symbol(variable_symbol_table, identifier_ast->identifier);
+
+			if (local_symbol == NULL) {
 				swprintf(store_str_buffer, 128, L"@mstore %d", get_member_variable_index(current_class, identifier_ast->identifier));
 				*result = join_string(*result, store_str_buffer);
 			}
 			else {
-				swprintf(store_str_buffer, 128, L"@store %d", identifier_ast->index);
+				swprintf(store_str_buffer, 128, L"@store %d", ((VariableData*)local_symbol->data)->index);
 				*result = join_string(*result, store_str_buffer);
 			}
 		}
-		break;
+		return;
 	}
 
 	void* temp_left_ast = left_ast;
@@ -350,7 +431,6 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 	while (loop) {
 		switch (*((ASTType*)left_ast)) {
 		case AST_Identifier: {
-
 			if (((IdentifierAST*)left_ast)->attribute == NULL) {
 
 				if (*((ASTType*)attribute_backup) == AST_Identifier) {
@@ -481,13 +561,24 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		new_line(&result, indentation);
 		wchar_t identifier_str_buffer[128];
 
-		if (identifier_ast->index == MEMBER_VARIABLE) {
-			swprintf(identifier_str_buffer, 128, L"@mload %d", get_member_variable_index(current_class, identifier_ast->identifier));
+		int is_special_identifier = !wcscmp(identifier_ast->identifier, L"this");
+
+		if (is_special_identifier) {
+			swprintf(identifier_str_buffer, 128, L"@this");
 			result = join_string(result, identifier_str_buffer);
 		}
 		else {
-			swprintf(identifier_str_buffer, 128, L"@load %d", identifier_ast->index);
-			result = join_string(result, identifier_str_buffer);
+
+			Symbol* local_symbol = find_symbol(variable_symbol_table, identifier_ast->identifier);
+
+			if (local_symbol == NULL) {
+				swprintf(identifier_str_buffer, 128, L"@mload %d", get_member_variable_index(current_class, identifier_ast->identifier));
+				result = join_string(result, identifier_str_buffer);
+			}
+			else {
+				swprintf(identifier_str_buffer, 128, L"@load %d", ((VariableData*)local_symbol->data)->index);
+				result = join_string(result, identifier_str_buffer);
+			}
 		}
 
 		if (identifier_ast->attribute != NULL) {
@@ -552,11 +643,14 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		FunctionData* function_data = find_function_data(current_class, function_call_ast->function_name, function_call_ast);
 
 		wchar_t* function_call_buffer[512];
-		if (function_call_ast->index == MEMBER_FUNCTION) {
+
+		Symbol* local_symbol = find_symbol(function_symbol_table, function_call_ast->function_name);
+
+		if (local_symbol == NULL) {
 			swprintf(function_call_buffer, 128, L"@mcall %d %d", get_member_function_index(current_class, function_call_ast->function_name), function_call_ast->parameter_count);
 		}
 		else {
-			swprintf(function_call_buffer, 128, L"@call %d %d", function_call_ast->index, function_call_ast->parameter_count);
+			swprintf(function_call_buffer, 128, L"@call %d %d", ((FunctionData*)local_symbol->data)->index, function_call_ast->parameter_count);
 		}
 
 		if (function_data->parameter_count != function_call_ast->parameter_count) {
@@ -635,6 +729,8 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		wchar_t* parameter_buffer = create_parameter_buffer(((VariableDeclarationBundleAST*)function_declaration_ast->parameters));
 		FunctionData* function_data = function_symbol->data;
 
+		open_scope();
+
 		new_line(&result, indentation);
 		wchar_t buffer[256];
 		swprintf(buffer, 256, L".%d %ls{", (function_data->index), parameter_buffer);
@@ -648,6 +744,8 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		new_line(&result, indentation);
 		result = join_string(result, L"}");
 
+		close_scope();
+
 		break;
 	}
 
@@ -657,6 +755,8 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		ClassData* class_data = find_symbol(class_symbol_table, class_ast->class_name)->data;
 		Symbol* parent_symbol = find_symbol(class_symbol_table, class_ast->parent_class_name);
 		ClassData* parent_data = NULL;
+
+		open_scope();
 
 		current_class = class_ast->class_name;
 
@@ -681,6 +781,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		result = join_string(result, L"}\n");
 
 		current_class = L"";
+		close_scope();
 
 		break;
 	}
@@ -699,6 +800,18 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_VariableDeclaration: {
 		VariableDeclarationAST* variable_declaration_ast = (VariableDeclarationAST*)ast;
 
+		VariableData* data = NULL;
+
+		if (is_class_initializer) {
+			SymbolTable* member_variable_symbol_table = ((ClassData*)find_symbol(class_symbol_table, current_class)->data)->member_variables;
+			data = create_variable_data(member_variable_symbol_table, variable_declaration_ast->variable_type, variable_declaration_ast->variable_name, variable_declaration_ast->access_modifier);
+			insert_variable_symbol(member_variable_symbol_table, variable_declaration_ast->variable_name, data);
+		}
+		else {
+			data = create_variable_data(variable_symbol_table, variable_declaration_ast->variable_type, variable_declaration_ast->variable_name, variable_declaration_ast->access_modifier);
+			insert_variable_symbol(variable_symbol_table, variable_declaration_ast->variable_name, data);
+		}
+
 		if (variable_declaration_ast->declaration) {
 			result = join_string(result, generate_ir(variable_declaration_ast->declaration, indentation));
 		}
@@ -711,10 +824,10 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		new_line(&result, indentation);
 
 		if (is_class_initializer) {
-			swprintf(store_str_buffer, 128, L"%s %d", L"@mstore", variable_declaration_ast->index + parent_variable_count);
+			swprintf(store_str_buffer, 128, L"%s %d", L"@mstore", data->index + parent_variable_count);
 		}
 		else {
-			swprintf(store_str_buffer, 128, L"%s %d", L"@store", variable_declaration_ast->index);
+			swprintf(store_str_buffer, 128, L"%s %d", L"@store", data->index);
 		}
 
 		result = join_string(result, store_str_buffer);
@@ -747,6 +860,9 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IfStatement: {
 		IfStatementAST* if_statement_ast = (IfStatementAST*)ast;
 
+		open_scope();
+
+		close_scope();
 
 		break;
 	}
@@ -779,6 +895,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		for (i = 0; i < for_statement_ast->body_count; i++) {
 			result = join_string(result, generate_ir(for_statement_ast->body[i], indentation));
 		}
+
 
 		result = join_string(result, generate_ir(for_statement_ast->step, indentation));
 

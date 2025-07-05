@@ -1,84 +1,112 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(538,5): warning MSB8028: 중간 디렉터리(x64\Debug\)에 다른 프로젝트(ChestnutCompiler.vcxproj)에서 공유하는 파일이 포함되어 있습니다.  이로 인해 잘못된 정리 및 다시 빌드 동작이 수행될 수 있습니다.
-  ir.c
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(16,28): warning C4047: 'return': 'FunctionData *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(60,28): warning C4047: 'return': 'VariableData *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(147,11): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(147,11): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(148,31): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(148,31): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(152,16): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(168,11): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(168,11): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(169,31): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(169,31): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(173,16): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(228,3): warning C4090: 'return': 다른 'const' 한정자
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(243,11): warning C4133: '함수': 'unsigned short [70]'과(와) 'const char *const ' 사이의 형식이 호환되지 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(243,11): warning C4477: 'printf' : 서식 문자열 '%s'에 'char *' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'wchar_t *'입니다.
-      C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(243,11):
-      서식 문자열에서 '%ls'을(를) 사용하는 것이 좋습니다.
-      C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(243,11):
-      서식 문자열에서 '%lls'을(를) 사용하는 것이 좋습니다.
-      C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(243,11):
-      서식 문자열에서 '%Ls'을(를) 사용하는 것이 좋습니다.
-      C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(243,11):
-      서식 문자열에서 '%ws'을(를) 사용하는 것이 좋습니다.
-  
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(243,11): warning C4477: 'printf' : 서식 문자열 '%s'에 'char *' 형식의 인수가 필요하지만 variadic 인수 2의 형식이 'wchar_t *'입니다.
-      C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(243,11):
-      서식 문자열에서 '%ls'을(를) 사용하는 것이 좋습니다.
-      C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(243,11):
-      서식 문자열에서 '%lls'을(를) 사용하는 것이 좋습니다.
-      C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(243,11):
-      서식 문자열에서 '%Ls'을(를) 사용하는 것이 좋습니다.
-      C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(243,11):
-      서식 문자열에서 '%ws'을(를) 사용하는 것이 좋습니다.
-  
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(252,3): warning C4133: 'return': 'FunctionData *'과(와) 'wchar_t *' 사이의 형식이 호환되지 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(300,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(303,73): warning C4090: '함수': 다른 'const' 한정자
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(416,12): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(416,12): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(417,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(417,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(435,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(435,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(438,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(438,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(441,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(441,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(444,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(444,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(447,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(447,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(450,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(450,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(453,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(453,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(456,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(456,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(459,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(459,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(462,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(462,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(465,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(465,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(468,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(468,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(473,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(473,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(544,12): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(544,12): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(545,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(545,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(556,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(556,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(559,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(559,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(568,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(580,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(580,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(676,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(768,11): warning C4101: 'for_str_buffer' :참조되지 않은 지역 변수입니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c(262,1): warning C4715: 'infer_type': 모든 제어 경로에서 값을 반환하지는 않습니다.
+  parser.c
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(18,15): warning C4090: '=': 다른 'const' 한정자
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(42,82): warning C4267: '초기화 중': 'size_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(90,51): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(90,86): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(94,35): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(104,22): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(91,36): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(94,21): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(114,51): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(114,86): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(118,35): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(128,22): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(115,36): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(118,21): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(136,47): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(153,51): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(153,88): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(154,25): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(154,64): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(155,25): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(155,69): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(161,28): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(162,31): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(163,30): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(164,29): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(165,35): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(166,34): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(177,22): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(156,36): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(161,8): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(162,8): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(163,8): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(164,8): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(165,8): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(166,8): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(187,51): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(187,85): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(193,25): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(194,26): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(205,22): warning C5286: 열거형 형식 'OperatorType'에서 열거형 형식 'OperatorType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(188,36): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(193,8): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(194,8): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(215,16): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(226,28): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(229,29): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(257,31): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(274,28): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(341,31): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(354,29): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(363,28): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(375,23): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(380,29): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(386,24): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(386,59): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(387,25): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(393,25): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(400,30): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(412,29): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(417,57): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(460,25): warning C4133: '함수': 'wchar_t *'과(와) 'const char *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(460,44): warning C4133: '함수': 'wchar_t *'과(와) 'const char *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(492,18): warning C4090: '=': 다른 'const' 한정자
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(563,31): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(603,28): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(616,31): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(655,17): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(658,22): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(660,22): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(672,35): warning C4047: '=': 'VariableDeclarationAST **'의 간접 참조 수준이 'VariableDeclarationAST *'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(676,5): warning C4047: '=': 'VariableDeclarationAST **'의 간접 참조 수준이 'VariableDeclarationAST *'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(683,17): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(707,28): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(731,47): warning C4133: '함수': 'wchar_t *'과(와) 'Type *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(738,31): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(747,33): warning C4133: '=': 'void **'과(와) 'FunctionDeclarationAST **' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(750,33): warning C4133: '=': 'void **'과(와) 'FunctionDeclarationAST **' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(760,33): warning C4133: '=': 'void **'과(와) 'VariableDeclarationBundleAST **' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(793,31): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(804,29): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(816,38): warning C4047: '=': 'VariableDeclarationAST **'의 간접 참조 수준이 'VariableDeclarationAST *'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(820,5): warning C4047: '=': 'VariableDeclarationAST **'의 간접 참조 수준이 'VariableDeclarationAST *'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(841,2): warning C4013: 'open_scope'이(가) 정의되지 않았습니다. extern은 int형을 반환하는 것으로 간주합니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(843,31): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(859,2): warning C4013: 'close_scope'이(가) 정의되지 않았습니다. extern은 int형을 반환하는 것으로 간주합니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(879,31): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(892,29): warning C5287: 피연산자는 서로 다른 열거형 형식 'TokenType' 및 'TokenType'입니다. 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(875,13): warning C4133: '초기화 중': 'Symbol *'과(와) 'ClassData *' 사이의 형식이 호환되지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(917,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(920,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(923,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(926,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(929,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(932,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(935,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(938,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(941,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(944,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(947,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(950,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(951,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(952,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(958,8): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(961,8): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(964,8): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(992,7): warning C5286: 열거형 형식 'TokenType'에서 열거형 형식 'TokenType'(으)로의 암시적 변환, 이 경고를 무시하려면 명시적 캐스트를 사용하세요.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(219,1): warning C4716: 'consume': 값을 반환해야 합니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(488,1): warning C4716: 'create_type_symbol': 값을 반환해야 합니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(996,1): warning C4715: 'parse': 모든 제어 경로에서 값을 반환하지는 않습니다.
   ChestnutCompiler.vcxproj -> C:\Users\nayou\source\repos\CChestnut\x64\Debug\CChestnutCompiler.exe

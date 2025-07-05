@@ -10,6 +10,15 @@
 
 wchar_t* create_class_initializer(int indentation, ClassAST* class_ast);
 
+void open_scope();
+void close_scope();
+
+int get_prev_variable_index_size(SymbolTable* variable_symbol_table);
+
+VariableData* create_variable_data(SymbolTable* variable_symbol_table, const wchar_t* type, const wchar_t* name, const wchar_t* access_modifier);
+void insert_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name, VariableData* data);
+void remove_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name);
+
 wchar_t* infer_type(void* ast, wchar_t* current_class_name);
 void new_line(wchar_t** result, int indentation);
 

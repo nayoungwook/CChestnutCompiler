@@ -4,9 +4,6 @@
 #include "ast.h"
 #include "util.h"
 
-#define MEMBER_VARIABLE -1
-#define MEMBER_FUNCTION -1
-
 void* parse(wchar_t* str);
 void* consume(wchar_t* str, TokenType expected_type);
 
@@ -34,15 +31,6 @@ void remove_function_symbol(SymbolTable* function_symbol_table, const wchar_t* m
 ClassData* create_class_data(ClassAST* class_ast);
 void insert_class_symbol(ClassAST* ast);
 void remove_class_symbol(const wchar_t* name);
-
-void open_scope();
-void close_scope();
-
-int get_prev_variable_index_size(SymbolTable* variable_symbol_table);
-
-VariableData* create_variable_data(SymbolTable* variable_symbol_table, const wchar_t* type, const wchar_t* name);
-void insert_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name, VariableData* data);
-void remove_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name);
 
 // AST creating functions
 void* create_if_statement_ast(Token* tok, wchar_t* str);

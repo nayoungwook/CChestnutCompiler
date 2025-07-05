@@ -1,4 +1,4 @@
-#include "parser.h"
+#include "includes/parser.h"
 
 SymbolTable* function_symbol_table;
 SymbolTable* class_symbol_table;
@@ -23,68 +23,6 @@ void insert_set_symbol(Set* target_set, const wchar_t* str) {
 	target_set->table[_hash] = symbol;
 }
 
-void insert_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name, VariableData* data) {
-	unsigned int _hash = hash(name);
-	variable_symbol_table->size++;
-
-	Symbol* symbol = (Symbol*)malloc(sizeof(Symbol));
-	symbol->data = data;
-	symbol->symbol = name;
-	symbol->hash = _hash;
-	symbol->next = variable_symbol_table->table[_hash];
-
-	variable_symbol_table->table[_hash] = symbol;
-}
-
-void remove_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name) {
-	unsigned int _hash = hash(name);
-	variable_symbol_table->size--;
-	Symbol* target_symbol = variable_symbol_table->table[_hash];
-	variable_symbol_table->table[_hash] = variable_symbol_table->table[_hash]->next;
-	free(target_symbol);
-}
-
-VariableData* create_variable_data(SymbolTable* variable_symbol_table, const wchar_t* type, const wchar_t* name) {
-	VariableData* result = (VariableData*)malloc(sizeof(VariableData));
-	result->type = (wchar_t*)malloc(sizeof(wchar_t) * 128);
-	result->name = (wchar_t*)malloc(sizeof(wchar_t) * 256);
-	result->index = variable_symbol_table->size + get_prev_variable_index_size(variable_symbol_table) + 1;
-
-	wcscpy_s(result->type, 128, type);
-	wcscpy_s(result->name, 256, name);
-
-	return result;
-}
-
-void open_scope() {
-	SymbolTable* current_symbol_table = variable_symbol_table;
-
-	SymbolTable* new_symbol_table = create_symbol_table();
-	new_symbol_table->prev = current_symbol_table;
-	new_symbol_table->size = 0;
-
-	variable_symbol_table = new_symbol_table;
-}
-
-void close_scope() {
-	SymbolTable* current_symbol_table = variable_symbol_table;
-	variable_symbol_table = variable_symbol_table->prev;
-	free(current_symbol_table);
-}
-
-int get_prev_variable_index_size(SymbolTable* variable_symbol_table) {
-	SymbolTable* searcher_table = variable_symbol_table;
-
-	int _size = 0;
-
-	while (searcher_table->prev != NULL) {
-		searcher_table = searcher_table->prev;
-		_size += searcher_table->size;
-	}
-
-	return _size;
-}
-
 FunctionData* create_function_data(SymbolTable* function_symbol_table, const wchar_t* name, const wchar_t* return_type, VariableDeclarationBundleAST* parameters) {
 	FunctionData* result = (FunctionData*)malloc(sizeof(FunctionData));
 
@@ -92,7 +30,7 @@ FunctionData* create_function_data(SymbolTable* function_symbol_table, const wch
 	result->return_type = _wcsdup(return_type);
 	result->mangled_name = _wcsdup(create_mangled_name(name, parameters));
 	result->index = function_symbol_table->size + 1;
-
+	result->access_modifier = L"default";
 	result->parameter_types = (wchar_t**)malloc(sizeof(wchar_t*));
 	result->parameter_count = parameters->variable_count;
 
@@ -315,7 +253,6 @@ void* create_if_statement_ast(Token* tok, wchar_t* str) {
 	}
 
 	consume(str, TokLBracket); // consume {
-	open_scope();
 
 	while (peek_token(str)->type != TokRBracket) {
 		void* body_element = parse_expression(str);
@@ -333,7 +270,6 @@ void* create_if_statement_ast(Token* tok, wchar_t* str) {
 	}
 
 	consume(str, TokRBracket); // consume }
-	close_scope();
 
 	if (peek_token(str)->type == TokElse) {
 		if_statement->next_statement = create_if_statement_ast(tok, str);
@@ -402,15 +338,6 @@ void* create_function_call_ast(Token* tok, wchar_t* str) {
 	result->parameter_count = 0;
 	consume(str, TokLParen);
 
-	Symbol* function_symbol = find_symbol(function_symbol_table, function_name);
-	if (function_symbol != NULL) {
-		FunctionData* function_data = function_symbol->data;
-		result->index = function_data->index;
-	}
-	else {
-		result->index = MEMBER_FUNCTION;
-	}
-
 	while (peek_token(str)->type != TokRParen) {
 		void* parameter = parse_expression(str);
 
@@ -478,16 +405,6 @@ void* create_identifier_ast(Token* tok, wchar_t* str, int is_attribute_identifie
 			result = (IdentifierAST*)malloc(sizeof(IdentifierAST));
 			((IdentifierAST*)result)->TYPE = AST_Identifier;
 			((IdentifierAST*)result)->identifier = tok->str;
-		}
-
-		Symbol* variable_symbol = find_symbol(variable_symbol_table, ((IdentifierAST*)result)->identifier);
-		if (variable_symbol != NULL) {
-			VariableData* variable_data = (VariableData*)variable_symbol->data;
-			((IdentifierAST*)result)->index = variable_data->index;
-			((IdentifierAST*)result)->local_data = variable_data;
-		}
-		else {
-			((IdentifierAST*)result)->index = MEMBER_VARIABLE;
 		}
 
 		((IdentifierAST*)result)->attribute = NULL;
@@ -633,7 +550,6 @@ void* create_function_declaration_ast(Token* tok, wchar_t* str) {
 
 	current_function_name = _wcsdup(function_name);
 
-	open_scope();
 	VariableDeclarationBundleAST* parameters = create_function_parameters(str);
 	function_declaration_ast->parameters = parameters;
 
@@ -660,7 +576,6 @@ void* create_function_declaration_ast(Token* tok, wchar_t* str) {
 	}
 
 	consume(str, TokRBracket); // consume }
-	close_scope();
 
 	if (!wcscmp(current_class, L"")) {
 		insert_function_symbol(function_symbol_table, function_declaration_ast);
@@ -681,8 +596,6 @@ void* create_for_statement_ast(Token* tok, wchar_t* str) {
 	for_statement->body_count = 0;
 
 	consume(str, TokLParen); // consume (
-
-	open_scope();
 
 	void* init = parse_expression(str);
 	void* condition = parse_expression(str);
@@ -716,7 +629,6 @@ void* create_for_statement_ast(Token* tok, wchar_t* str) {
 	}
 
 	consume(str, TokRBracket); // consume }
-	close_scope();
 
 	return for_statement;
 }
@@ -766,21 +678,6 @@ void* create_variable_declaration_ast(Token* tok, wchar_t* str) {
 
 		bundles->variable_declarations[bundles->variable_count] = variable;
 		bundles->variable_count++;
-
-		int is_member_variable = wcscmp(current_class, L"") && !wcscmp(current_function_name, L"");
-		VariableData* data = NULL;
-
-		if (is_member_variable) {
-			SymbolTable* member_variable_symbol_table = ((ClassData*)find_symbol(class_symbol_table, current_class)->data)->member_variables;
-			data = create_variable_data(member_variable_symbol_table, variable->variable_type, variable->variable_name);
-			insert_variable_symbol(member_variable_symbol_table, variable->variable_name, data);
-		}
-		else {
-			data = create_variable_data(variable_symbol_table, variable->variable_type, variable->variable_name);
-			insert_variable_symbol(variable_symbol_table, variable->variable_name, data);
-		}
-
-		variable->index = data->index;
 
 		Token* tok = pull_token(str);
 		if (tok->type == TokSemiColon) {
@@ -850,7 +747,7 @@ void* create_class_ast(Token* tok, wchar_t* str) {
 				class_ast->member_functions = (void**)malloc(sizeof(void*));
 			}
 			else {
-				class_ast->member_functions = realloc(class_ast->member_functions, class_ast->member_function_count * sizeof(void*));
+				class_ast->member_functions = (void**)realloc(class_ast->member_functions, class_ast->member_function_count * sizeof(void*));
 			}
 
 			class_ast->member_functions[class_ast->member_function_count - 1] = body_element;
@@ -914,11 +811,6 @@ VariableDeclarationBundleAST* create_function_parameters(wchar_t* str) {
 		variable->variable_type = parameter_type;
 		variable->declaration = NULL;
 		variable->access_modifier = L"default";
-
-		VariableData* variable_data = create_variable_data(variable_symbol_table, parameter_type, parameter_name);
-		insert_variable_symbol(variable_symbol_table, parameter_name, variable_data);
-
-		variable->index = variable_data->index;
 
 		if (parameters->variable_count == 0) {
 			parameters->variable_declarations = (VariableDeclarationAST*)malloc(sizeof(VariableDeclarationAST) * 1);
@@ -1009,6 +901,14 @@ void* create_new_ast(Token* tok, wchar_t* str) {
 	return result;
 }
 
+void* create_null_ast(Token* tok, wchar_t* str) {
+	NullAST* result = (NullAST*)malloc(sizeof(NullAST*));
+
+	result->TYPE = AST_Null;
+
+	return result;
+}
+
 void* parse(wchar_t* str) {
 	Token* tok = pull_token(str);
 
@@ -1051,7 +951,7 @@ void* parse(wchar_t* str) {
 	case TokPublic:
 	case TokProtected: {
 		void* element = parse(str);
-		wchar_t* access_modifier = L"";
+		wchar_t* access_modifier = L"default";
 
 		switch (tok->type)
 		{

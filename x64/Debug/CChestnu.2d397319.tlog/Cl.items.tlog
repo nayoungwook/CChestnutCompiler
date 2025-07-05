@@ -1,5 +1,5 @@
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\ir.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\ir.obj
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\main.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\main.obj
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\parser.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\parser.obj
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\token.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\token.obj
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\util.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\util.obj
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\ir.obj
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\main.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\main.obj
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\parser.obj
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\token.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\token.obj
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\util.obj

@@ -13,63 +13,42 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="헤더 파일\tokenizer">
-      <UniqueIdentifier>{b8c9e469-9bd3-4f72-baff-267fe32a8e19}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\tokenzier">
-      <UniqueIdentifier>{f6b85f1b-80a0-4a31-86cb-fcbd22db1f9c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\parser">
-      <UniqueIdentifier>{c0c9ab63-96ab-4c63-bad0-f433f516cfb6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\parser">
-      <UniqueIdentifier>{89f29286-9ad9-437d-90a7-0472ca0840e6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\ir">
-      <UniqueIdentifier>{56d14dd9-a99a-45f3-90be-93998fd7caeb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\ir">
-      <UniqueIdentifier>{210b62ab-4c33-419d-ad43-827c3219b880}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\util">
-      <UniqueIdentifier>{e12887f1-16ea-43ea-acc7-0241b5aa769e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.c">
+    <ClCompile Include="src\ir.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="token.c">
-      <Filter>소스 파일\tokenzier</Filter>
-    </ClCompile>
-    <ClCompile Include="parser.c">
-      <Filter>소스 파일\parser</Filter>
-    </ClCompile>
-    <ClCompile Include="util.c">
+    <ClCompile Include="src\main.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ir.c">
-      <Filter>소스 파일\ir</Filter>
+    <ClCompile Include="src\parser.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\token.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util.c">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="main.h">
+    <ClInclude Include="src\includes\ir.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="token.h">
-      <Filter>헤더 파일\tokenizer</Filter>
+    <ClInclude Include="src\includes\main.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="parser.h">
-      <Filter>헤더 파일\parser</Filter>
+    <ClInclude Include="src\includes\parser.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ast.h">
-      <Filter>헤더 파일\parser</Filter>
+    <ClInclude Include="src\includes\token.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ir.h">
-      <Filter>헤더 파일\ir</Filter>
+    <ClInclude Include="src\includes\util.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="util.h">
-      <Filter>헤더 파일\util</Filter>
+    <ClInclude Include="src\includes\ast.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

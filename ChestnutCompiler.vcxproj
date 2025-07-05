@@ -18,6 +18,21 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ir.c" />
+    <ClCompile Include="src\main.c" />
+    <ClCompile Include="src\parser.c" />
+    <ClCompile Include="src\token.c" />
+    <ClCompile Include="src\util.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\includes\ast.h" />
+    <ClInclude Include="src\includes\ir.h" />
+    <ClInclude Include="src\includes\main.h" />
+    <ClInclude Include="src\includes\parser.h" />
+    <ClInclude Include="src\includes\token.h" />
+    <ClInclude Include="src\includes\util.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -128,21 +143,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="ir.c" />
-    <ClCompile Include="main.c" />
-    <ClCompile Include="parser.c" />
-    <ClCompile Include="token.c" />
-    <ClCompile Include="util.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ast.h" />
-    <ClInclude Include="ir.h" />
-    <ClInclude Include="main.h" />
-    <ClInclude Include="parser.h" />
-    <ClInclude Include="token.h" />
-    <ClInclude Include="util.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
