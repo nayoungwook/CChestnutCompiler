@@ -1,5 +1,6 @@
 #pragma once
 
+#include "util.h"
 #include <stdio.h>
 
 typedef enum {
@@ -21,12 +22,16 @@ typedef enum {
 	AST_Constructor = 15,
 	AST_New = 16,
 	AST_Null = 17,
+	AST_ArrayDeclaration = 18,
+	AST_ArrayAccess = 19,
 }ASTType;
+
+typedef struct Type;
 
 typedef struct {
 	ASTType TYPE;
 	wchar_t* number_literal;
-	wchar_t* numeric_type;
+	const wchar_t* numeric_type;
 } NumberLiteralAST;
 
 typedef struct {
@@ -43,7 +48,7 @@ typedef struct {
 typedef struct {
 	ASTType TYPE;
 	wchar_t* variable_name;
-	wchar_t* variable_type;
+	Type* variable_type;
 	void* declaration;
 	wchar_t* access_modifier;
 } VariableDeclarationAST;
@@ -81,7 +86,7 @@ typedef struct {
 typedef struct {
 	ASTType TYPE;
 	wchar_t* function_name;
-	wchar_t* return_type;
+	Type* return_type;
 	VariableDeclarationBundleAST* parameters;
 	void** body;
 	int body_count;
@@ -99,13 +104,11 @@ typedef struct {
 typedef struct {
 	ASTType TYPE;
 	wchar_t* identifier;
-	int index;
 } IdentIncreaseAST;
 
 typedef struct {
 	ASTType TYPE;
 	wchar_t* identifier;
-	int index;
 } IdentDecreaseAST;
 
 typedef struct {
@@ -157,3 +160,18 @@ typedef struct {
 typedef struct {
 	ASTType	TYPE;
 }NullAST;
+
+typedef struct {
+	ASTType TYPE;
+	unsigned int element_count;
+	void** elements;
+	Type* element_type;
+} ArrayDeclarationAST;
+
+typedef struct {
+	ASTType TYPE;
+	void** indexes;
+	int access_count;
+	IdentifierAST* target_array;
+	void* attribute;
+}ArrayAccessAST;

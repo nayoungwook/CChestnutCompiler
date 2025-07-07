@@ -15,12 +15,14 @@ void close_scope();
 
 int get_prev_variable_index_size(SymbolTable* variable_symbol_table);
 
-VariableData* create_variable_data(SymbolTable* variable_symbol_table, const wchar_t* type, const wchar_t* name, const wchar_t* access_modifier);
+VariableData* create_variable_data(SymbolTable* variable_symbol_table, Type* type, const wchar_t* name, const wchar_t* access_modifier);
 void insert_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name, VariableData* data);
 void remove_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name);
 
-wchar_t* infer_type(void* ast, wchar_t* current_class_name);
+Type* infer_type(void* ast, wchar_t* search_point_class_name);
+void check_function_call_condition(FunctionData* function_data, const void** parameters, int parameter_count);
 void new_line(wchar_t** result, int indentation);
+Type* get_type_of_last_element(void* ast, const wchar_t* search_point_class_name);
 
 wchar_t* generate_ir(void* AST, int indentation);
 wchar_t* create_parameter_buffer(VariableDeclarationBundleAST* parameters_ast);
@@ -35,4 +37,4 @@ int get_parent_member_function_count(const wchar_t* class_name);
 
 FunctionData* get_member_function_data(const wchar_t* class_name, const wchar_t* function_name);
 VariableData* get_member_variable_data(const wchar_t* class_name, const wchar_t* variable_name);
-VariableData* find_variable_data(const wchar_t* class_name, IdentifierAST* identifier_ast);
+VariableData* find_variable_data(const wchar_t* class_name, const wchar_t* identifier);

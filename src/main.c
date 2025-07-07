@@ -172,14 +172,14 @@ void print_tokens(wchar_t* str) {
 
 extern SymbolTable* variable_symbol_table;
 extern SymbolTable* function_symbol_table;
-extern SymbolTable* type_symbol_table;
+extern SymbolTable* class_hierarchy;
 extern SymbolTable* class_symbol_table;
 extern Set* primitive_types;
 
 void initialize_global_symbol_table() {
 	variable_symbol_table = create_symbol_table();
 	function_symbol_table = create_symbol_table();
-	type_symbol_table = create_symbol_table();
+	class_hierarchy = create_symbol_table();
 	class_symbol_table = create_symbol_table();
 }
 

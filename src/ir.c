@@ -2,7 +2,7 @@
 
 extern SymbolTable* variable_symbol_table;
 extern SymbolTable* function_symbol_table;
-extern SymbolTable* type_symbol_table;
+extern SymbolTable* class_hierarchy;
 extern SymbolTable* class_symbol_table;
 extern Set* primitive_types;
 static int label_id = 0;
@@ -31,15 +31,12 @@ void remove_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* n
 	free(target_symbol);
 }
 
-VariableData* create_variable_data(SymbolTable* variable_symbol_table, const wchar_t* type, const wchar_t* name, const wchar_t* access_modifier) {
+VariableData* create_variable_data(SymbolTable* variable_symbol_table, Type* type, const wchar_t* name, const wchar_t* access_modifier) {
 	VariableData* result = (VariableData*)malloc(sizeof(VariableData));
-	result->type = (wchar_t*)malloc(sizeof(wchar_t) * 128);
-	result->name = (wchar_t*)malloc(sizeof(wchar_t) * 256);
+	result->type = type;
+	result->name = _wcsdup(name);
 	result->index = variable_symbol_table->size + get_prev_variable_index_size(variable_symbol_table) + 1;
 	result->access_modifier = _wcsdup(access_modifier);
-
-	wcscpy_s(result->type, 128, type);
-	wcscpy_s(result->name, 256, name);
 
 	return result;
 }
@@ -255,7 +252,7 @@ wchar_t* create_parameter_buffer(VariableDeclarationBundleAST* parameters_ast) {
 		insert_variable_symbol(variable_symbol_table, parameter->variable_name, variable_data);
 
 		wchar_t single_parameter_buffer[512];
-		swprintf(single_parameter_buffer, 512, L"%ls ", parameter->variable_type);
+		swprintf(single_parameter_buffer, 512, L"%ls ", parameter->variable_type->type_str);
 
 		parameter_buffer = join_string(parameter_buffer, single_parameter_buffer);
 
@@ -264,11 +261,11 @@ wchar_t* create_parameter_buffer(VariableDeclarationBundleAST* parameters_ast) {
 	return parameter_buffer;
 }
 
-VariableData* find_variable_data(const wchar_t* class_name, IdentifierAST* identifier_ast) {
+VariableData* find_variable_data(const wchar_t* class_name, const wchar_t* identifier) {
 
-	Symbol* local_symbol = find_symbol(variable_symbol_table, identifier_ast->identifier);
+	Symbol* local_symbol = find_symbol(variable_symbol_table, identifier);
 	if (local_symbol == NULL) {
-		return get_member_variable_data(class_name, identifier_ast->identifier);
+		return get_member_variable_data(class_name, identifier);
 	}
 	else {
 		return local_symbol->data;
@@ -286,29 +283,45 @@ FunctionData* find_function_data(const wchar_t* class_name, const wchar_t* funct
 	}
 }
 
-wchar_t* infer_type(void* ast, wchar_t* search_point_class_name) {
+Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 	ASTType type = *((ASTType*)(ast));
 	switch (type) {
-	case AST_NumberLiteral:
+	case AST_NumberLiteral: {
 		NumberLiteralAST* number_ast = (NumberLiteralAST*)ast;
-		return number_ast->numeric_type;
-	case AST_StringLiteral:
-		return L"string";
-	case AST_Identifier:
+		Type* result = (Type*)malloc(sizeof(Type));
+		result->type_str = number_ast->numeric_type;
+		result->array_element_type = NULL;
+		result->is_array = 0;
+		return result;
+	}
+	case AST_StringLiteral: {
+		Type* result = (Type*)malloc(sizeof(Type));
+		result->type_str = L"string";
+		result->array_element_type = NULL;
+		result->is_array = 0;
+		return result;
+	}
+	case AST_Identifier: {
 		IdentifierAST* ident_ast = (IdentifierAST*)ast;
 
 		if (!wcscmp(ident_ast->identifier, L"this")) {
-			return current_class;
+			Type* result = (Type*)malloc(sizeof(Type));
+			result->type_str = current_class;
+			result->is_array = 0;
+			result->array_element_type = NULL;
+
+			return result;
 		}
 
-		VariableData* data = find_variable_data(current_class, ast);
+		VariableData* data = find_variable_data(search_point_class_name, ident_ast->identifier);
 
 		return data->type;
+	}
 	case AST_BinExpr: {
 		BinExprAST* bin_expr_ast = (BinExprAST*)ast;
 
-		wchar_t* left_type = infer_type(bin_expr_ast->left, search_point_class_name);
-		wchar_t* right_type = infer_type(bin_expr_ast->right, search_point_class_name);
+		Type* left_type = get_type_of_last_element(bin_expr_ast->left, search_point_class_name);
+		Type* right_type = get_type_of_last_element(bin_expr_ast->right, search_point_class_name);
 
 		if (check_castability(left_type, right_type)) {
 			return right_type;
@@ -322,20 +335,80 @@ wchar_t* infer_type(void* ast, wchar_t* search_point_class_name) {
 			abort();
 		}
 		break;
+
+	case AST_VariableDeclaration: {
+		VariableDeclarationAST* variable_declaration_ast = (VariableDeclarationAST*)ast;
+
+		return variable_declaration_ast->variable_type;
+
+		break;
+	}
 	}
 
 	case AST_FunctionCall: {
 		FunctionCallAST* function_call_ast = (FunctionCallAST*)ast;
 
-		return find_function_data(search_point_class_name, function_call_ast->function_name, ast);;
+		FunctionData* function_data = find_function_data(search_point_class_name, function_call_ast->function_name, ast);
+
+		return function_data->return_type;
 	}
 
 	case AST_New: {
 		NewAST* new_ast = (NewAST*)ast;
 
-		return new_ast->class_name;
+		Type* result = (Type*)malloc(sizeof(Type));
+		result->type_str = new_ast->class_name;
+		result->is_array = 0;
+		result->array_element_type = NULL;
+
+		return result;
 	}
 
+	case AST_ArrayAccess: {
+		ArrayAccessAST* array_access_ast = (ArrayAccessAST*)ast;
+
+		Type* result = infer_type(array_access_ast->target_array, search_point_class_name);
+
+		int i;
+		for (i = 0; i < array_access_ast->access_count; i++) {
+			result = result->array_element_type;
+		}
+
+		return result;
+	}
+
+	case AST_ArrayDeclaration: {
+		ArrayDeclarationAST* array_declaration_ast = (ArrayDeclarationAST*)ast;
+
+		Type* element_type = NULL;
+
+		int i;
+		for (i = 0; i < array_declaration_ast->element_count; i++) {
+			if (element_type == NULL) {
+				element_type = infer_type(array_declaration_ast->elements[i], current_class);
+			}
+			else {
+				int elements_type_check = is_same_type(element_type, infer_type(array_declaration_ast->elements[i], current_class));
+				if (!elements_type_check) {
+					// Handle error for un-mathced types of elements
+				}
+			}
+		}
+
+		if (element_type == NULL) {
+			element_type = (Type*)malloc(sizeof(Type));
+			element_type->type_str = L"null";
+			element_type->is_array = 0;
+			element_type->array_element_type = NULL;
+		}
+
+		Type* result = (Type*)malloc(sizeof(Type));
+		result->array_element_type = element_type;
+		result->is_array = 1;
+		result->type_str = L"array";
+
+		return result;
+	}
 	}
 }
 
@@ -355,13 +428,13 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 		*result = join_string(*result, attr_str_buffer);
 
 		if (((IdentifierAST*)attribute)->attribute != NULL) {
-			create_attribute_ir(member_variable_data->name, ((IdentifierAST*)attribute)->attribute, result, indentation);
+			create_attribute_ir(member_variable_data->type->type_str, ((IdentifierAST*)attribute)->attribute, result, indentation);
 		}
 
 		break;
 	}
 
-	case AST_FunctionCall:
+	case AST_FunctionCall: {
 		FunctionCallAST* function_call_ast = ((FunctionCallAST*)attribute);
 		int member_function_index = get_member_function_index(target_class_name, function_call_ast->function_name);
 		FunctionData* member_function_data = get_member_function_data(target_class_name, function_call_ast->function_name);
@@ -369,40 +442,77 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 		wchar_t function_call_buffer[128];
 		swprintf(function_call_buffer, 128, L"@attr_call %d %d", member_function_index, function_call_ast->parameter_count);
 
-		if (member_function_data->parameter_count != function_call_ast->parameter_count) {
-			printf("[Temporary error] at ir.c Type not matched\n");
-			abort();
-		}
+		check_function_call_condition(member_function_data, function_call_ast->parameters, function_call_ast->parameter_count);
 
 		int i;
 		for (i = 0; i < member_function_data->parameter_count; i++) {
 			*result = join_string(*result, generate_ir(function_call_ast->parameters[i], indentation));
-
-			wchar_t* infered_type = infer_type(function_call_ast->parameters[i], target_class_name);
-
-			if (!check_castability(infered_type, member_function_data->parameter_types[i])) {
-				printf("[Temporary error] at ir.c Type not matched : %S, %S\n", infered_type, member_function_data->parameter_types[i]);
-				abort();
-			}
 		}
 
 		new_line(result, indentation);
 		*result = join_string(*result, function_call_buffer);
 
 		if (function_call_ast->attribute != NULL) {
-			create_attribute_ir(member_function_data->return_type, function_call_ast->attribute, result, indentation);
+			create_attribute_ir(member_function_data->return_type->type_str, function_call_ast->attribute, result, indentation);
 		}
 		break;
 	}
+
+	case AST_ArrayAccess: {
+		ArrayAccessAST* array_access_ast = (ArrayAccessAST*)attribute;
+
+		create_attribute_ir(target_class_name, ((ArrayAccessAST*)attribute)->target_array, result, indentation);
+
+		int i;
+		for (i = 0; i < array_access_ast->access_count; i++) {
+			*result = join_string(*result, generate_ir(array_access_ast->indexes[i], indentation));
+
+			new_line(result, indentation);
+			*result = join_string(*result, L"@array_load");
+		}
+		break;
+	}
+	}
+}
+
+Type* get_type_of_last_element(void* ast, const wchar_t* search_point_class_name) {
+	ASTType type = *((ASTType*)ast);
+
+	Type* result = infer_type(ast, search_point_class_name);
+
+	if (type == AST_Identifier) {
+		if (((IdentifierAST*)ast)->attribute != NULL) {
+			result = get_type_of_last_element(((IdentifierAST*)ast)->attribute, result->type_str);
+		}
+	}
+
+	if (type == AST_FunctionCall) {
+		if (((FunctionCallAST*)ast)->attribute != NULL) {
+			result = get_type_of_last_element(((FunctionCallAST*)ast)->attribute, result->type_str);
+		}
+	}
+
+	if (type == AST_ArrayAccess) {
+		if (((ArrayAccessAST*)ast)->attribute != NULL) {
+			result = get_type_of_last_element(((ArrayAccessAST*)ast)->attribute, result->type_str);
+		}
+	}
+
+	return result;
 }
 
 void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int indentation) {
+	if (!check_castability(get_type_of_last_element(left_ast, current_class), get_type_of_last_element(right_ast, current_class))) {
+		// handle error for unmathed types of assign
+		return;
+	}
+
 	*result = join_string(*result, generate_ir(right_ast, indentation));
 
 	// for non-attribute, direct assign
-	// a = 5;
+	// a = 5; a[3] = 5
 	switch (*((ASTType*)left_ast)) {
-	case AST_Identifier:
+	case AST_Identifier: {
 		if (((IdentifierAST*)left_ast)->attribute == NULL) {
 			new_line(result, indentation);
 			IdentifierAST* identifier_ast = (IdentifierAST*)left_ast;
@@ -418,8 +528,36 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 				swprintf(store_str_buffer, 128, L"@store %d", ((VariableData*)local_symbol->data)->index);
 				*result = join_string(*result, store_str_buffer);
 			}
+			return;
 		}
-		return;
+		break;
+	}
+
+	case AST_ArrayAccess: {
+		if (((ArrayAccessAST*)left_ast)->attribute == NULL) {
+			IdentifierAST* identifier_ast = ((ArrayAccessAST*)left_ast)->target_array;
+
+			*result = join_string(*result, generate_ir(identifier_ast, indentation));
+
+			wchar_t store_str_buffer[128];
+
+			int i;
+			int access_count = ((ArrayAccessAST*)left_ast)->access_count;
+			for (i = 0; i < access_count; i++) {
+				*result = join_string(*result, generate_ir(((ArrayAccessAST*)left_ast)->indexes[i], indentation));
+
+				new_line(result, indentation);
+				if (i == access_count - 1) {
+					*result = join_string(*result, L"@array_store");
+				}
+				else {
+					*result = join_string(*result, L"@array_load");
+				}
+			}
+			return;
+		}
+		break;
+	}
 	}
 
 	void* temp_left_ast = left_ast;
@@ -439,6 +577,9 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 				else if (*((ASTType*)attribute_backup) == AST_FunctionCall) {
 					((FunctionCallAST*)attribute_backup)->attribute = NULL;
 				}
+				else if (*((ASTType*)attribute_backup) == AST_ArrayAccess) {
+					((ArrayAccessAST*)attribute_backup)->attribute = NULL;
+				}
 
 				last_ast = left_ast;
 				loop = 0;
@@ -457,6 +598,28 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 
 			break;
 		}
+		case AST_ArrayAccess: {
+			if (((ArrayAccessAST*)left_ast)->attribute == NULL) {
+				if (*((ASTType*)attribute_backup) == AST_Identifier) {
+					((IdentifierAST*)attribute_backup)->attribute = NULL;
+				}
+				else if (*((ASTType*)attribute_backup) == AST_FunctionCall) {
+					((FunctionCallAST*)attribute_backup)->attribute = NULL;
+				}
+				else if (*((ASTType*)attribute_backup) == AST_ArrayAccess) {
+					((ArrayAccessAST*)attribute_backup)->attribute = NULL;
+				}
+
+				last_ast = left_ast;
+				loop = 0;
+				break;
+			}
+
+			attribute_backup = left_ast;
+			left_ast = ((ArrayAccessAST*)left_ast)->attribute;
+
+			break;
+		}
 		}
 	}
 
@@ -464,7 +627,7 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 
 	switch (*((ASTType*)last_ast)) {
 	case AST_Identifier: {
-		wchar_t* target_class_name = infer_type(temp_left_ast, L"");
+		wchar_t* target_class_name = infer_type(temp_left_ast, L"")->type_str;
 		Symbol* target_class_symbol = find_symbol(class_symbol_table, target_class_name);
 		ClassData* target_class = target_class_symbol->data;
 
@@ -477,7 +640,58 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 		*result = join_string(*result, attr_str_buffer);
 		break;
 	}
+	case AST_ArrayAccess: {
+		wchar_t* target_class_name = infer_type(temp_left_ast, L"")->type_str;
+		Symbol* target_class_symbol = find_symbol(class_symbol_table, target_class_name);
+		ClassData* target_class = target_class_symbol->data;
+
+		int member_variable_index = get_member_variable_index(target_class_name, ((ArrayAccessAST*)last_ast)->target_array->identifier);
+		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((ArrayAccessAST*)last_ast)->target_array->identifier);
+
+		ArrayAccessAST* array_access_last_ast = (ArrayAccessAST*)last_ast;
+
+		new_line(result, indentation);
+		wchar_t attr_str_buffer[128];
+		swprintf(attr_str_buffer, 128, L"@attr %d", member_variable_index);
+		*result = join_string(*result, attr_str_buffer);
+
+		wchar_t store_str_buffer[128];
+
+		int i;
+		int access_count = array_access_last_ast->access_count;
+		for (i = 0; i < access_count; i++) {
+			*result = join_string(*result, generate_ir(array_access_last_ast->indexes[i], indentation));
+
+			new_line(result, indentation);
+			if (i == access_count - 1) {
+				*result = join_string(*result, L"@array_store");
+			}
+			else {
+				*result = join_string(*result, L"@array_load");
+			}
+		}
+		break;
 	}
+	}
+}
+
+void check_function_call_condition(FunctionData* function_data, const void** parameters, int parameter_count) {
+	if (function_data->parameter_count != parameter_count) {
+		printf("[Temporary error] at ir.c Type not matched\n");
+		abort();
+	}
+
+	int i;
+	for (i = 0; i < parameter_count; i++) {
+
+		Type* infered_type = get_type_of_last_element(parameters[i], current_class);
+
+		if (!check_castability(infered_type, function_data->parameter_types[i])) {
+			printf("[Temporary error] at ir.c Type not matched : %S, %S\n", infered_type, function_data->parameter_types[i]);
+			abort();
+		}
+	}
+
 }
 
 wchar_t* generate_ir(void* ast, int indentation) {
@@ -485,6 +699,22 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	wchar_t* result = L"";
 
 	switch (*((ASTType*)ast)) {
+
+	case AST_ArrayDeclaration: {
+		ArrayDeclarationAST* array_declaration_ast = (ArrayDeclarationAST*)ast;
+
+		int i;
+		for (i = 0; i < array_declaration_ast->element_count; i++) {
+			result = join_string(result, generate_ir(array_declaration_ast->elements[i], indentation + 1));
+		}
+
+		new_line(&result, indentation + 1);
+		wchar_t* array_str_buffer[128];
+		swprintf(array_str_buffer, 128, L"@array %d", array_declaration_ast->element_count);
+		result = join_string(result, array_str_buffer);
+
+		break;
+	}
 
 	case AST_Return: {
 		ReturnAST* return_ast = (ReturnAST*)ast;
@@ -568,7 +798,6 @@ wchar_t* generate_ir(void* ast, int indentation) {
 			result = join_string(result, identifier_str_buffer);
 		}
 		else {
-
 			Symbol* local_symbol = find_symbol(variable_symbol_table, identifier_ast->identifier);
 
 			if (local_symbol == NULL) {
@@ -582,7 +811,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		}
 
 		if (identifier_ast->attribute != NULL) {
-			wchar_t* target_class_name = infer_type(identifier_ast, current_class);
+			wchar_t* target_class_name = infer_type(identifier_ast, current_class)->type_str;
 			create_attribute_ir(target_class_name, identifier_ast->attribute, &result, indentation);
 		}
 
@@ -612,21 +841,11 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 		FunctionData* constructor_data = class_data->constructor_data;
 
-		if (new_ast->parameter_count != constructor_data->parameter_count) {
-			printf("[Temporary error] at ir.c Type not matched\n");
-			abort();
-		}
+		check_function_call_condition(constructor_data, new_ast->parameters, new_ast->parameter_count);
 
 		int i;
 		for (i = 0; i < new_ast->parameter_count; i++) {
 			result = join_string(result, generate_ir(new_ast->parameters[i], indentation));
-
-			wchar_t* infered_type = infer_type(new_ast->parameters[i], current_class);
-
-			if (!check_castability(infered_type, constructor_data->parameter_types[i])) {
-				printf("[Temporary error] at ir.c Type not matched : %S, %S\n", infered_type, constructor_data->parameter_types[i]);
-				abort();
-			}
 		}
 
 		new_line(&result, indentation);
@@ -634,6 +853,22 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		wchar_t* new_buffer[512];
 		swprintf(new_buffer, 128, L"@new %d %d", class_data->index, constructor_data->parameter_count);
 		result = join_string(result, new_buffer);
+
+		break;
+	}
+
+	case AST_ArrayAccess: {
+		ArrayAccessAST* array_access_ast = (ArrayAccessAST*)ast;
+
+		result = join_string(result, generate_ir(array_access_ast->target_array, indentation));
+
+		int i;
+		for (i = 0; i < array_access_ast->access_count; i++) {
+			result = join_string(result, generate_ir(array_access_ast->indexes[i], indentation));
+
+			new_line(&result, indentation);
+			result = join_string(result, L"@array_load");
+		}
 
 		break;
 	}
@@ -653,21 +888,11 @@ wchar_t* generate_ir(void* ast, int indentation) {
 			swprintf(function_call_buffer, 128, L"@call %d %d", ((FunctionData*)local_symbol->data)->index, function_call_ast->parameter_count);
 		}
 
-		if (function_data->parameter_count != function_call_ast->parameter_count) {
-			printf("[Temporary error] at ir.c Type not matched\n");
-			abort();
-		}
+		check_function_call_condition(function_data, function_call_ast->parameters, function_call_ast->parameter_count);
 
 		int i;
 		for (i = 0; i < function_data->parameter_count; i++) {
 			result = join_string(result, generate_ir(function_call_ast->parameters[i], indentation));
-
-			wchar_t* infered_type = infer_type(function_call_ast->parameters[i], current_class);
-
-			if (!check_castability(infered_type, function_data->parameter_types[i])) {
-				printf("[Temporary error] at ir.c Type not matched : %S, %S\n", infered_type, function_data->parameter_types[i]);
-				abort();
-			}
 		}
 
 		new_line(&result, indentation);
@@ -726,10 +951,10 @@ wchar_t* generate_ir(void* ast, int indentation) {
 			function_symbol = find_symbol(current_class_data->member_functions, function_declaration_ast->function_name);
 		}
 
+		open_scope();
+
 		wchar_t* parameter_buffer = create_parameter_buffer(((VariableDeclarationBundleAST*)function_declaration_ast->parameters));
 		FunctionData* function_data = function_symbol->data;
-
-		open_scope();
 
 		new_line(&result, indentation);
 		wchar_t buffer[256];
@@ -814,6 +1039,10 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 		if (variable_declaration_ast->declaration) {
 			result = join_string(result, generate_ir(variable_declaration_ast->declaration, indentation));
+
+			if (!check_castability(get_type_of_last_element(variable_declaration_ast, current_class), get_type_of_last_element(variable_declaration_ast->declaration, current_class))) {
+				return;
+			}
 		}
 
 		// indexing for additional parent class member variables.
@@ -838,9 +1067,11 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IdentIncrease: {
 		IdentIncreaseAST* ident_increase_ast = (IdentIncreaseAST*)ast;
 
+		VariableData* variable_data = find_variable_data(current_class, ident_increase_ast->identifier);
+
 		new_line(&result, indentation);
 		wchar_t ident_increase_str_buffer[128];
-		swprintf(ident_increase_str_buffer, 128, L"@inc %d", ident_increase_ast->index);
+		swprintf(ident_increase_str_buffer, 128, L"@inc %d", variable_data->index);
 		result = join_string(result, ident_increase_str_buffer);
 
 		break;
@@ -849,9 +1080,11 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IdentDecrease: {
 		IdentDecreaseAST* ident_decrease_ast = (IdentDecreaseAST*)ast;
 
+		VariableData* variable_data = find_variable_data(current_class, ident_decrease_ast->identifier);
+
 		new_line(&result, indentation);
 		wchar_t ident_decrease_str_buffer[128];
-		swprintf(ident_decrease_str_buffer, 128, L"@dec %d", ident_decrease_ast->index);
+		swprintf(ident_decrease_str_buffer, 128, L"@dec %d", variable_data->index);
 		result = join_string(result, ident_decrease_str_buffer);
 
 		break;

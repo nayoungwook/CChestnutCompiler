@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ast.h"
-
 #include <stdio.h>
 #include <wchar.h>
 #include <locale.h>
@@ -16,6 +14,12 @@ wchar_t* read_file(const wchar_t* path);
 // For strings.
 wchar_t* join_string(const wchar_t* str1, const wchar_t* str2);
 int is_decimal(wchar_t* str);
+
+typedef struct _Type {
+	wchar_t* type_str;
+	struct _Type* array_element_type;
+	int is_array;
+} Type;
 
 // Data Store
 typedef struct _Symbol {
@@ -41,7 +45,7 @@ typedef struct _Set {
 Symbol* find_symbol_from_set(Set* target_set, const wchar_t* name);
 
 typedef struct _VariableData {
-	const wchar_t* type;
+	Type* type;
 	const wchar_t* name;
 	unsigned int index;
 	wchar_t* access_modifier;
@@ -49,15 +53,12 @@ typedef struct _VariableData {
 
 typedef struct _FunctionData {
 	const wchar_t* name;
-	const wchar_t* return_type;
-	const wchar_t* mangled_name;
+	Type* return_type;
 	unsigned int parameter_count;
 	int index;
-	wchar_t** parameter_types;
+	Type** parameter_types;
 	wchar_t* access_modifier;
 } FunctionData;
-
-const wchar_t* create_mangled_name(const wchar_t* name, VariableDeclarationBundleAST* parameters);
 
 typedef struct _ClassData {
 	const wchar_t* name;
@@ -71,4 +72,4 @@ typedef struct _ClassData {
 SymbolTable* create_symbol_table();
 Set* create_set();
 
-int is_primitive_type(const wchar_t* type);
+int is_primitive_type(Type* type);

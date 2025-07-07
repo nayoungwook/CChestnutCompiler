@@ -2,7 +2,7 @@
 
 SymbolTable* function_symbol_table;
 SymbolTable* class_symbol_table;
-SymbolTable* type_symbol_table;
+SymbolTable* class_hierarchy;
 SymbolTable* variable_symbol_table;
 
 Set* primitive_types;
@@ -23,25 +23,22 @@ void insert_set_symbol(Set* target_set, const wchar_t* str) {
 	target_set->table[_hash] = symbol;
 }
 
-FunctionData* create_function_data(SymbolTable* function_symbol_table, const wchar_t* name, const wchar_t* return_type, VariableDeclarationBundleAST* parameters) {
+FunctionData* create_function_data(SymbolTable* function_symbol_table, const wchar_t* name, Type* return_type, VariableDeclarationBundleAST* parameters) {
 	FunctionData* result = (FunctionData*)malloc(sizeof(FunctionData));
 
 	result->name = _wcsdup(name);
-	result->return_type = _wcsdup(return_type);
-	result->mangled_name = _wcsdup(create_mangled_name(name, parameters));
+	result->return_type = return_type;
 	result->index = function_symbol_table->size + 1;
 	result->access_modifier = L"default";
-	result->parameter_types = (wchar_t**)malloc(sizeof(wchar_t*));
+	result->parameter_types = NULL;
 	result->parameter_count = parameters->variable_count;
 
 	int i;
 	for (i = 0; i < parameters->variable_count; i++) {
-		result->parameter_types = (wchar_t**)realloc(result->parameter_types, sizeof(wchar_t*) * (i + 1));
+		result->parameter_types = (Type**)realloc(result->parameter_types, sizeof(Type*) * (i + 1));
 
 		VariableDeclarationAST* variable_declaration = parameters->variable_declarations[i];
-		unsigned int parameter_type_len = (wcslen(variable_declaration->variable_type) + 1);
-		result->parameter_types[i] = (wchar_t*)malloc(sizeof(wchar_t) * parameter_type_len);
-		wcscpy_s(result->parameter_types[i], parameter_type_len, variable_declaration->variable_type);
+		result->parameter_types[i] = variable_declaration->variable_type;
 	}
 
 	return result;
@@ -332,7 +329,7 @@ void* create_return_ast(Token* tok, wchar_t* str) {
 
 void* create_function_call_ast(Token* tok, wchar_t* str) {
 	FunctionCallAST* result = (FunctionCallAST*)malloc(sizeof(FunctionCallAST));
-	wchar_t* function_name = tok->str;
+	wchar_t* function_name = _wcsdup(tok->str);
 	result->function_name = function_name;
 	result->TYPE = AST_FunctionCall;
 	result->parameter_count = 0;
@@ -368,6 +365,39 @@ void* create_function_call_ast(Token* tok, wchar_t* str) {
 	return result;
 }
 
+void* create_array_access_ast(Token* tok, wchar_t* str) {
+	ArrayAccessAST* array_access_ast = (ArrayAccessAST*)malloc(sizeof(ArrayAccessAST));
+	array_access_ast->TYPE = AST_ArrayAccess;
+	array_access_ast->access_count = 0;
+	array_access_ast->indexes = NULL;
+
+	int access_count = 0;
+	void** indexes = NULL;
+
+	while (peek_token(str)->type == TokLSquareBracket) {
+		consume(str, TokLSquareBracket);
+		void* index = parse_expression(str);
+		consume(str, TokRSquareBracket);
+
+		indexes = (void**)realloc(indexes, (access_count + 1) * sizeof(void*));
+		indexes[access_count] = index;
+
+		access_count++;
+	}
+
+	array_access_ast->indexes = indexes;
+
+	IdentifierAST* identifier = (IdentifierAST*)malloc(sizeof(IdentifierAST));
+	identifier->TYPE = AST_Identifier;
+	identifier->identifier = tok->str;
+	identifier->attribute = NULL;
+
+	array_access_ast->target_array = identifier;
+	array_access_ast->access_count = access_count;
+
+	return array_access_ast;
+}
+
 void* create_identifier_ast(Token* tok, wchar_t* str, int is_attribute_identifier) {
 	void* result = NULL;
 
@@ -383,35 +413,46 @@ void* create_identifier_ast(Token* tok, wchar_t* str, int is_attribute_identifie
 		}
 	}
 	else {
-		if (next_token->type == TokIncrease || next_token->type == TokDecrease) {
-			if (next_token->type == TokIncrease) {
-				consume(str, TokIncrease);
-				result = (IdentIncreaseAST*)malloc(sizeof(IdentIncreaseAST));
-				((IdentIncreaseAST*)result)->identifier = tok->str;
-				((IdentIncreaseAST*)result)->TYPE = AST_IdentIncrease;
-			}
-			if (next_token->type == TokDecrease) {
-				consume(str, TokDecrease);
-				result = (IdentDecreaseAST*)malloc(sizeof(IdentDecreaseAST));
-				((IdentDecreaseAST*)result)->identifier = tok->str;
-				((IdentDecreaseAST*)result)->TYPE = AST_IdentDecrease;
-			}
+		if (next_token->type == TokLSquareBracket) {
+			result = create_array_access_ast(tok, str);
 
-			if (peek_token(str)->type == TokSemiColon) {
-				consume(str, TokSemiColon);
+			((ArrayAccessAST*)result)->attribute = NULL;
+			if (peek_token(str)->type == TokDot) {
+				consume(str, TokDot);
+				((ArrayAccessAST*)result)->attribute = create_identifier_ast(pull_token(str), str, 1);
 			}
 		}
 		else {
-			result = (IdentifierAST*)malloc(sizeof(IdentifierAST));
-			((IdentifierAST*)result)->TYPE = AST_Identifier;
-			((IdentifierAST*)result)->identifier = tok->str;
-		}
+			if (next_token->type == TokIncrease || next_token->type == TokDecrease) {
+				if (next_token->type == TokIncrease) {
+					consume(str, TokIncrease);
+					result = (IdentIncreaseAST*)malloc(sizeof(IdentIncreaseAST));
+					((IdentIncreaseAST*)result)->identifier = tok->str;
+					((IdentIncreaseAST*)result)->TYPE = AST_IdentIncrease;
+				}
+				if (next_token->type == TokDecrease) {
+					consume(str, TokDecrease);
+					result = (IdentDecreaseAST*)malloc(sizeof(IdentDecreaseAST));
+					((IdentDecreaseAST*)result)->identifier = tok->str;
+					((IdentDecreaseAST*)result)->TYPE = AST_IdentDecrease;
+				}
 
-		((IdentifierAST*)result)->attribute = NULL;
+				if (peek_token(str)->type == TokSemiColon) {
+					consume(str, TokSemiColon);
+				}
+			}
+			else {
+				result = (IdentifierAST*)malloc(sizeof(IdentifierAST));
+				((IdentifierAST*)result)->TYPE = AST_Identifier;
+				((IdentifierAST*)result)->identifier = tok->str;
 
-		if (peek_token(str)->type == TokDot) {
-			consume(str, TokDot);
-			((IdentifierAST*)result)->attribute = create_identifier_ast(pull_token(str), str, 1);
+				((IdentifierAST*)result)->attribute = NULL;
+
+				if (peek_token(str)->type == TokDot) {
+					consume(str, TokDot);
+					((IdentifierAST*)result)->attribute = create_identifier_ast(pull_token(str), str, 1);
+				}
+			}
 		}
 
 		if (!is_attribute_identifier && peek_token(str)->type == TokAssign) {
@@ -419,7 +460,7 @@ void* create_identifier_ast(Token* tok, wchar_t* str, int is_attribute_identifie
 
 			void* right_term = parse_expression(str);
 
-			BinExprAST* bin_expr_ast = (BinExprAST*)malloc(sizeof(BinExprAST*));
+			BinExprAST* bin_expr_ast = (BinExprAST*)malloc(sizeof(BinExprAST));
 			bin_expr_ast->TYPE = AST_BinExpr;
 			bin_expr_ast->left = result;
 			bin_expr_ast->right = right_term;
@@ -430,11 +471,26 @@ void* create_identifier_ast(Token* tok, wchar_t* str, int is_attribute_identifie
 			return bin_expr_ast;
 		}
 	}
-
 	return result;
 }
 
-int check_castability(const wchar_t* from, const wchar_t* to) {
+int is_same_type(Type* t1, Type* t2) {
+	if (!wcscmp(t1->type_str, t2->type_str)) {
+		if (!wcscmp(t1->type_str, L"array")) {
+			return is_same_type(t1->array_element_type, t2->array_element_type);
+		}
+
+		return 1;
+	}
+	else {
+		// handle error
+		printf("[Temporary error] Error at parser.c you can\'t cast between %S and %S.\n", t1->type_str, t2->type_str);
+
+		return 0;
+	}
+}
+
+int check_castability(Type* from, Type* to) {
 	int primitive_count = 0;
 
 	if (is_primitive_type(from)) primitive_count++;
@@ -447,17 +503,19 @@ int check_castability(const wchar_t* from, const wchar_t* to) {
 		return 0;
 	}
 
-	// check for the castability between classes.
-	Symbol* from_symbol = find_symbol(type_symbol_table, from);
-	Symbol* to_symbol = find_symbol(type_symbol_table, to);
+	// check for the castability between non primitives.
+	Symbol* from_symbol = find_symbol(class_hierarchy, from->type_str);
+	Symbol* to_symbol = find_symbol(class_hierarchy, to->type_str);
 
-	if (from_symbol) { // are both classes?
-		Type* from_type = ((Type*)from_symbol->data);
-		Type* to_type = ((Type*)to_symbol->data);
+	if (from_symbol) { // are they classes?
+		ClassType* from_type = ((ClassType*)from_symbol->data);
+		ClassType* to_type = ((ClassType*)to_symbol->data);
 		while (1) {
 			// to -> next search find from.
 			// up casting.
-			if (!strcmp(from_type->type_str, to_type->type_str)) return 1;
+			if (is_same_type(from, to)) {
+				return 1;
+			}
 
 			if (!from_type->parent_type) {
 				return 0;
@@ -468,16 +526,22 @@ int check_castability(const wchar_t* from, const wchar_t* to) {
 		return 1;
 	}
 	else {
-		if (!wcscmp(from, to))return 1;
+		if (!wcscmp(from->type_str, L"null")) { // null to class
+			if (to_symbol) {
+				return 1;
+			}
+		}
 
-		printf("[Temporary error] Error at util.c is not a class.\n");
+		if (is_same_type(from, to))return 1;
+
+		printf("[Temporary error] Error at parser.c you can\'t cast between %S and %S.\n", from->type_str, to->type_str);
 		return 0;
 	}
 
 	return 0;
 }
 
-Symbol* create_type_symbol(const wchar_t* type_str, Type* type) {
+Symbol* create_type_symbol(const wchar_t* type_str, ClassType* type) {
 	Symbol* symbol = (Symbol*)malloc(sizeof(Symbol));
 
 	unsigned int _hash = hash(type_str);
@@ -487,15 +551,15 @@ Symbol* create_type_symbol(const wchar_t* type_str, Type* type) {
 	symbol->hash = _hash;
 }
 
-void insert_type_symbol(Type* target_type, const wchar_t* type_str) {
-	Type* child = (Type*)malloc(sizeof(Type));
+void insert_type_symbol(ClassType* target_type, const wchar_t* type_str) {
+	ClassType* child = (ClassType*)malloc(sizeof(ClassType));
 	child->type_str = type_str;
 	child->parent_type = target_type;
 	child->child_types = NULL;
 
 	Symbol* child_symbol = create_type_symbol(type_str, child);
-	child_symbol->next = type_symbol_table->table[child_symbol->hash];
-	type_symbol_table->table[child_symbol->hash] = child_symbol;
+	child_symbol->next = class_hierarchy->table[child_symbol->hash];
+	class_hierarchy->table[child_symbol->hash] = child_symbol;
 
 	if (target_type) {
 		if (!target_type->child_types) {
@@ -511,15 +575,15 @@ void insert_type_symbol(Type* target_type, const wchar_t* type_str) {
 
 void remove_type_symbol(const wchar_t* type_str) {
 	unsigned int _hash = hash(type_str);
-	type_symbol_table->size--;
+	class_hierarchy->size--;
 
-	Symbol* target_symbol = type_symbol_table->table[_hash];
-	type_symbol_table->table[_hash] = type_symbol_table->table[_hash]->next;
+	Symbol* target_symbol = class_hierarchy->table[_hash];
+	class_hierarchy->table[_hash] = class_hierarchy->table[_hash]->next;
 }
 
 void insert_function_symbol(SymbolTable* function_symbol_table, FunctionDeclarationAST* ast) {
 	FunctionData* data = create_function_data(function_symbol_table, ast->function_name, ast->return_type, ast->parameters);
-	unsigned int _hash = hash(data->mangled_name);
+	unsigned int _hash = hash(data->name);
 
 	Symbol* symbol = (Symbol*)malloc(sizeof(Symbol));
 	symbol->data = data;
@@ -538,6 +602,25 @@ void remove_function_symbol(SymbolTable* function_symbol_table, const wchar_t* m
 	free(target_symbol);
 }
 
+Type* get_type(Token* tok, wchar_t* str) {
+	wchar_t* type = pull_token(str)->str;
+
+	Type* result = (Type*)malloc(sizeof(Type));
+	result->type_str = _wcsdup(type);
+	result->array_element_type = NULL;
+	result->is_array = 0;
+
+	if (!wcscmp(type, L"array")) { // for array
+		consume(str, TokLesser);
+		Type* array_element_type = get_type(tok, str);
+		result->array_element_type = array_element_type;
+		result->is_array = 1;
+		consume(str, TokGreater);
+	}
+
+	return result;
+}
+
 void* create_function_declaration_ast(Token* tok, wchar_t* str) {
 	// func add(a: int, b: int): int {}
 	FunctionDeclarationAST* function_declaration_ast = (FunctionDeclarationAST*)malloc(sizeof(FunctionDeclarationAST));
@@ -550,13 +633,14 @@ void* create_function_declaration_ast(Token* tok, wchar_t* str) {
 
 	current_function_name = _wcsdup(function_name);
 
-	VariableDeclarationBundleAST* parameters = create_function_parameters(str);
+	VariableDeclarationBundleAST* parameters = create_function_parameters(tok, str);
 	function_declaration_ast->parameters = parameters;
 
 	consume(str, TokColon); // consume :
 
-	wchar_t* return_type = pull_token(str)->str;
-	function_declaration_ast->return_type = return_type;
+	Type* return_type_element = get_type(tok, str);
+
+	function_declaration_ast->return_type = return_type_element;
 
 	consume(str, TokLBracket); // consume {
 
@@ -646,7 +730,7 @@ void* create_variable_declaration_ast(Token* tok, wchar_t* str) {
 
 		consume(str, TokColon);
 
-		wchar_t* type = pull_token(str)->str;
+		wchar_t* type_element = get_type(tok, str);
 
 		tok = pull_token(str);
 
@@ -664,7 +748,9 @@ void* create_variable_declaration_ast(Token* tok, wchar_t* str) {
 		VariableDeclarationAST* variable = (VariableDeclarationAST*)malloc(sizeof(VariableDeclarationAST));
 		variable->TYPE = AST_VariableDeclaration;
 		variable->variable_name = name;
-		variable->variable_type = type;
+
+		variable->variable_type = type_element;
+
 		variable->declaration = declaration;
 		variable->access_modifier = L"default";
 
@@ -720,10 +806,10 @@ void* create_class_ast(Token* tok, wchar_t* str) {
 	class_ast->member_variable_bundle_count = 0;
 
 	// initialize for constructor
-	class_ast->constructor = (ConstructorAST*)malloc(sizeof(ConstructorAST*));
+	class_ast->constructor = (ConstructorAST*)malloc(sizeof(ConstructorAST));
 	class_ast->constructor->TYPE = AST_Constructor;
 	class_ast->constructor->body_count = 0;
-	VariableDeclarationBundleAST* empty_parameters = (VariableDeclarationBundleAST*)malloc(sizeof(VariableDeclarationBundleAST*));
+	VariableDeclarationBundleAST* empty_parameters = (VariableDeclarationBundleAST*)malloc(sizeof(VariableDeclarationBundleAST));
 	empty_parameters->variable_count = 0;
 	empty_parameters->variable_declarations = NULL;
 	class_ast->constructor->parameters = empty_parameters;
@@ -760,7 +846,7 @@ void* create_class_ast(Token* tok, wchar_t* str) {
 				class_ast->member_variables = (void**)malloc(sizeof(void*));
 			}
 			else {
-				class_ast->member_variables = realloc(class_ast->member_variables, class_ast->member_variable_bundle_count * sizeof(void*));
+				class_ast->member_variables = (void**)realloc(class_ast->member_variables, class_ast->member_variable_bundle_count * sizeof(void*));
 			}
 
 			class_ast->member_variables[class_ast->member_variable_bundle_count - 1] = body_element;
@@ -774,7 +860,11 @@ void* create_class_ast(Token* tok, wchar_t* str) {
 	}
 
 	ClassData* class_data = ((ClassData*)find_symbol(class_symbol_table, current_class)->data);
-	class_data->constructor_data = create_function_data(class_data->member_functions, L"constructor", L"void", class_ast->constructor->parameters);
+	Type* constructor_return_type_element = (Type*)malloc(sizeof(Type));
+	constructor_return_type_element->type_str = L"void";
+	constructor_return_type_element->is_array = 0;
+	constructor_return_type_element->array_element_type = NULL;
+	class_data->constructor_data = create_function_data(class_data->member_functions, L"constructor", constructor_return_type_element, class_ast->constructor->parameters);
 
 	current_class = L"";
 
@@ -783,7 +873,7 @@ void* create_class_ast(Token* tok, wchar_t* str) {
 	return class_ast;
 }
 
-VariableDeclarationBundleAST* create_function_parameters(wchar_t* str) {
+VariableDeclarationBundleAST* create_function_parameters(Token* tok, wchar_t* str) {
 	consume(str, TokLParen); // consume (
 
 	VariableDeclarationBundleAST* parameters = (VariableDeclarationBundleAST*)malloc(sizeof(VariableDeclarationBundleAST));
@@ -797,8 +887,7 @@ VariableDeclarationBundleAST* create_function_parameters(wchar_t* str) {
 
 		consume(str, TokColon); // consume :
 
-		Token* parameter_type_token = pull_token(str);
-		wchar_t* parameter_type = parameter_type_token->str;
+		Type* parameter_type_element = get_type(peek_token(str), str);
 		// assert parameter_name_token is type string for type.
 
 		if (peek_token(str)->type == TokComma) {
@@ -808,7 +897,7 @@ VariableDeclarationBundleAST* create_function_parameters(wchar_t* str) {
 		VariableDeclarationAST* variable = (VariableDeclarationAST*)malloc(sizeof(VariableDeclarationAST));
 		variable->TYPE = AST_VariableDeclaration;
 		variable->variable_name = parameter_name;
-		variable->variable_type = parameter_type;
+		variable->variable_type = parameter_type_element;
 		variable->declaration = NULL;
 		variable->access_modifier = L"default";
 
@@ -830,12 +919,12 @@ VariableDeclarationBundleAST* create_function_parameters(wchar_t* str) {
 }
 
 void* create_constructor_ast(Token* tok, wchar_t* str) {
-	ConstructorAST* constructor_ast = (ConstructorAST*)malloc(sizeof(ConstructorAST*));
+	ConstructorAST* constructor_ast = (ConstructorAST*)malloc(sizeof(ConstructorAST));
 
 	constructor_ast->TYPE = AST_Constructor;
 	current_function_name = L"constructor";
 	constructor_ast->body_count = 0;
-	constructor_ast->parameters = create_function_parameters(str);
+	constructor_ast->parameters = create_function_parameters(tok, str);
 
 	consume(str, TokLBracket); // consume {
 	open_scope();
@@ -864,7 +953,7 @@ void* create_constructor_ast(Token* tok, wchar_t* str) {
 }
 
 void* create_new_ast(Token* tok, wchar_t* str) {
-	NewAST* result = (NewAST*)malloc(sizeof(NewAST*));
+	NewAST* result = (NewAST*)malloc(sizeof(NewAST));
 
 	wchar_t* class_name = _wcsdup(pull_token(str)->str);
 
@@ -902,9 +991,40 @@ void* create_new_ast(Token* tok, wchar_t* str) {
 }
 
 void* create_null_ast(Token* tok, wchar_t* str) {
-	NullAST* result = (NullAST*)malloc(sizeof(NullAST*));
+	NullAST* result = (NullAST*)malloc(sizeof(NullAST));
 
 	result->TYPE = AST_Null;
+
+	return result;
+}
+
+void* create_array_declaration_ast(Token* tok, wchar_t* str) {
+	ArrayDeclarationAST* result = (ArrayDeclarationAST*)malloc(sizeof(ArrayDeclarationAST));
+	result->TYPE = AST_ArrayDeclaration;
+
+	int element_count = 0;
+	void** elements = NULL;
+
+	while (peek_token(str)->type != TokRBracket) {
+		elements = (void**)realloc(elements, sizeof(void*) * (element_count + 1));
+		void* element = parse(str);
+
+		elements[element_count] = element;
+		element_count++;
+
+		Token* next_token = peek_token(str);
+
+		if (next_token->type == TokLBracket) {
+			break;
+		}
+		else if (next_token->type == TokComma) {
+			consume(str, TokComma);
+		}
+	}
+
+	result->element_count = element_count;
+	result->elements = elements;
+	consume(str, TokRBracket);
 
 	return result;
 }
@@ -913,6 +1033,9 @@ void* parse(wchar_t* str) {
 	Token* tok = pull_token(str);
 
 	switch (tok->type) {
+
+	case TokLBracket:
+		return create_array_declaration_ast(tok, str);
 
 	case TokNew:
 		return create_new_ast(tok, str);

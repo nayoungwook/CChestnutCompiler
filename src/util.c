@@ -112,10 +112,10 @@ Symbol* find_symbol(SymbolTable* cur_symbol_table, const wchar_t* name) {
 }
 
 extern Set* primitive_types;
-extern SymbolTable* type_symbol_table;
+extern SymbolTable* class_hierarchy;
 
-int is_primitive_type(const wchar_t* type) {
-	return find_symbol_from_set(primitive_types, type) != NULL;
+int is_primitive_type(Type* type) {
+	return find_symbol_from_set(primitive_types, type->type_str) != NULL;
 }
 
 wchar_t* join_string(const wchar_t* str1, const wchar_t* str2) {
@@ -142,18 +142,4 @@ int is_decimal(wchar_t* str) {
 		str++;
 	}
 	return 0;
-}
-
-const wchar_t* create_mangled_name(const wchar_t* name, VariableDeclarationBundleAST* parameters) {
-	wchar_t* result = (wchar_t*)malloc(sizeof(wchar_t) * 1024);
-	result = L"";
-
-	int i = 0;
-	for (i = 0; i < parameters->variable_count; i++) {
-		result = join_string(result, parameters->variable_declarations[i]->variable_type);
-		result = join_string(result, L"_");
-	}
-	result = join_string(result, name);
-
-	return result;
 }

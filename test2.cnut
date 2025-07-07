@@ -1,16 +1,39 @@
 
 class Foo {
   public var a: string = "";
-
+  public var foo: Foo = new Foo("asdf");
+  public var arr: array<int> = {3, 5, 6, 7};
+  
+  constructor(a: string){
+    this.a = a;
+  }
+  
   public func test(): Foo {
+    this.beautiful_ones(5);
   }
 
-  public func beautiful_ones(): Foo {
+  private func beautiful_ones(a: int): Foo {
+    this.a = a;
   }
 }
 
+func add(a: int, b: int) : int {
+  return a + b;
+}
+
 func main(): void {
-  var foo: Foo = new Foo();
- 
-  foo.test().beautiful_ones().a = "asdf";
+  var foo: Foo = new Foo("qwer");
+  
+  foo.beautiful_ones(5).test().foo.a = "asdf";
+  foo.beautiful_ones(5).test().foo.arr[3] = 5;
+
+  var a: string = "";
+  a = "asdf";
+
+  foo = new Foo("asdf");
+  add(5, 4);
+
+  for(var i:int =0; i<10; i++){
+
+  }
 }
