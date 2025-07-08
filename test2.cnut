@@ -17,7 +17,7 @@ class Foo {
   }
 }
 
-func add(a: int, b: int) : int {
+func add(a: int, b: int) : array<int> {
   return a + b;
 }
 
@@ -25,7 +25,7 @@ func main(): void {
   var foo: Foo = new Foo("qwer");
   
   foo.beautiful_ones(5).test().foo.a = "asdf";
-  foo.beautiful_ones(5).test().foo.arr[3] = 5;
+  foo.beautiful_ones(5).test().foo.arr = {3, 5, 6, 7};
 
   var a: string = "";
   a = "asdf";

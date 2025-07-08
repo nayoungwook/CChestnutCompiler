@@ -14,6 +14,8 @@ void open_scope();
 void close_scope();
 
 int get_prev_variable_index_size(SymbolTable* variable_symbol_table);
+int check_accessibility(const wchar_t* target_class_name, const wchar_t* access_modifier);
+int check_super_class(const wchar_t* from, const wchar_t* to);
 
 VariableData* create_variable_data(SymbolTable* variable_symbol_table, Type* type, const wchar_t* name, const wchar_t* access_modifier);
 void insert_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name, VariableData* data);

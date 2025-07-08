@@ -50,6 +50,6 @@ void* create_class_ast(Token* tok, wchar_t* str);
 void* create_constructor_ast(Token* tok, wchar_t* str);
 void* create_new_ast(Token* tok, wchar_t* str);
 void* create_array_declaration_ast(Token* tok, wchar_t* str);
-void* create_array_access_ast(Token* tok, wchar_t* str);
+void* create_array_access_ast(void* target_array, Token* tok, wchar_t* str);
 
 VariableDeclarationBundleAST* create_function_parameters(Token* tok, wchar_t* str);

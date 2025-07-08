@@ -357,15 +357,11 @@ void* create_function_call_ast(Token* tok, wchar_t* str) {
 
 	consume(str, TokRParen);
 
-	if (peek_token(str)->type == TokSemiColon) {
-		consume(str, TokSemiColon);
-	}
-
 	result->function_name = tok->str;
 	return result;
 }
 
-void* create_array_access_ast(Token* tok, wchar_t* str) {
+void* create_array_access_ast(void* target_array, Token* tok, wchar_t* str) {
 	ArrayAccessAST* array_access_ast = (ArrayAccessAST*)malloc(sizeof(ArrayAccessAST));
 	array_access_ast->TYPE = AST_ArrayAccess;
 	array_access_ast->access_count = 0;
@@ -387,12 +383,7 @@ void* create_array_access_ast(Token* tok, wchar_t* str) {
 
 	array_access_ast->indexes = indexes;
 
-	IdentifierAST* identifier = (IdentifierAST*)malloc(sizeof(IdentifierAST));
-	identifier->TYPE = AST_Identifier;
-	identifier->identifier = tok->str;
-	identifier->attribute = NULL;
-
-	array_access_ast->target_array = identifier;
+	array_access_ast->target_array = target_array;
 	array_access_ast->access_count = access_count;
 
 	return array_access_ast;
@@ -411,65 +402,65 @@ void* create_identifier_ast(Token* tok, wchar_t* str, int is_attribute_identifie
 			consume(str, TokDot);
 			((FunctionCallAST*)result)->attribute = create_identifier_ast(pull_token(str), str, 1);
 		}
+
 	}
 	else {
-		if (next_token->type == TokLSquareBracket) {
-			result = create_array_access_ast(tok, str);
+		if (next_token->type == TokIncrease || next_token->type == TokDecrease) {
+			if (next_token->type == TokIncrease) {
+				consume(str, TokIncrease);
+				result = (IdentIncreaseAST*)malloc(sizeof(IdentIncreaseAST));
+				((IdentIncreaseAST*)result)->identifier = tok->str;
+				((IdentIncreaseAST*)result)->TYPE = AST_IdentIncrease;
+			}
+			if (next_token->type == TokDecrease) {
+				consume(str, TokDecrease);
+				result = (IdentDecreaseAST*)malloc(sizeof(IdentDecreaseAST));
+				((IdentDecreaseAST*)result)->identifier = tok->str;
+				((IdentDecreaseAST*)result)->TYPE = AST_IdentDecrease;
+			}
 
-			((ArrayAccessAST*)result)->attribute = NULL;
-			if (peek_token(str)->type == TokDot) {
-				consume(str, TokDot);
-				((ArrayAccessAST*)result)->attribute = create_identifier_ast(pull_token(str), str, 1);
+			if (peek_token(str)->type == TokSemiColon) {
+				consume(str, TokSemiColon);
 			}
 		}
 		else {
-			if (next_token->type == TokIncrease || next_token->type == TokDecrease) {
-				if (next_token->type == TokIncrease) {
-					consume(str, TokIncrease);
-					result = (IdentIncreaseAST*)malloc(sizeof(IdentIncreaseAST));
-					((IdentIncreaseAST*)result)->identifier = tok->str;
-					((IdentIncreaseAST*)result)->TYPE = AST_IdentIncrease;
-				}
-				if (next_token->type == TokDecrease) {
-					consume(str, TokDecrease);
-					result = (IdentDecreaseAST*)malloc(sizeof(IdentDecreaseAST));
-					((IdentDecreaseAST*)result)->identifier = tok->str;
-					((IdentDecreaseAST*)result)->TYPE = AST_IdentDecrease;
-				}
+			result = (IdentifierAST*)malloc(sizeof(IdentifierAST));
+			((IdentifierAST*)result)->TYPE = AST_Identifier;
+			((IdentifierAST*)result)->identifier = tok->str;
 
-				if (peek_token(str)->type == TokSemiColon) {
-					consume(str, TokSemiColon);
-				}
-			}
-			else {
-				result = (IdentifierAST*)malloc(sizeof(IdentifierAST));
-				((IdentifierAST*)result)->TYPE = AST_Identifier;
-				((IdentifierAST*)result)->identifier = tok->str;
+			((IdentifierAST*)result)->attribute = NULL;
 
-				((IdentifierAST*)result)->attribute = NULL;
-
-				if (peek_token(str)->type == TokDot) {
-					consume(str, TokDot);
-					((IdentifierAST*)result)->attribute = create_identifier_ast(pull_token(str), str, 1);
-				}
+			if (peek_token(str)->type == TokDot) {
+				consume(str, TokDot);
+				((IdentifierAST*)result)->attribute = create_identifier_ast(pull_token(str), str, 1);
 			}
 		}
+	}
 
-		if (!is_attribute_identifier && peek_token(str)->type == TokAssign) {
-			consume(str, TokAssign);
+	if (peek_token(str)->type == TokLSquareBracket) {
+		result = create_array_access_ast(result, tok, str);
 
-			void* right_term = parse_expression(str);
-
-			BinExprAST* bin_expr_ast = (BinExprAST*)malloc(sizeof(BinExprAST));
-			bin_expr_ast->TYPE = AST_BinExpr;
-			bin_expr_ast->left = result;
-			bin_expr_ast->right = right_term;
-			bin_expr_ast->opType = OpASSIGN;
-
-			consume(str, TokSemiColon);
-
-			return bin_expr_ast;
+		((ArrayAccessAST*)result)->attribute = NULL;
+		if (peek_token(str)->type == TokDot) {
+			consume(str, TokDot);
+			((ArrayAccessAST*)result)->attribute = create_identifier_ast(pull_token(str), str, 1);
 		}
+	}
+
+	if (!is_attribute_identifier && peek_token(str)->type == TokAssign) {
+		consume(str, TokAssign);
+
+		void* right_term = parse_expression(str);
+
+		BinExprAST* bin_expr_ast = (BinExprAST*)malloc(sizeof(BinExprAST));
+		bin_expr_ast->TYPE = AST_BinExpr;
+		bin_expr_ast->left = result;
+		bin_expr_ast->right = right_term;
+		bin_expr_ast->opType = OpASSIGN;
+
+		consume(str, TokSemiColon);
+
+		return bin_expr_ast;
 	}
 	return result;
 }
@@ -682,10 +673,10 @@ void* create_for_statement_ast(Token* tok, wchar_t* str) {
 	consume(str, TokLParen); // consume (
 
 	void* init = parse_expression(str);
-	void* condition = parse_expression(str);
+	consume(str, TokSemiColon);
 
-	if (peek_token(str)->type == TokSemiColon)
-		pull_token(str);
+	void* condition = parse_expression(str);
+	consume(str, TokSemiColon);
 
 	void* step = parse_expression(str);
 
@@ -765,7 +756,7 @@ void* create_variable_declaration_ast(Token* tok, wchar_t* str) {
 		bundles->variable_declarations[bundles->variable_count] = variable;
 		bundles->variable_count++;
 
-		Token* tok = pull_token(str);
+		Token* tok = peek_token(str);
 		if (tok->type == TokSemiColon) {
 			break;
 		}

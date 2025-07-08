@@ -19,63 +19,63 @@ C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(292,20): warnin
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(334,11): warning C4133: '함수': 'unsigned short [70]'과(와) 'const char *const ' 사이의 형식이 호환되지 않습니다.
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(334,11): warning C4477: 'printf' : 서식 문자열 '%s'에 'char *' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'Type *'입니다.
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(334,11): warning C4477: 'printf' : 서식 문자열 '%s'에 'char *' 형식의 인수가 필요하지만 variadic 인수 2의 형식이 'Type *'입니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(386,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(448,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(481,33): warning C4090: '함수': 다른 'const' 한정자
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(542,12): warning C4101: 'store_str_buffer' :참조되지 않은 지역 변수입니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(658,11): warning C4101: 'store_str_buffer' :참조되지 않은 지역 변수입니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(687,59): warning C4090: '함수': 다른 'const' 한정자
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(690,11): warning C4477: 'printf' : 서식 문자열 '%S'에 'unsigned short *' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'Type *'입니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(690,11): warning C4477: 'printf' : 서식 문자열 '%S'에 'unsigned short *' 형식의 인수가 필요하지만 variadic 인수 2의 형식이 'Type *'입니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(707,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(713,12): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(713,12): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(714,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(714,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(726,12): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(726,12): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(727,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(727,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(745,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(745,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(748,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(748,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(751,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(751,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(754,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(754,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(757,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(757,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(760,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(760,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(763,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(763,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(766,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(766,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(769,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(769,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(772,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(772,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(775,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(775,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(778,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(778,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(783,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(783,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(854,12): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(854,12): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(855,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(855,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(885,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(885,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(888,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(888,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(894,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(899,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(899,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1001,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1044,5): warning C4033: 'generate_ir'은(는) 값을 반환해야 합니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1117,11): warning C4101: 'for_str_buffer' :참조되지 않은 지역 변수입니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(413,1): warning C4715: 'infer_type': 모든 제어 경로에서 값을 반환하지는 않습니다.
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1152,1): warning C4715: 'generate_ir': 모든 제어 경로에서 값을 반환하지는 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(404,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(442,20): warning C4090: '함수': 다른 'const' 한정자
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(442,26): warning C4090: '함수': 다른 'const' 한정자
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(565,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(601,33): warning C4090: '함수': 다른 'const' 한정자
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(662,12): warning C4101: 'store_str_buffer' :참조되지 않은 지역 변수입니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(805,11): warning C4101: 'store_str_buffer' :참조되지 않은 지역 변수입니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(834,59): warning C4090: '함수': 다른 'const' 한정자
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(854,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(860,12): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(860,12): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(861,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(861,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(873,12): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(873,12): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(874,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(874,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(892,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(892,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(895,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(895,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(898,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(898,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(901,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(901,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(904,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(904,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(907,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(907,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(910,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(910,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(913,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(913,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(916,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(916,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(919,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(919,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(922,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(922,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(925,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(925,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(930,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[128]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(930,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1001,12): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1001,12): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1002,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1002,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1032,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1032,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1035,13): warning C4047: '함수': 'wchar_t *const '의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1035,13): warning C4024: 'swprintf': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1041,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1046,32): warning C4047: '함수': 'const wchar_t *'의 간접 참조 수준이 'wchar_t *[512]'과(와) 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1046,32): warning C4024: 'join_string': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1148,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1191,5): warning C4033: 'generate_ir'은(는) 값을 반환해야 합니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1264,11): warning C4101: 'for_str_buffer' :참조되지 않은 지역 변수입니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(431,1): warning C4715: 'infer_type': 모든 제어 경로에서 값을 반환하지는 않습니다.
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1299,1): warning C4715: 'generate_ir': 모든 제어 경로에서 값을 반환하지는 않습니다.
   ChestnutCompiler.vcxproj -> C:\Users\nayou\source\repos\CChestnut\x64\Debug\CChestnutCompiler.exe

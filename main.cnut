@@ -3,6 +3,7 @@ class Foo {
   public var a: string = "";
   public var foo: Foo = new Foo("asdf");
   public var arr: array<int> = {3, 5, 6, 7};
+  private var b: int = 0;
   
   constructor(a: string){
     this.a = a;
@@ -17,15 +18,15 @@ class Foo {
   }
 }
 
-func add(a: int, b: int) : int {
+func add(a: int, b: int) : array<int> {
   return a + b;
 }
 
 func main(): void {
   var foo: Foo = new Foo("qwer");
-  
-  foo.beautiful_ones(5).test().foo.a = "asdf";
-  foo.beautiful_ones(5).test().foo.arr = {3, 5, 6, 7};
+
+  foo.beautiful_ones(4).test().foo.a = "asdf";
+  foo.beautiful_ones(5).test().foo.arr = {1, 5, 6, 7};
 
   var a: string = "";
   a = "asdf";
@@ -34,6 +35,5 @@ func main(): void {
   add(5, 4);
 
   for(var i:int =0; i<10; i++){
-
   }
 }

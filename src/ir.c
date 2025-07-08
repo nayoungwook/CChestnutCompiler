@@ -353,6 +353,24 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 		return function_data->return_type;
 	}
 
+	case AST_IdentIncrease:
+	case AST_IdentDecrease: {
+		if (type == AST_IdentIncrease) {
+			IdentIncreaseAST* ident_increase = (IdentIncreaseAST*)ast;
+
+			VariableData* data = find_variable_data(search_point_class_name, ident_increase->identifier);
+			return data->type;
+		}
+
+		if (type == AST_IdentDecrease) {
+			IdentDecreaseAST* ident_decrease = (IdentDecreaseAST*)ast;
+
+			VariableData* data = find_variable_data(search_point_class_name, ident_decrease->identifier);
+
+			return data->type;
+		}
+	}
+
 	case AST_New: {
 		NewAST* new_ast = (NewAST*)ast;
 
@@ -412,6 +430,53 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 	}
 }
 
+int check_super_class(const wchar_t* from, const wchar_t* to) {
+	Symbol* from_symbol = find_symbol(class_hierarchy, from);
+	Symbol* to_symbol = find_symbol(class_hierarchy, to);
+
+	ClassType* from_type = ((ClassType*)from_symbol->data);
+	ClassType* to_type = ((ClassType*)to_symbol->data);
+	while (1) {
+		// to -> next search find from.
+		// up casting.
+		if (is_same_type(from, to)) {
+			return 1;
+		}
+
+		if (!from_type->parent_type) {
+			return 0;
+		}
+
+		from_type = from_type->parent_type;
+	}
+
+	return 1;
+}
+
+int check_accessibility(const wchar_t* target_class_name, const wchar_t* access_modifier) {
+	if (!wcscmp(access_modifier, L"public"))return 1;
+	int find_variable_in_class = !wcscmp(target_class_name, current_class);
+
+	if (find_variable_in_class) {
+		return 1;
+	}
+	else {
+		if (!wcscmp(current_class, L"")) {
+			return 0;
+		}
+		else {
+			int is_parent = check_super_class(target_class_name, current_class);
+
+			if (is_parent) {
+				return !wcscmp(access_modifier, L"protected");
+			}
+			else {
+				return 0;
+			}
+		}
+	}
+}
+
 void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wchar_t** result, int indentation) {
 	Symbol* target_class_symbol = find_symbol(class_symbol_table, target_class_name);
 	ClassData* target_class = target_class_symbol->data;
@@ -421,6 +486,12 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 	case AST_Identifier: {
 		int member_variable_index = get_member_variable_index(target_class_name, ((IdentifierAST*)attribute)->identifier);
 		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((IdentifierAST*)attribute)->identifier);
+
+		if (!check_accessibility(target_class_name, member_variable_data->access_modifier)) {
+			// handle error
+			printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
+			exit(1);
+		}
 
 		new_line(result, indentation);
 		wchar_t attr_str_buffer[128];
@@ -434,6 +505,46 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 		break;
 	}
 
+	case AST_IdentIncrease: {
+		IdentIncreaseAST* ident_increase_ast = (IdentIncreaseAST*)attribute;
+
+		int member_variable_index = get_member_variable_index(target_class_name, ((IdentIncreaseAST*)attribute)->identifier);
+		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((IdentIncreaseAST*)attribute)->identifier);
+
+		if (!check_accessibility(target_class_name, member_variable_data->access_modifier)) {
+			// handle error
+			printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
+			exit(1);
+		}
+
+		new_line(result, indentation);
+		wchar_t ident_increase_str_buffer[128];
+		swprintf(ident_increase_str_buffer, 128, L"@attr_inc %d", member_variable_data->index);
+		*result = join_string(*result, ident_increase_str_buffer);
+
+		break;
+	}
+
+	case AST_IdentDecrease: {
+		IdentDecreaseAST* ident_decrease_ast = (IdentDecreaseAST*)attribute;
+
+		int member_variable_index = get_member_variable_index(target_class_name, ((IdentIncreaseAST*)attribute)->identifier);
+		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((IdentIncreaseAST*)attribute)->identifier);
+
+		if (!check_accessibility(target_class_name, member_variable_data->access_modifier)) {
+			// handle error
+			printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
+			exit(1);
+		}
+
+		new_line(result, indentation);
+		wchar_t ident_decrease_str_buffer[128];
+		swprintf(ident_decrease_str_buffer, 128, L"@attr_dec %d", member_variable_data->index);
+		*result = join_string(*result, ident_decrease_str_buffer);
+
+		break;
+	}
+
 	case AST_FunctionCall: {
 		FunctionCallAST* function_call_ast = ((FunctionCallAST*)attribute);
 		int member_function_index = get_member_function_index(target_class_name, function_call_ast->function_name);
@@ -441,6 +552,12 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 
 		wchar_t function_call_buffer[128];
 		swprintf(function_call_buffer, 128, L"@attr_call %d %d", member_function_index, function_call_ast->parameter_count);
+
+		if (!check_accessibility(target_class_name, member_function_data->access_modifier)) {
+			// handle error
+			printf("Unable to access variable : %S. access modifier of %S is %S.", member_function_data->name, member_function_data->name, member_function_data->access_modifier);
+			exit(1);
+		}
 
 		check_function_call_condition(member_function_data, function_call_ast->parameters, function_call_ast->parameter_count);
 
@@ -461,6 +578,9 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 	case AST_ArrayAccess: {
 		ArrayAccessAST* array_access_ast = (ArrayAccessAST*)attribute;
 
+		// In this case, doesn't need to check accessibility.
+		// because it creates its target_array AST.
+		// and it will automatically check the accessibility
 		create_attribute_ir(target_class_name, ((ArrayAccessAST*)attribute)->target_array, result, indentation);
 
 		int i;
@@ -558,6 +678,11 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 		}
 		break;
 	}
+
+	default:
+		// handle error for unable to store variable
+		printf("Error at ir.c, unable to store variable\n");
+		break;
 	}
 
 	void* temp_left_ast = left_ast;
@@ -565,12 +690,11 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 	void* last_ast = NULL;
 
 	int loop = 1;
-
+	// extract last ast for store command.
 	while (loop) {
 		switch (*((ASTType*)left_ast)) {
 		case AST_Identifier: {
 			if (((IdentifierAST*)left_ast)->attribute == NULL) {
-
 				if (*((ASTType*)attribute_backup) == AST_Identifier) {
 					((IdentifierAST*)attribute_backup)->attribute = NULL;
 				}
@@ -580,6 +704,7 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 				else if (*((ASTType*)attribute_backup) == AST_ArrayAccess) {
 					((ArrayAccessAST*)attribute_backup)->attribute = NULL;
 				}
+
 
 				last_ast = left_ast;
 				loop = 0;
@@ -620,11 +745,21 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 
 			break;
 		}
+
+		default:
+			loop = 0;
+			break;
 		}
 	}
 
-	*result = join_string(*result, generate_ir(temp_left_ast, indentation));
+	if (last_ast == NULL) {
+		// handle error for unable to store variable
+		printf("Error at ir.c, unable to store variable\n");
+		exit(1);
+	}
 
+	*result = join_string(*result, generate_ir(temp_left_ast, indentation));
+	// process the last ast for store.
 	switch (*((ASTType*)last_ast)) {
 	case AST_Identifier: {
 		wchar_t* target_class_name = infer_type(temp_left_ast, L"")->type_str;
@@ -633,6 +768,12 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 
 		int member_variable_index = get_member_variable_index(target_class_name, ((IdentifierAST*)last_ast)->identifier);
 		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((IdentifierAST*)last_ast)->identifier);
+
+		if (!check_accessibility(target_class_name, member_variable_data->access_modifier)) {
+			// handle error
+			printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
+			exit(1);
+		}
 
 		new_line(result, indentation);
 		wchar_t attr_str_buffer[128];
@@ -647,6 +788,12 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 
 		int member_variable_index = get_member_variable_index(target_class_name, ((ArrayAccessAST*)last_ast)->target_array->identifier);
 		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((ArrayAccessAST*)last_ast)->target_array->identifier);
+
+		if (!check_accessibility(target_class_name, member_variable_data->access_modifier)) {
+			// handle error
+			printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
+			exit(1);
+		}
 
 		ArrayAccessAST* array_access_last_ast = (ArrayAccessAST*)last_ast;
 
@@ -687,7 +834,7 @@ void check_function_call_condition(FunctionData* function_data, const void** par
 		Type* infered_type = get_type_of_last_element(parameters[i], current_class);
 
 		if (!check_castability(infered_type, function_data->parameter_types[i])) {
-			printf("[Temporary error] at ir.c Type not matched : %S, %S\n", infered_type, function_data->parameter_types[i]);
+			printf("[Temporary error] at ir.c Type not matched : %S, %S\n", infered_type->type_str, function_data->parameter_types[i]->type_str);
 			abort();
 		}
 	}
@@ -994,8 +1141,8 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		swprintf(buffer, 128, L"class %d %d {", class_data->index, parent_data ? parent_data->index : 0);
 		result = join_string(result, buffer);
 
-		result = join_string(result, generate_ir(class_ast->constructor, indentation));
 		result = join_string(result, create_class_initializer(indentation, class_ast));
+		result = join_string(result, generate_ir(class_ast->constructor, indentation));
 
 		int i;
 		for (i = 0; i < class_ast->member_function_count; i++) {
