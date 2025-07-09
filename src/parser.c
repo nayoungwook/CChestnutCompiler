@@ -1020,7 +1020,7 @@ void* create_array_declaration_ast(Token* tok, wchar_t* str) {
 	return result;
 }
 
-void* parse(wchar_t* str) {
+void* parse(const wchar_t* str) {
 	Token* tok = pull_token(str);
 
 	switch (tok->type) {

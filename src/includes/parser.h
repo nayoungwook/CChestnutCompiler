@@ -3,8 +3,9 @@
 #include "token.h"
 #include "ast.h"
 #include "util.h"
+#include "error.h"
 
-void* parse(wchar_t* str);
+void* parse(const wchar_t* str);
 void* consume(wchar_t* str, TokenType expected_type);
 
 void* parse_expression(wchar_t* str);

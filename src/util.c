@@ -11,6 +11,9 @@ wchar_t* get_working_directory() {
 	return cwd;
 }
 
+int* line_index_data;
+int* line_number_data;
+
 wchar_t* read_file(const wchar_t* file_path) {
 	FILE* fp = fopen(file_path, "r, ccs=UTF-8");
 	if (!fp) {
@@ -30,9 +33,27 @@ wchar_t* read_file(const wchar_t* file_path) {
 		return 1;
 	}
 
+	int capacity = 1;
+	int size = 0;
+	line_index_data = (int*)malloc(sizeof(int));
+	line_number_data = (int*)malloc(sizeof(int));
+	int line_number = 0;
+
 	size_t i = 0;
 	while (fgetws(str + i, (int)(wchar_estimate - i), fp)) {
 		i = wcslen(str);
+
+		if (size >= capacity) {
+			capacity *= 2;
+			line_index_data = (int*)realloc(line_index_data, sizeof(int) * capacity);
+			line_number_data = (int*)realloc(line_number_data, sizeof(int) * capacity);
+		}
+
+		line_number++;
+		line_index_data[size] = i;
+		line_number_data[size] = line_number;
+
+		size++;
 	}
 
 	return str;

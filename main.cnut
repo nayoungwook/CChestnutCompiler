@@ -13,7 +13,7 @@ class Foo {
     this.beautiful_ones(5);
   }
 
-  private func beautiful_ones(a: int): Foo {
+  public func beautiful_ones(a: int): Foo {
     this.a = a;
   }
 }

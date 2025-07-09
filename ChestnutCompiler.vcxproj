@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\error.c" />
     <ClCompile Include="src\ir.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\parser.c" />
@@ -27,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\includes\ast.h" />
+    <ClInclude Include="src\includes\error.h" />
     <ClInclude Include="src\includes\ir.h" />
     <ClInclude Include="src\includes\main.h" />
     <ClInclude Include="src\includes\parser.h" />

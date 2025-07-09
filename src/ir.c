@@ -262,25 +262,30 @@ wchar_t* create_parameter_buffer(VariableDeclarationBundleAST* parameters_ast) {
 }
 
 VariableData* find_variable_data(const wchar_t* class_name, const wchar_t* identifier) {
-
 	Symbol* local_symbol = find_symbol(variable_symbol_table, identifier);
+	VariableData* result = NULL;
 	if (local_symbol == NULL) {
-		return get_member_variable_data(class_name, identifier);
+		result = get_member_variable_data(class_name, identifier);
 	}
 	else {
-		return local_symbol->data;
+		result = local_symbol->data;
 	}
+
+	return result;
 }
 
 FunctionData* find_function_data(const wchar_t* class_name, const wchar_t* function_name, FunctionCallAST* function_call_ast) {
 	Symbol* local_symbol = find_symbol(function_symbol_table, function_name);
+	FunctionData* result = NULL;
 	if (local_symbol == NULL) {
-		return get_member_function_data(class_name, function_name);
+		result = get_member_function_data(class_name, function_name);
 	}
 	else {
 		FunctionData* function_data = local_symbol->data;
-		return function_data;
+		result = function_data;
 	}
+
+	return result;
 }
 
 Type* infer_type(void* ast, wchar_t* search_point_class_name) {
@@ -555,7 +560,7 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 
 		if (!check_accessibility(target_class_name, member_function_data->access_modifier)) {
 			// handle error
-			printf("Unable to access variable : %S. access modifier of %S is %S.", member_function_data->name, member_function_data->name, member_function_data->access_modifier);
+			printf("Unable to access function : %S. access modifier of %S is %S.", member_function_data->name, member_function_data->name, member_function_data->access_modifier);
 			exit(1);
 		}
 
@@ -1102,6 +1107,8 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 		wchar_t* parameter_buffer = create_parameter_buffer(((VariableDeclarationBundleAST*)function_declaration_ast->parameters));
 		FunctionData* function_data = function_symbol->data;
+
+		function_data->access_modifier = function_declaration_ast->access_modifier;
 
 		new_line(&result, indentation);
 		wchar_t buffer[256];

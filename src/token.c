@@ -26,6 +26,7 @@ KeywordEntry keyword_table[] = {
 	{L"protected", TokProtected},
 	{L"constructor", TokConstructor},
 	{L"new", TokNew},
+	{NULL, TokEOF},
 };
 
 enum TokenType
@@ -291,6 +292,16 @@ Token* peek_token(wchar_t* line) {
 	return result;
 }
 
+extern int* line_index_data;
+extern int* line_number_data;
+static int line_number_index = 0;
+
+void update_line_number_index() {
+	while (line_index_data[line_number_index - 1] < read_index) {
+		line_number_index++;
+	}
+}
+
 Token* pull_token(wchar_t* line) {
 	token_cache = NULL;
 	int result_len = 0;
@@ -303,7 +314,6 @@ Token* pull_token(wchar_t* line) {
 	while (c != '\0') {
 		str_len = 0;
 		memset(str, L'\0', sizeof(wchar_t) * MAX_TOKEN_STR);
-
 		if (isspace(c)) {
 			read_index++;
 			c = *(line + read_index);
@@ -321,7 +331,8 @@ Token* pull_token(wchar_t* line) {
 
 			type = TokIdent;
 
-			for (int i = 0; keyword_table[i].keyword != NULL; i++) {
+			int i;
+			for (i = 0; keyword_table[i].keyword != NULL; i++) {
 				if (!wcscmp(str, keyword_table[i].keyword)) {
 					type = keyword_table[i].type;
 					break;
@@ -350,16 +361,20 @@ Token* pull_token(wchar_t* line) {
 			type = TokNumberLiteral;
 		}
 
+		update_line_number_index();
 		Token* tok = (Token*)malloc(sizeof(Token));
 		tok->str = str;
 		tok->type = type;
+		tok->line_number = line_number_data[line_number_index - 1];
 
 		return tok;
 	}
 
+	update_line_number_index();
 	Token* eof_token = (Token*)malloc(sizeof(Token));
 	eof_token->str = L"EOF";
 	eof_token->type = TokEOF;
+	eof_token->line_number = line_number_data[line_number_index - 1];
 
 	return eof_token;
 }

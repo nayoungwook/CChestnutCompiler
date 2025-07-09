@@ -7,6 +7,8 @@
 #include <ctype.h>
 #include <assert.h>
 
+#include "util.h"
+
 #define MAX_TOKEN_STR 512
 
 typedef enum {
@@ -79,6 +81,7 @@ typedef enum {
 typedef struct _Token {
 	wchar_t* str;
 	enum TokenType type;
+	int line_number;
 } Token;
 
 typedef struct {
@@ -89,6 +92,7 @@ typedef struct {
 enum TokenType
 	get_token_type_of_special_character(wchar_t* str, int* str_len, int* read_index, wchar_t* c);
 short is_special_character(const wchar_t wc);
+void update_line_number_index();
 
 Token* pull_token(wchar_t* line);
 Token* peek_token(wchar_t* line);
