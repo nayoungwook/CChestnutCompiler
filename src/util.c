@@ -11,6 +11,29 @@ wchar_t* get_working_directory() {
 	return cwd;
 }
 
+wchar_t* substr(const wchar_t* str, int s, int e) {
+	if (s < 0 || e < s || !str) {
+		return NULL;
+	}
+
+	int length = e - s + 1;
+	wchar_t* result = (wchar_t*)malloc(sizeof(wchar_t) * (length + 1));
+
+	wcsncpy_s(result, length + 1, str + s, length);
+
+	result[length] = L'\0';
+
+	return result;
+}
+
+void* safe_malloc(size_t size) {
+	void* ptr = malloc(size);
+	if (!ptr) {
+		fprintf(stderr, "malloc failed at %s:%d\n", __FILE__, __LINE__);
+	}
+	return ptr;
+}
+
 int* line_index_data;
 int* line_number_data;
 
@@ -98,7 +121,7 @@ Symbol* find_symbol_from_set(Set* target_set, const wchar_t* name) {
 		return NULL;
 	}
 
-	while (strcmp(name, result->symbol)) {
+	while (result != NULL && strcmp(name, result->symbol)) {
 		result = result->next;
 	}
 

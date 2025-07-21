@@ -8,8 +8,12 @@
 
 #define TABLE_SIZE 1024
 
+void* safe_malloc(size_t size);
+
 wchar_t* get_working_directory();
 wchar_t* read_file(const wchar_t* path);
+
+wchar_t* substr(const wchar_t* str, int s, int e);
 
 // For strings.
 wchar_t* join_string(const wchar_t* str1, const wchar_t* str2);

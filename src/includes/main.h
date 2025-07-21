@@ -11,3 +11,4 @@
 #include "ir.h"
 
 void initialize_global_symbol_table();
+void compile_file(const wchar_t* file_name);

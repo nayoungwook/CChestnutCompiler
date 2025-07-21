@@ -1,6 +1,7 @@
 #pragma once
 
 #include "util.h"
+#include "token.h"
 #include <stdio.h>
 
 typedef enum {
@@ -43,6 +44,7 @@ typedef struct {
 	ASTType TYPE;
 	wchar_t* identifier;
 	void* attribute;
+	Token* tok;
 } IdentifierAST;
 
 typedef struct {
@@ -99,16 +101,19 @@ typedef struct {
 	void** parameters;
 	int parameter_count;
 	void* attribute;
+	Token* tok;
 } FunctionCallAST;
 
 typedef struct {
 	ASTType TYPE;
 	wchar_t* identifier;
+	Token* tok;
 } IdentIncreaseAST;
 
 typedef struct {
 	ASTType TYPE;
 	wchar_t* identifier;
+	Token* tok;
 } IdentDecreaseAST;
 
 typedef struct {

@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define IDENTIFIER_NOT_FOUND -1
+
 wchar_t* create_class_initializer(int indentation, ClassAST* class_ast);
 
 void open_scope();
@@ -39,4 +41,4 @@ int get_parent_member_function_count(const wchar_t* class_name);
 
 FunctionData* get_member_function_data(const wchar_t* class_name, const wchar_t* function_name);
 VariableData* get_member_variable_data(const wchar_t* class_name, const wchar_t* variable_name);
-VariableData* find_variable_data(const wchar_t* class_name, const wchar_t* identifier);
+VariableData* find_variable_data(Token* tok, const wchar_t* class_name, const wchar_t* identifier);

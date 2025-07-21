@@ -5,8 +5,21 @@
 #include "util.h"
 #include "error.h"
 
+void set_file_string(const wchar_t* str);
+
+typedef struct _ParserContext {
+	wchar_t* current_class;
+	wchar_t* current_function_name;
+	wchar_t* current_file_name;
+	wchar_t* file_str;
+	int class_count;
+} ParserContext;
+
+void initialize_parser_context();
+void create_parser_context();
+
 void* parse(const wchar_t* str);
-void* consume(wchar_t* str, TokenType expected_type);
+void consume(wchar_t* str, TokenType expected_type);
 
 void* parse_expression(wchar_t* str);
 void* parse_unary_expression(wchar_t* str);

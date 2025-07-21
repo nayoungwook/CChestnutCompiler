@@ -81,7 +81,11 @@ typedef enum {
 typedef struct _Token {
 	wchar_t* str;
 	enum TokenType type;
+
 	int line_number;
+	int line_start_index;
+	int line_end_index;
+	int str_index;
 } Token;
 
 typedef struct {

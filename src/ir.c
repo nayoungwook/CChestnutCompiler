@@ -10,11 +10,13 @@ static int label_id = 0;
 static int is_class_initializer = 0;
 static wchar_t* current_class = L"";
 
+extern ParserContext* parser_context;
+
 void insert_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name, VariableData* data) {
 	unsigned int _hash = hash(name);
 	variable_symbol_table->size++;
 
-	Symbol* symbol = (Symbol*)malloc(sizeof(Symbol));
+	Symbol* symbol = (Symbol*)safe_malloc(sizeof(Symbol));
 	symbol->data = data;
 	symbol->symbol = name;
 	symbol->hash = _hash;
@@ -32,7 +34,7 @@ void remove_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* n
 }
 
 VariableData* create_variable_data(SymbolTable* variable_symbol_table, Type* type, const wchar_t* name, const wchar_t* access_modifier) {
-	VariableData* result = (VariableData*)malloc(sizeof(VariableData));
+	VariableData* result = (VariableData*)safe_malloc(sizeof(VariableData));
 	result->type = type;
 	result->name = _wcsdup(name);
 	result->index = variable_symbol_table->size + get_prev_variable_index_size(variable_symbol_table) + 1;
@@ -73,7 +75,7 @@ void close_scope() {
 FunctionData* get_member_function_data(const wchar_t* class_name, const wchar_t* function_name) {
 	Symbol* class_symbol = find_symbol(class_symbol_table, class_name);
 
-	if (class_symbol == NULL) return -1;
+	if (class_symbol == NULL) return NULL;
 
 	ClassData* class_data = class_symbol->data;
 
@@ -95,7 +97,7 @@ FunctionData* get_member_function_data(const wchar_t* class_name, const wchar_t*
 int get_member_function_index(const wchar_t* class_name, const wchar_t* function_name) {
 	Symbol* class_symbol = find_symbol(class_symbol_table, class_name);
 
-	if (class_symbol == NULL) return -1;
+	if (class_symbol == NULL) return IDENTIFIER_NOT_FOUND;
 
 	ClassData* class_data = class_symbol->data;
 
@@ -109,15 +111,15 @@ int get_member_function_index(const wchar_t* class_name, const wchar_t* function
 			return get_member_function_index(class_data->parent_class_name, function_name);
 		}
 
-		return -1;
+		return IDENTIFIER_NOT_FOUND;
 	}
-	return -1;
+	return IDENTIFIER_NOT_FOUND;
 }
 
 VariableData* get_member_variable_data(const wchar_t* class_name, const wchar_t* variable_name) {
 	Symbol* class_symbol = find_symbol(class_symbol_table, class_name);
 
-	if (class_symbol == NULL) return -1;
+	if (class_symbol == NULL) return IDENTIFIER_NOT_FOUND;
 
 	ClassData* class_data = class_symbol->data;
 
@@ -139,7 +141,7 @@ VariableData* get_member_variable_data(const wchar_t* class_name, const wchar_t*
 int get_member_variable_index(const wchar_t* class_name, const wchar_t* variable_name) {
 	Symbol* class_symbol = find_symbol(class_symbol_table, class_name);
 
-	if (class_symbol == NULL) return -1;
+	if (class_symbol == NULL) return IDENTIFIER_NOT_FOUND;
 
 	ClassData* class_data = class_symbol->data;
 
@@ -154,9 +156,9 @@ int get_member_variable_index(const wchar_t* class_name, const wchar_t* variable
 			return get_member_variable_index(class_data->parent_class_name, variable_name);
 		}
 
-		return -1;
+		return IDENTIFIER_NOT_FOUND;
 	}
-	return -1;
+	return IDENTIFIER_NOT_FOUND;
 }
 
 int get_parent_member_variable_count(const wchar_t* class_name) {
@@ -261,7 +263,7 @@ wchar_t* create_parameter_buffer(VariableDeclarationBundleAST* parameters_ast) {
 	return parameter_buffer;
 }
 
-VariableData* find_variable_data(const wchar_t* class_name, const wchar_t* identifier) {
+VariableData* find_variable_data(Token* tok, const wchar_t* class_name, const wchar_t* identifier) {
 	Symbol* local_symbol = find_symbol(variable_symbol_table, identifier);
 	VariableData* result = NULL;
 	if (local_symbol == NULL) {
@@ -290,17 +292,18 @@ FunctionData* find_function_data(const wchar_t* class_name, const wchar_t* funct
 
 Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 	ASTType type = *((ASTType*)(ast));
+
 	switch (type) {
 	case AST_NumberLiteral: {
 		NumberLiteralAST* number_ast = (NumberLiteralAST*)ast;
-		Type* result = (Type*)malloc(sizeof(Type));
+		Type* result = (Type*)safe_malloc(sizeof(Type));
 		result->type_str = number_ast->numeric_type;
 		result->array_element_type = NULL;
 		result->is_array = 0;
 		return result;
 	}
 	case AST_StringLiteral: {
-		Type* result = (Type*)malloc(sizeof(Type));
+		Type* result = (Type*)safe_malloc(sizeof(Type));
 		result->type_str = L"string";
 		result->array_element_type = NULL;
 		result->is_array = 0;
@@ -310,7 +313,7 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 		IdentifierAST* ident_ast = (IdentifierAST*)ast;
 
 		if (!wcscmp(ident_ast->identifier, L"this")) {
-			Type* result = (Type*)malloc(sizeof(Type));
+			Type* result = (Type*)safe_malloc(sizeof(Type));
 			result->type_str = current_class;
 			result->is_array = 0;
 			result->array_element_type = NULL;
@@ -318,7 +321,7 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 			return result;
 		}
 
-		VariableData* data = find_variable_data(search_point_class_name, ident_ast->identifier);
+		VariableData* data = find_variable_data(ident_ast->tok, search_point_class_name, ident_ast->identifier);
 
 		return data->type;
 	}
@@ -363,14 +366,14 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 		if (type == AST_IdentIncrease) {
 			IdentIncreaseAST* ident_increase = (IdentIncreaseAST*)ast;
 
-			VariableData* data = find_variable_data(search_point_class_name, ident_increase->identifier);
+			VariableData* data = find_variable_data(ident_increase->tok, search_point_class_name, ident_increase->identifier);
 			return data->type;
 		}
 
 		if (type == AST_IdentDecrease) {
 			IdentDecreaseAST* ident_decrease = (IdentDecreaseAST*)ast;
 
-			VariableData* data = find_variable_data(search_point_class_name, ident_decrease->identifier);
+			VariableData* data = find_variable_data(ident_decrease->tok, search_point_class_name, ident_decrease->identifier);
 
 			return data->type;
 		}
@@ -379,7 +382,7 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 	case AST_New: {
 		NewAST* new_ast = (NewAST*)ast;
 
-		Type* result = (Type*)malloc(sizeof(Type));
+		Type* result = (Type*)safe_malloc(sizeof(Type));
 		result->type_str = new_ast->class_name;
 		result->is_array = 0;
 		result->array_element_type = NULL;
@@ -419,13 +422,13 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 		}
 
 		if (element_type == NULL) {
-			element_type = (Type*)malloc(sizeof(Type));
+			element_type = (Type*)safe_malloc(sizeof(Type));
 			element_type->type_str = L"null";
 			element_type->is_array = 0;
 			element_type->array_element_type = NULL;
 		}
 
-		Type* result = (Type*)malloc(sizeof(Type));
+		Type* result = (Type*)safe_malloc(sizeof(Type));
 		result->array_element_type = element_type;
 		result->is_array = 1;
 		result->type_str = L"array";
@@ -533,8 +536,8 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 	case AST_IdentDecrease: {
 		IdentDecreaseAST* ident_decrease_ast = (IdentDecreaseAST*)attribute;
 
-		int member_variable_index = get_member_variable_index(target_class_name, ((IdentIncreaseAST*)attribute)->identifier);
-		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((IdentIncreaseAST*)attribute)->identifier);
+		int member_variable_index = get_member_variable_index(target_class_name, ((IdentDecreaseAST*)attribute)->identifier);
+		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((IdentDecreaseAST*)attribute)->identifier);
 
 		if (!check_accessibility(target_class_name, member_variable_data->access_modifier)) {
 			// handle error
@@ -951,13 +954,15 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		}
 		else {
 			Symbol* local_symbol = find_symbol(variable_symbol_table, identifier_ast->identifier);
+			int variable_exist_in_local_area = local_symbol != NULL;
 
-			if (local_symbol == NULL) {
-				swprintf(identifier_str_buffer, 128, L"@mload %d", get_member_variable_index(current_class, identifier_ast->identifier));
+			if (variable_exist_in_local_area) {
+				swprintf(identifier_str_buffer, 128, L"@load %d", ((VariableData*)local_symbol->data)->index);
 				result = join_string(result, identifier_str_buffer);
 			}
 			else {
-				swprintf(identifier_str_buffer, 128, L"@load %d", ((VariableData*)local_symbol->data)->index);
+				int member_id = get_member_variable_index(current_class, identifier_ast->identifier);
+				swprintf(identifier_str_buffer, 128, L"@mload %d", member_id);
 				result = join_string(result, identifier_str_buffer);
 			}
 		}
@@ -1221,7 +1226,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IdentIncrease: {
 		IdentIncreaseAST* ident_increase_ast = (IdentIncreaseAST*)ast;
 
-		VariableData* variable_data = find_variable_data(current_class, ident_increase_ast->identifier);
+		VariableData* variable_data = find_variable_data(ident_increase_ast->tok, current_class, ident_increase_ast->identifier);
 
 		new_line(&result, indentation);
 		wchar_t ident_increase_str_buffer[128];
@@ -1234,7 +1239,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IdentDecrease: {
 		IdentDecreaseAST* ident_decrease_ast = (IdentDecreaseAST*)ast;
 
-		VariableData* variable_data = find_variable_data(current_class, ident_decrease_ast->identifier);
+		VariableData* variable_data = find_variable_data(ident_decrease_ast->tok, current_class, ident_decrease_ast->identifier);
 
 		new_line(&result, indentation);
 		wchar_t ident_decrease_str_buffer[128];

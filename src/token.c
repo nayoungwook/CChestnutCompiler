@@ -306,7 +306,7 @@ Token* pull_token(wchar_t* line) {
 	token_cache = NULL;
 	int result_len = 0;
 
-	wchar_t* str = (wchar_t*)malloc(sizeof(wchar_t) * MAX_TOKEN_STR);
+	wchar_t* str = (wchar_t*)safe_malloc(sizeof(wchar_t) * MAX_TOKEN_STR);
 	int str_len = 0;
 	enum TokenType type = TokEOF;
 	wchar_t c = *(line + read_index);
@@ -362,19 +362,26 @@ Token* pull_token(wchar_t* line) {
 		}
 
 		update_line_number_index();
-		Token* tok = (Token*)malloc(sizeof(Token));
+		Token* tok = (Token*)safe_malloc(sizeof(Token));
 		tok->str = str;
 		tok->type = type;
 		tok->line_number = line_number_data[line_number_index - 1];
+		tok->line_start_index = line_index_data[line_number_index - 2];
+		tok->line_end_index = line_index_data[line_number_index - 1];
+		tok->str_index = read_index;
 
 		return tok;
 	}
 
 	update_line_number_index();
-	Token* eof_token = (Token*)malloc(sizeof(Token));
+	Token* eof_token = (Token*)safe_malloc(sizeof(Token));
 	eof_token->str = L"EOF";
 	eof_token->type = TokEOF;
 	eof_token->line_number = line_number_data[line_number_index - 1];
+	eof_token->line_start_index = line_index_data[line_number_index - 2];
+	eof_token->line_end_index = line_index_data[line_number_index - 1];
+	eof_token->str_index = read_index;
+
 
 	return eof_token;
 }

@@ -34,31 +34,25 @@ void initialize_primitive_types() {
 	insert_set_symbol(primitive_types, L"char");
 }
 
-/*
-*** Type Symbol Table Abstraction ***
+void parse_file(const wchar_t* file_name) {
+	wchar_t* file = read_file(file_name);
 
-A->next
-	B->next
-		D
-	C
+	while (peek_token(file)->type != TokEOF) {
+		set_file_string(file);
+		void* ast = parse(file);
 
-*/
+		printf("%S\n", generate_ir(ast, 0));
+	}
+}
 
 int wmain(int arc, char* args[]) {
 	setlocale(LC_ALL, "");
 
-	wchar_t* file = read_file("main.cnut");
-
+	create_parser_context();
 	initialize_primitive_types();
 	initialize_global_symbol_table();
 
-	while (peek_token(file)->type != TokEOF) {
-		void* ast = parse(file);
-
-		//print_ast(ast, *((ASTType*)ast), 0);
-
-		printf("%S\n", generate_ir(ast, 0));
-	}
+	parse_file("main.cnut");
 
 	return 0;
 }
