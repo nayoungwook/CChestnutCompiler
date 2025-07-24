@@ -24,6 +24,10 @@ const wchar_t* get_error_message(ErrorCode error_code, Token* error_token) {
 		break;
 	}
 
+	case ER1005: {
+		swprintf(error_message_buffer, 512, L"Undefined operator : %s.", error_token->str);
+	}
+
 	default:
 		swprintf(error_message_buffer, 512, L"Unexpected Error");
 		break;

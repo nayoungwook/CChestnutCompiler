@@ -7,6 +7,7 @@ typedef enum _ErrorCode {
 	ER1002, // failed to find class
 	ER1003, // failed to find function
 	ER1004, // failed to find variable
+	ER1005, // undefined operator
 } ErrorCode;
 
 const wchar_t* get_error_message(ErrorCode error_code, Token* error_token);

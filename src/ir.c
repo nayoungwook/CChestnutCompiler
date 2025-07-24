@@ -1,16 +1,9 @@
 #include "includes/ir.h"
 
-extern SymbolTable* variable_symbol_table;
-extern SymbolTable* function_symbol_table;
-extern SymbolTable* class_hierarchy;
-extern SymbolTable* class_symbol_table;
-extern Set* primitive_types;
 static int label_id = 0;
 
 static int is_class_initializer = 0;
 static wchar_t* current_class = L"";
-
-extern ParserContext* parser_context;
 
 void insert_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name, VariableData* data) {
 	unsigned int _hash = hash(name);
@@ -56,24 +49,24 @@ int get_prev_variable_index_size(SymbolTable* variable_symbol_table) {
 	return _size;
 }
 
-void open_scope() {
-	SymbolTable* current_symbol_table = variable_symbol_table;
+void open_scope(ParserContext* parser_context) {
+	SymbolTable* current_symbol_table = parser_context->variable_symbol_table;
 
 	SymbolTable* new_symbol_table = create_symbol_table();
 	new_symbol_table->prev = current_symbol_table;
 	new_symbol_table->size = 0;
 
-	variable_symbol_table = new_symbol_table;
+	parser_context->variable_symbol_table = new_symbol_table;
 }
 
-void close_scope() {
-	SymbolTable* current_symbol_table = variable_symbol_table;
-	variable_symbol_table = variable_symbol_table->prev;
+void close_scope(ParserContext* parser_context) {
+	SymbolTable* current_symbol_table = parser_context->variable_symbol_table;
+	parser_context->variable_symbol_table = parser_context->variable_symbol_table->prev;
 	free(current_symbol_table);
 }
 
-FunctionData* get_member_function_data(const wchar_t* class_name, const wchar_t* function_name) {
-	Symbol* class_symbol = find_symbol(class_symbol_table, class_name);
+FunctionData* get_member_function_data(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* function_name) {
+	Symbol* class_symbol = find_symbol(parser_context->class_symbol_table, class_name);
 
 	if (class_symbol == NULL) return NULL;
 
@@ -86,7 +79,7 @@ FunctionData* get_member_function_data(const wchar_t* class_name, const wchar_t*
 	}
 	else {
 		if (wcscmp(class_data->parent_class_name, L"")) {
-			return get_member_function_data(class_data->parent_class_name, function_name);
+			return get_member_function_data(parser_context, class_data->parent_class_name, function_name);
 		}
 
 		return NULL;
@@ -94,8 +87,8 @@ FunctionData* get_member_function_data(const wchar_t* class_name, const wchar_t*
 	return NULL;
 }
 
-int get_member_function_index(const wchar_t* class_name, const wchar_t* function_name) {
-	Symbol* class_symbol = find_symbol(class_symbol_table, class_name);
+int get_member_function_index(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* function_name) {
+	Symbol* class_symbol = find_symbol(parser_context->class_symbol_table, class_name);
 
 	if (class_symbol == NULL) return IDENTIFIER_NOT_FOUND;
 
@@ -104,11 +97,11 @@ int get_member_function_index(const wchar_t* class_name, const wchar_t* function
 	Symbol* member_symbol = find_symbol(class_data->member_functions, function_name);
 	if (member_symbol != NULL) {
 		FunctionData* function_data = member_symbol->data;
-		return function_data->index + get_parent_member_function_count(class_name);
+		return function_data->index + get_parent_member_function_count(parser_context, class_name);
 	}
 	else {
 		if (wcscmp(class_data->parent_class_name, L"")) {
-			return get_member_function_index(class_data->parent_class_name, function_name);
+			return get_member_function_index(parser_context, class_data->parent_class_name, function_name);
 		}
 
 		return IDENTIFIER_NOT_FOUND;
@@ -116,10 +109,10 @@ int get_member_function_index(const wchar_t* class_name, const wchar_t* function
 	return IDENTIFIER_NOT_FOUND;
 }
 
-VariableData* get_member_variable_data(const wchar_t* class_name, const wchar_t* variable_name) {
-	Symbol* class_symbol = find_symbol(class_symbol_table, class_name);
+VariableData* get_member_variable_data(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* variable_name) {
+	Symbol* class_symbol = find_symbol(parser_context->class_symbol_table, class_name);
 
-	if (class_symbol == NULL) return IDENTIFIER_NOT_FOUND;
+	if (class_symbol == NULL) return NULL;
 
 	ClassData* class_data = class_symbol->data;
 
@@ -130,7 +123,7 @@ VariableData* get_member_variable_data(const wchar_t* class_name, const wchar_t*
 	}
 	else {
 		if (wcscmp(class_data->parent_class_name, L"")) {
-			return get_member_variable_data(class_data->parent_class_name, variable_name);
+			return get_member_variable_data(parser_context, class_data->parent_class_name, variable_name);
 		}
 
 		return NULL;
@@ -138,8 +131,8 @@ VariableData* get_member_variable_data(const wchar_t* class_name, const wchar_t*
 	return NULL;
 }
 
-int get_member_variable_index(const wchar_t* class_name, const wchar_t* variable_name) {
-	Symbol* class_symbol = find_symbol(class_symbol_table, class_name);
+int get_member_variable_index(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* variable_name) {
+	Symbol* class_symbol = find_symbol(parser_context->class_symbol_table, class_name);
 
 	if (class_symbol == NULL) return IDENTIFIER_NOT_FOUND;
 
@@ -148,12 +141,12 @@ int get_member_variable_index(const wchar_t* class_name, const wchar_t* variable
 	Symbol* member_symbol = find_symbol(class_data->member_variables, variable_name);
 	if (member_symbol != NULL) {
 		VariableData* variable_data = member_symbol->data;
-		return variable_data->index + get_parent_member_variable_count(class_name);
+		return variable_data->index + get_parent_member_variable_count(parser_context, class_name);
 	}
 	else {
 
 		if (wcscmp(class_data->parent_class_name, L"")) {
-			return get_member_variable_index(class_data->parent_class_name, variable_name);
+			return get_member_variable_index(parser_context, class_data->parent_class_name, variable_name);
 		}
 
 		return IDENTIFIER_NOT_FOUND;
@@ -161,32 +154,32 @@ int get_member_variable_index(const wchar_t* class_name, const wchar_t* variable
 	return IDENTIFIER_NOT_FOUND;
 }
 
-int get_parent_member_variable_count(const wchar_t* class_name) {
+int get_parent_member_variable_count(ParserContext* parser_context, const wchar_t* class_name) {
 	int result = 0;
 
 	if (wcscmp(class_name, L"")) {
-		ClassData* current_class_data = find_symbol(class_symbol_table, class_name)->data;
+		ClassData* current_class_data = find_symbol(parser_context->class_symbol_table, class_name)->data;
 
 		if (wcscmp(current_class_data->parent_class_name, L"")) {
-			ClassData* parent_class_data = find_symbol(class_symbol_table, current_class_data->parent_class_name)->data;
+			ClassData* parent_class_data = find_symbol(parser_context->class_symbol_table, current_class_data->parent_class_name)->data;
 			result += parent_class_data->member_variables->size;
-			result += get_parent_member_variable_count(current_class_data->parent_class_name);
+			result += get_parent_member_variable_count(parser_context, current_class_data->parent_class_name);
 		}
 	}
 
 	return result;
 }
 
-int get_parent_member_function_count(const wchar_t* class_name) {
+int get_parent_member_function_count(ParserContext* parser_context, const wchar_t* class_name) {
 	int result = 0;
 
 	if (wcscmp(class_name, L"")) {
-		ClassData* current_class_data = find_symbol(class_symbol_table, class_name)->data;
+		ClassData* current_class_data = find_symbol(parser_context->class_symbol_table, class_name)->data;
 
 		if (wcscmp(current_class_data->parent_class_name, L"")) {
-			ClassData* parent_class_data = find_symbol(class_symbol_table, current_class_data->parent_class_name)->data;
+			ClassData* parent_class_data = find_symbol(parser_context->class_symbol_table, current_class_data->parent_class_name)->data;
 			result += parent_class_data->member_functions->size;
-			result += get_parent_member_function_count(current_class_data->parent_class_name);
+			result += get_parent_member_function_count(parser_context, current_class_data->parent_class_name);
 		}
 	}
 
@@ -201,7 +194,7 @@ void new_line(wchar_t** result, int indentation) {
 	}
 }
 
-wchar_t* create_class_initializer(int indentation, ClassAST* class_ast) {
+wchar_t* create_class_initializer(ParserContext* parser_context, int indentation, ClassAST* class_ast) {
 	wchar_t* result = L"";
 	wchar_t* buffer[128];
 
@@ -212,7 +205,7 @@ wchar_t* create_class_initializer(int indentation, ClassAST* class_ast) {
 
 	int i;
 	for (i = 0; i < class_ast->member_variable_bundle_count; i++) {
-		result = join_string(result, generate_ir(class_ast->member_variables[i], indentation + 2));
+		result = join_string(result, generate_ir(parser_context, class_ast->member_variables[i], indentation + 2));
 	}
 
 	is_class_initializer = 0;
@@ -222,36 +215,38 @@ wchar_t* create_class_initializer(int indentation, ClassAST* class_ast) {
 	return result;
 }
 
-wchar_t* create_class_constructor(int indentation, ClassAST* class_ast) {
+wchar_t* create_class_constructor(ParserContext* parser_context, int indentation, ClassAST* class_ast) {
 	wchar_t* result = L"";
 	wchar_t* buffer[128];
 
 	new_line(&result, indentation + 1);
 	swprintf(buffer, 128, L"$constructor {");
+	open_scope(parser_context);
 	result = join_string(result, buffer);
 	is_class_initializer = 1;
 
 	int i;
 	for (i = 0; i < class_ast->member_variable_bundle_count; i++) {
-		result = join_string(result, generate_ir(class_ast->member_variables[i], indentation + 2));
+		result = join_string(result, generate_ir(parser_context, class_ast->member_variables[i], indentation + 2));
 	}
 
 	is_class_initializer = 0;
 	new_line(&result, indentation + 1);
 	result = join_string(result, L"}");
+	close_scope(parser_context);
 
 	return result;
 }
 
-wchar_t* create_parameter_buffer(VariableDeclarationBundleAST* parameters_ast) {
+wchar_t* create_parameter_buffer(ParserContext* parser_context, VariableDeclarationBundleAST* parameters_ast) {
 	wchar_t* parameter_buffer = L"";
 
 	int i;
 	for (i = 0; i < parameters_ast->variable_count; i++) {
 		VariableDeclarationAST* parameter = parameters_ast->variable_declarations[i];
 
-		VariableData* variable_data = create_variable_data(variable_symbol_table, parameter->variable_type, parameter->variable_name, parameter->access_modifier);
-		insert_variable_symbol(variable_symbol_table, parameter->variable_name, variable_data);
+		VariableData* variable_data = create_variable_data(parser_context->variable_symbol_table, parameter->variable_type, parameter->variable_name, parameter->access_modifier);
+		insert_variable_symbol(parser_context->variable_symbol_table, parameter->variable_name, variable_data);
 
 		wchar_t single_parameter_buffer[512];
 		swprintf(single_parameter_buffer, 512, L"%ls ", parameter->variable_type->type_str);
@@ -263,34 +258,43 @@ wchar_t* create_parameter_buffer(VariableDeclarationBundleAST* parameters_ast) {
 	return parameter_buffer;
 }
 
-VariableData* find_variable_data(Token* tok, const wchar_t* class_name, const wchar_t* identifier) {
-	Symbol* local_symbol = find_symbol(variable_symbol_table, identifier);
+VariableData* find_variable_data(ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* identifier) {
+	Symbol* local_symbol = find_symbol(parser_context->variable_symbol_table, identifier);
 	VariableData* result = NULL;
 	if (local_symbol == NULL) {
-		result = get_member_variable_data(class_name, identifier);
+		result = get_member_variable_data(parser_context, class_name, identifier);
 	}
 	else {
 		result = local_symbol->data;
 	}
 
+	if (result == NULL) {
+		handle_error(ER1004, tok, parser_context->current_file_name, parser_context->file_str);
+	}
+
 	return result;
 }
 
-FunctionData* find_function_data(const wchar_t* class_name, const wchar_t* function_name, FunctionCallAST* function_call_ast) {
-	Symbol* local_symbol = find_symbol(function_symbol_table, function_name);
+FunctionData* find_function_data(ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* function_name, FunctionCallAST* function_call_ast) {
+	Symbol* local_symbol = find_symbol(parser_context->function_symbol_table, function_name);
 	FunctionData* result = NULL;
+
 	if (local_symbol == NULL) {
-		result = get_member_function_data(class_name, function_name);
+		result = get_member_function_data(parser_context, class_name, function_name);
 	}
 	else {
 		FunctionData* function_data = local_symbol->data;
 		result = function_data;
 	}
 
+	if (result == NULL) {
+		handle_error(ER1003, tok, parser_context->current_file_name, parser_context->file_str);
+	}
+
 	return result;
 }
 
-Type* infer_type(void* ast, wchar_t* search_point_class_name) {
+Type* infer_type(ParserContext* parser_context, void* ast, wchar_t* search_point_class_name) {
 	ASTType type = *((ASTType*)(ast));
 
 	switch (type) {
@@ -321,20 +325,20 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 			return result;
 		}
 
-		VariableData* data = find_variable_data(ident_ast->tok, search_point_class_name, ident_ast->identifier);
+		VariableData* data = find_variable_data(parser_context, ident_ast->tok, search_point_class_name, ident_ast->identifier);
 
 		return data->type;
 	}
 	case AST_BinExpr: {
 		BinExprAST* bin_expr_ast = (BinExprAST*)ast;
 
-		Type* left_type = get_type_of_last_element(bin_expr_ast->left, search_point_class_name);
-		Type* right_type = get_type_of_last_element(bin_expr_ast->right, search_point_class_name);
+		Type* left_type = get_type_of_last_element(parser_context, bin_expr_ast->left, search_point_class_name);
+		Type* right_type = get_type_of_last_element(parser_context, bin_expr_ast->right, search_point_class_name);
 
-		if (check_castability(left_type, right_type)) {
+		if (check_castability(parser_context, left_type, right_type)) {
 			return right_type;
 		}
-		else if (check_castability(right_type, left_type)) {
+		else if (check_castability(parser_context, right_type, left_type)) {
 			return left_type;
 		}
 		else {
@@ -356,7 +360,7 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 	case AST_FunctionCall: {
 		FunctionCallAST* function_call_ast = (FunctionCallAST*)ast;
 
-		FunctionData* function_data = find_function_data(search_point_class_name, function_call_ast->function_name, ast);
+		FunctionData* function_data = find_function_data(parser_context, function_call_ast->tok, search_point_class_name, function_call_ast->function_name, ast);
 
 		return function_data->return_type;
 	}
@@ -366,14 +370,14 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 		if (type == AST_IdentIncrease) {
 			IdentIncreaseAST* ident_increase = (IdentIncreaseAST*)ast;
 
-			VariableData* data = find_variable_data(ident_increase->tok, search_point_class_name, ident_increase->identifier);
+			VariableData* data = find_variable_data(parser_context, ident_increase->tok, search_point_class_name, ident_increase->identifier);
 			return data->type;
 		}
 
 		if (type == AST_IdentDecrease) {
 			IdentDecreaseAST* ident_decrease = (IdentDecreaseAST*)ast;
 
-			VariableData* data = find_variable_data(ident_decrease->tok, search_point_class_name, ident_decrease->identifier);
+			VariableData* data = find_variable_data(parser_context, ident_decrease->tok, search_point_class_name, ident_decrease->identifier);
 
 			return data->type;
 		}
@@ -393,7 +397,7 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 	case AST_ArrayAccess: {
 		ArrayAccessAST* array_access_ast = (ArrayAccessAST*)ast;
 
-		Type* result = infer_type(array_access_ast->target_array, search_point_class_name);
+		Type* result = infer_type(parser_context, array_access_ast->target_array, search_point_class_name);
 
 		int i;
 		for (i = 0; i < array_access_ast->access_count; i++) {
@@ -411,10 +415,10 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 		int i;
 		for (i = 0; i < array_declaration_ast->element_count; i++) {
 			if (element_type == NULL) {
-				element_type = infer_type(array_declaration_ast->elements[i], current_class);
+				element_type = infer_type(parser_context, array_declaration_ast->elements[i], current_class);
 			}
 			else {
-				int elements_type_check = is_same_type(element_type, infer_type(array_declaration_ast->elements[i], current_class));
+				int elements_type_check = is_same_type(element_type, infer_type(parser_context, array_declaration_ast->elements[i], current_class));
 				if (!elements_type_check) {
 					// Handle error for un-mathced types of elements
 				}
@@ -438,9 +442,9 @@ Type* infer_type(void* ast, wchar_t* search_point_class_name) {
 	}
 }
 
-int check_super_class(const wchar_t* from, const wchar_t* to) {
-	Symbol* from_symbol = find_symbol(class_hierarchy, from);
-	Symbol* to_symbol = find_symbol(class_hierarchy, to);
+int check_super_class(ParserContext* parser_context, const wchar_t* from, const wchar_t* to) {
+	Symbol* from_symbol = find_symbol(parser_context->class_hierarchy, from);
+	Symbol* to_symbol = find_symbol(parser_context->class_hierarchy, to);
 
 	ClassType* from_type = ((ClassType*)from_symbol->data);
 	ClassType* to_type = ((ClassType*)to_symbol->data);
@@ -461,7 +465,7 @@ int check_super_class(const wchar_t* from, const wchar_t* to) {
 	return 1;
 }
 
-int check_accessibility(const wchar_t* target_class_name, const wchar_t* access_modifier) {
+int check_accessibility(ParserContext* parser_context, const wchar_t* target_class_name, const wchar_t* access_modifier) {
 	if (!wcscmp(access_modifier, L"public"))return 1;
 	int find_variable_in_class = !wcscmp(target_class_name, current_class);
 
@@ -473,7 +477,7 @@ int check_accessibility(const wchar_t* target_class_name, const wchar_t* access_
 			return 0;
 		}
 		else {
-			int is_parent = check_super_class(target_class_name, current_class);
+			int is_parent = check_super_class(parser_context, target_class_name, current_class);
 
 			if (is_parent) {
 				return !wcscmp(access_modifier, L"protected");
@@ -485,17 +489,17 @@ int check_accessibility(const wchar_t* target_class_name, const wchar_t* access_
 	}
 }
 
-void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wchar_t** result, int indentation) {
-	Symbol* target_class_symbol = find_symbol(class_symbol_table, target_class_name);
+void create_attribute_ir(ParserContext* parser_context, const wchar_t* target_class_name, void* attribute, wchar_t** result, int indentation) {
+	Symbol* target_class_symbol = find_symbol(parser_context->class_symbol_table, target_class_name);
 	ClassData* target_class = target_class_symbol->data;
 	Symbol* member_symbol = NULL;
 
 	switch (*((ASTType*)attribute)) {
 	case AST_Identifier: {
-		int member_variable_index = get_member_variable_index(target_class_name, ((IdentifierAST*)attribute)->identifier);
-		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((IdentifierAST*)attribute)->identifier);
+		int member_variable_index = get_member_variable_index(parser_context, target_class_name, ((IdentifierAST*)attribute)->identifier);
+		VariableData* member_variable_data = get_member_variable_data(parser_context, target_class_name, ((IdentifierAST*)attribute)->identifier);
 
-		if (!check_accessibility(target_class_name, member_variable_data->access_modifier)) {
+		if (!check_accessibility(parser_context, target_class_name, member_variable_data->access_modifier)) {
 			// handle error
 			printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
 			exit(1);
@@ -507,7 +511,7 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 		*result = join_string(*result, attr_str_buffer);
 
 		if (((IdentifierAST*)attribute)->attribute != NULL) {
-			create_attribute_ir(member_variable_data->type->type_str, ((IdentifierAST*)attribute)->attribute, result, indentation);
+			create_attribute_ir(parser_context, member_variable_data->type->type_str, ((IdentifierAST*)attribute)->attribute, result, indentation);
 		}
 
 		break;
@@ -516,10 +520,10 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 	case AST_IdentIncrease: {
 		IdentIncreaseAST* ident_increase_ast = (IdentIncreaseAST*)attribute;
 
-		int member_variable_index = get_member_variable_index(target_class_name, ((IdentIncreaseAST*)attribute)->identifier);
-		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((IdentIncreaseAST*)attribute)->identifier);
+		int member_variable_index = get_member_variable_index(parser_context, target_class_name, ((IdentIncreaseAST*)attribute)->identifier);
+		VariableData* member_variable_data = get_member_variable_data(parser_context, target_class_name, ((IdentIncreaseAST*)attribute)->identifier);
 
-		if (!check_accessibility(target_class_name, member_variable_data->access_modifier)) {
+		if (!check_accessibility(parser_context, target_class_name, member_variable_data->access_modifier)) {
 			// handle error
 			printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
 			exit(1);
@@ -536,10 +540,10 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 	case AST_IdentDecrease: {
 		IdentDecreaseAST* ident_decrease_ast = (IdentDecreaseAST*)attribute;
 
-		int member_variable_index = get_member_variable_index(target_class_name, ((IdentDecreaseAST*)attribute)->identifier);
-		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((IdentDecreaseAST*)attribute)->identifier);
+		int member_variable_index = get_member_variable_index(parser_context, target_class_name, ((IdentDecreaseAST*)attribute)->identifier);
+		VariableData* member_variable_data = get_member_variable_data(parser_context, target_class_name, ((IdentDecreaseAST*)attribute)->identifier);
 
-		if (!check_accessibility(target_class_name, member_variable_data->access_modifier)) {
+		if (!check_accessibility(parser_context, target_class_name, member_variable_data->access_modifier)) {
 			// handle error
 			printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
 			exit(1);
@@ -555,30 +559,30 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 
 	case AST_FunctionCall: {
 		FunctionCallAST* function_call_ast = ((FunctionCallAST*)attribute);
-		int member_function_index = get_member_function_index(target_class_name, function_call_ast->function_name);
-		FunctionData* member_function_data = get_member_function_data(target_class_name, function_call_ast->function_name);
+		int member_function_index = get_member_function_index(parser_context, target_class_name, function_call_ast->function_name);
+		FunctionData* member_function_data = get_member_function_data(parser_context, target_class_name, function_call_ast->function_name);
 
 		wchar_t function_call_buffer[128];
 		swprintf(function_call_buffer, 128, L"@attr_call %d %d", member_function_index, function_call_ast->parameter_count);
 
-		if (!check_accessibility(target_class_name, member_function_data->access_modifier)) {
+		if (!check_accessibility(parser_context, target_class_name, member_function_data->access_modifier)) {
 			// handle error
 			printf("Unable to access function : %S. access modifier of %S is %S.", member_function_data->name, member_function_data->name, member_function_data->access_modifier);
 			exit(1);
 		}
 
-		check_function_call_condition(member_function_data, function_call_ast->parameters, function_call_ast->parameter_count);
+		check_function_call_condition(parser_context, member_function_data, function_call_ast->parameters, function_call_ast->parameter_count);
 
 		int i;
 		for (i = 0; i < member_function_data->parameter_count; i++) {
-			*result = join_string(*result, generate_ir(function_call_ast->parameters[i], indentation));
+			*result = join_string(*result, generate_ir(parser_context, function_call_ast->parameters[i], indentation));
 		}
 
 		new_line(result, indentation);
 		*result = join_string(*result, function_call_buffer);
 
 		if (function_call_ast->attribute != NULL) {
-			create_attribute_ir(member_function_data->return_type->type_str, function_call_ast->attribute, result, indentation);
+			create_attribute_ir(parser_context, member_function_data->return_type->type_str, function_call_ast->attribute, result, indentation);
 		}
 		break;
 	}
@@ -589,11 +593,11 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 		// In this case, doesn't need to check accessibility.
 		// because it creates its target_array AST.
 		// and it will automatically check the accessibility
-		create_attribute_ir(target_class_name, ((ArrayAccessAST*)attribute)->target_array, result, indentation);
+		create_attribute_ir(parser_context, target_class_name, ((ArrayAccessAST*)attribute)->target_array, result, indentation);
 
 		int i;
 		for (i = 0; i < array_access_ast->access_count; i++) {
-			*result = join_string(*result, generate_ir(array_access_ast->indexes[i], indentation));
+			*result = join_string(*result, generate_ir(parser_context, array_access_ast->indexes[i], indentation));
 
 			new_line(result, indentation);
 			*result = join_string(*result, L"@array_load");
@@ -603,39 +607,39 @@ void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wcha
 	}
 }
 
-Type* get_type_of_last_element(void* ast, const wchar_t* search_point_class_name) {
+Type* get_type_of_last_element(ParserContext* parser_context, void* ast, const wchar_t* search_point_class_name) {
 	ASTType type = *((ASTType*)ast);
 
-	Type* result = infer_type(ast, search_point_class_name);
+	Type* result = infer_type(parser_context, ast, search_point_class_name);
 
 	if (type == AST_Identifier) {
 		if (((IdentifierAST*)ast)->attribute != NULL) {
-			result = get_type_of_last_element(((IdentifierAST*)ast)->attribute, result->type_str);
+			result = get_type_of_last_element(parser_context, ((IdentifierAST*)ast)->attribute, result->type_str);
 		}
 	}
 
 	if (type == AST_FunctionCall) {
 		if (((FunctionCallAST*)ast)->attribute != NULL) {
-			result = get_type_of_last_element(((FunctionCallAST*)ast)->attribute, result->type_str);
+			result = get_type_of_last_element(parser_context, ((FunctionCallAST*)ast)->attribute, result->type_str);
 		}
 	}
 
 	if (type == AST_ArrayAccess) {
 		if (((ArrayAccessAST*)ast)->attribute != NULL) {
-			result = get_type_of_last_element(((ArrayAccessAST*)ast)->attribute, result->type_str);
+			result = get_type_of_last_element(parser_context, ((ArrayAccessAST*)ast)->attribute, result->type_str);
 		}
 	}
 
 	return result;
 }
 
-void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int indentation) {
-	if (!check_castability(get_type_of_last_element(left_ast, current_class), get_type_of_last_element(right_ast, current_class))) {
+void create_assign_ir(ParserContext* parser_context, void* left_ast, void* right_ast, wchar_t** result, int indentation) {
+	if (!check_castability(parser_context, get_type_of_last_element(parser_context, left_ast, current_class), get_type_of_last_element(parser_context, right_ast, current_class))) {
 		// handle error for unmathed types of assign
 		return;
 	}
 
-	*result = join_string(*result, generate_ir(right_ast, indentation));
+	*result = join_string(*result, generate_ir(parser_context, right_ast, indentation));
 
 	// for non-attribute, direct assign
 	// a = 5; a[3] = 5
@@ -646,10 +650,10 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 			IdentifierAST* identifier_ast = (IdentifierAST*)left_ast;
 			wchar_t store_str_buffer[128];
 
-			Symbol* local_symbol = find_symbol(variable_symbol_table, identifier_ast->identifier);
+			Symbol* local_symbol = find_symbol(parser_context->variable_symbol_table, identifier_ast->identifier);
 
 			if (local_symbol == NULL) {
-				swprintf(store_str_buffer, 128, L"@mstore %d", get_member_variable_index(current_class, identifier_ast->identifier));
+				swprintf(store_str_buffer, 128, L"@mstore %d", get_member_variable_index(parser_context, current_class, identifier_ast->identifier));
 				*result = join_string(*result, store_str_buffer);
 			}
 			else {
@@ -665,14 +669,14 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 		if (((ArrayAccessAST*)left_ast)->attribute == NULL) {
 			IdentifierAST* identifier_ast = ((ArrayAccessAST*)left_ast)->target_array;
 
-			*result = join_string(*result, generate_ir(identifier_ast, indentation));
+			*result = join_string(*result, generate_ir(parser_context, identifier_ast, indentation));
 
 			wchar_t store_str_buffer[128];
 
 			int i;
 			int access_count = ((ArrayAccessAST*)left_ast)->access_count;
 			for (i = 0; i < access_count; i++) {
-				*result = join_string(*result, generate_ir(((ArrayAccessAST*)left_ast)->indexes[i], indentation));
+				*result = join_string(*result, generate_ir(parser_context, ((ArrayAccessAST*)left_ast)->indexes[i], indentation));
 
 				new_line(result, indentation);
 				if (i == access_count - 1) {
@@ -766,18 +770,18 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 		exit(1);
 	}
 
-	*result = join_string(*result, generate_ir(temp_left_ast, indentation));
+	*result = join_string(*result, generate_ir(parser_context, temp_left_ast, indentation));
 	// process the last ast for store.
 	switch (*((ASTType*)last_ast)) {
 	case AST_Identifier: {
-		wchar_t* target_class_name = infer_type(temp_left_ast, L"")->type_str;
-		Symbol* target_class_symbol = find_symbol(class_symbol_table, target_class_name);
+		wchar_t* target_class_name = infer_type(parser_context, temp_left_ast, L"")->type_str;
+		Symbol* target_class_symbol = find_symbol(parser_context->class_symbol_table, target_class_name);
 		ClassData* target_class = target_class_symbol->data;
 
-		int member_variable_index = get_member_variable_index(target_class_name, ((IdentifierAST*)last_ast)->identifier);
-		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((IdentifierAST*)last_ast)->identifier);
+		int member_variable_index = get_member_variable_index(parser_context, target_class_name, ((IdentifierAST*)last_ast)->identifier);
+		VariableData* member_variable_data = get_member_variable_data(parser_context, target_class_name, ((IdentifierAST*)last_ast)->identifier);
 
-		if (!check_accessibility(target_class_name, member_variable_data->access_modifier)) {
+		if (!check_accessibility(parser_context, target_class_name, member_variable_data->access_modifier)) {
 			// handle error
 			printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
 			exit(1);
@@ -790,14 +794,14 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 		break;
 	}
 	case AST_ArrayAccess: {
-		wchar_t* target_class_name = infer_type(temp_left_ast, L"")->type_str;
-		Symbol* target_class_symbol = find_symbol(class_symbol_table, target_class_name);
+		wchar_t* target_class_name = infer_type(parser_context, temp_left_ast, L"")->type_str;
+		Symbol* target_class_symbol = find_symbol(parser_context->class_symbol_table, target_class_name);
 		ClassData* target_class = target_class_symbol->data;
 
-		int member_variable_index = get_member_variable_index(target_class_name, ((ArrayAccessAST*)last_ast)->target_array->identifier);
-		VariableData* member_variable_data = get_member_variable_data(target_class_name, ((ArrayAccessAST*)last_ast)->target_array->identifier);
+		int member_variable_index = get_member_variable_index(parser_context, target_class_name, ((ArrayAccessAST*)last_ast)->target_array->identifier);
+		VariableData* member_variable_data = get_member_variable_data(parser_context, target_class_name, ((ArrayAccessAST*)last_ast)->target_array->identifier);
 
-		if (!check_accessibility(target_class_name, member_variable_data->access_modifier)) {
+		if (!check_accessibility(parser_context, target_class_name, member_variable_data->access_modifier)) {
 			// handle error
 			printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
 			exit(1);
@@ -815,7 +819,7 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 		int i;
 		int access_count = array_access_last_ast->access_count;
 		for (i = 0; i < access_count; i++) {
-			*result = join_string(*result, generate_ir(array_access_last_ast->indexes[i], indentation));
+			*result = join_string(*result, generate_ir(parser_context, array_access_last_ast->indexes[i], indentation));
 
 			new_line(result, indentation);
 			if (i == access_count - 1) {
@@ -830,7 +834,7 @@ void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int ind
 	}
 }
 
-void check_function_call_condition(FunctionData* function_data, const void** parameters, int parameter_count) {
+void check_function_call_condition(ParserContext* parser_context, FunctionData* function_data, const void** parameters, int parameter_count) {
 	if (function_data->parameter_count != parameter_count) {
 		printf("[Temporary error] at ir.c Type not matched\n");
 		abort();
@@ -839,9 +843,9 @@ void check_function_call_condition(FunctionData* function_data, const void** par
 	int i;
 	for (i = 0; i < parameter_count; i++) {
 
-		Type* infered_type = get_type_of_last_element(parameters[i], current_class);
+		Type* infered_type = get_type_of_last_element(parser_context, parameters[i], current_class);
 
-		if (!check_castability(infered_type, function_data->parameter_types[i])) {
+		if (!check_castability(parser_context, infered_type, function_data->parameter_types[i])) {
 			printf("[Temporary error] at ir.c Type not matched : %S, %S\n", infered_type->type_str, function_data->parameter_types[i]->type_str);
 			abort();
 		}
@@ -849,7 +853,7 @@ void check_function_call_condition(FunctionData* function_data, const void** par
 
 }
 
-wchar_t* generate_ir(void* ast, int indentation) {
+wchar_t* generate_ir(ParserContext* parser_context, void* ast, int indentation) {
 
 	wchar_t* result = L"";
 
@@ -860,7 +864,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 		int i;
 		for (i = 0; i < array_declaration_ast->element_count; i++) {
-			result = join_string(result, generate_ir(array_declaration_ast->elements[i], indentation + 1));
+			result = join_string(result, generate_ir(parser_context, array_declaration_ast->elements[i], indentation + 1));
 		}
 
 		new_line(&result, indentation + 1);
@@ -874,7 +878,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_Return: {
 		ReturnAST* return_ast = (ReturnAST*)ast;
 
-		result = join_string(result, generate_ir(return_ast->expression, indentation));
+		result = join_string(result, generate_ir(parser_context, return_ast->expression, indentation));
 
 		new_line(&result, indentation);
 		wchar_t* ret_str_buffer[128];
@@ -887,12 +891,12 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		BinExprAST* bin_expr_ast = (BinExprAST*)ast;
 
 		if (bin_expr_ast->opType == OpASSIGN) {
-			create_assign_ir(bin_expr_ast->left, bin_expr_ast->right, &result, indentation);
+			create_assign_ir(parser_context, bin_expr_ast->left, bin_expr_ast->right, &result, indentation);
 			break;
 		}
 
-		result = join_string(result, generate_ir(bin_expr_ast->left, indentation));
-		result = join_string(result, generate_ir(bin_expr_ast->right, indentation));
+		result = join_string(result, generate_ir(parser_context, bin_expr_ast->left, indentation));
+		result = join_string(result, generate_ir(parser_context, bin_expr_ast->right, indentation));
 
 		wchar_t* operator_str_buffer[128];
 		switch (bin_expr_ast->opType) {
@@ -953,7 +957,8 @@ wchar_t* generate_ir(void* ast, int indentation) {
 			result = join_string(result, identifier_str_buffer);
 		}
 		else {
-			Symbol* local_symbol = find_symbol(variable_symbol_table, identifier_ast->identifier);
+			Symbol* local_symbol = find_symbol(parser_context->variable_symbol_table, identifier_ast->identifier);
+			VariableData* variable_data = find_variable_data(parser_context, identifier_ast->tok, current_class, identifier_ast->identifier);
 			int variable_exist_in_local_area = local_symbol != NULL;
 
 			if (variable_exist_in_local_area) {
@@ -961,15 +966,15 @@ wchar_t* generate_ir(void* ast, int indentation) {
 				result = join_string(result, identifier_str_buffer);
 			}
 			else {
-				int member_id = get_member_variable_index(current_class, identifier_ast->identifier);
+				int member_id = get_member_variable_index(parser_context, current_class, identifier_ast->identifier);
 				swprintf(identifier_str_buffer, 128, L"@mload %d", member_id);
 				result = join_string(result, identifier_str_buffer);
 			}
 		}
 
 		if (identifier_ast->attribute != NULL) {
-			wchar_t* target_class_name = infer_type(identifier_ast, current_class)->type_str;
-			create_attribute_ir(target_class_name, identifier_ast->attribute, &result, indentation);
+			wchar_t* target_class_name = infer_type(parser_context, identifier_ast, current_class)->type_str;
+			create_attribute_ir(parser_context, target_class_name, identifier_ast->attribute, &result, indentation);
 		}
 
 		break;
@@ -993,16 +998,21 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_New: {
 		NewAST* new_ast = (NewAST*)ast;
 
-		Symbol* class_symbol = find_symbol(class_symbol_table, new_ast->class_name);
+		Symbol* class_symbol = find_symbol(parser_context->class_symbol_table, new_ast->class_name);
+
+		if (class_symbol == NULL) {
+			handle_error(ER1002, new_ast->tok, parser_context->current_file_name, parser_context->file_str);
+		}
+
 		ClassData* class_data = class_symbol->data;
 
 		FunctionData* constructor_data = class_data->constructor_data;
 
-		check_function_call_condition(constructor_data, new_ast->parameters, new_ast->parameter_count);
+		check_function_call_condition(parser_context, constructor_data, new_ast->parameters, new_ast->parameter_count);
 
 		int i;
 		for (i = 0; i < new_ast->parameter_count; i++) {
-			result = join_string(result, generate_ir(new_ast->parameters[i], indentation));
+			result = join_string(result, generate_ir(parser_context, new_ast->parameters[i], indentation));
 		}
 
 		new_line(&result, indentation);
@@ -1017,11 +1027,11 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_ArrayAccess: {
 		ArrayAccessAST* array_access_ast = (ArrayAccessAST*)ast;
 
-		result = join_string(result, generate_ir(array_access_ast->target_array, indentation));
+		result = join_string(result, generate_ir(parser_context, array_access_ast->target_array, indentation));
 
 		int i;
 		for (i = 0; i < array_access_ast->access_count; i++) {
-			result = join_string(result, generate_ir(array_access_ast->indexes[i], indentation));
+			result = join_string(result, generate_ir(parser_context, array_access_ast->indexes[i], indentation));
 
 			new_line(&result, indentation);
 			result = join_string(result, L"@array_load");
@@ -1032,24 +1042,24 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 	case AST_FunctionCall: {
 		FunctionCallAST* function_call_ast = (FunctionCallAST*)ast;
-		FunctionData* function_data = find_function_data(current_class, function_call_ast->function_name, function_call_ast);
+		FunctionData* function_data = find_function_data(parser_context, function_call_ast->tok, current_class, function_call_ast->function_name, function_call_ast);
 
 		wchar_t* function_call_buffer[512];
 
-		Symbol* local_symbol = find_symbol(function_symbol_table, function_call_ast->function_name);
+		Symbol* local_symbol = find_symbol(parser_context->function_symbol_table, function_call_ast->function_name);
 
 		if (local_symbol == NULL) {
-			swprintf(function_call_buffer, 128, L"@mcall %d %d", get_member_function_index(current_class, function_call_ast->function_name), function_call_ast->parameter_count);
+			swprintf(function_call_buffer, 128, L"@mcall %d %d", get_member_function_index(parser_context, current_class, function_call_ast->function_name), function_call_ast->parameter_count);
 		}
 		else {
 			swprintf(function_call_buffer, 128, L"@call %d %d", ((FunctionData*)local_symbol->data)->index, function_call_ast->parameter_count);
 		}
 
-		check_function_call_condition(function_data, function_call_ast->parameters, function_call_ast->parameter_count);
+		check_function_call_condition(parser_context, function_data, function_call_ast->parameters, function_call_ast->parameter_count);
 
 		int i;
 		for (i = 0; i < function_data->parameter_count; i++) {
-			result = join_string(result, generate_ir(function_call_ast->parameters[i], indentation));
+			result = join_string(result, generate_ir(parser_context, function_call_ast->parameters[i], indentation));
 		}
 
 		new_line(&result, indentation);
@@ -1078,7 +1088,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		wchar_t* parameter_buffer = L"";
 
 		if (constructor_ast->parameters != NULL) {
-			parameter_buffer = create_parameter_buffer(constructor_ast->parameters);
+			parameter_buffer = create_parameter_buffer(parser_context, constructor_ast->parameters);
 		}
 
 		new_line(&result, indentation + 1);
@@ -1088,7 +1098,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 		int i;
 		for (i = 0; i < constructor_ast->body_count; i++) {
-			result = join_string(result, generate_ir(constructor_ast->body[i], indentation + 2));
+			result = join_string(result, generate_ir(parser_context, constructor_ast->body[i], indentation + 2));
 		}
 
 		new_line(&result, indentation + 1);
@@ -1100,17 +1110,17 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_FunctionDeclaration: {
 		FunctionDeclarationAST* function_declaration_ast = (FunctionDeclarationAST*)ast;
 
-		Symbol* function_symbol = find_symbol(function_symbol_table, function_declaration_ast->function_name);
+		Symbol* function_symbol = find_symbol(parser_context->function_symbol_table, function_declaration_ast->function_name);
 
 		int should_find_member_function = function_symbol == NULL && wcscmp(current_class, L"");
 		if (should_find_member_function) {
-			ClassData* current_class_data = find_symbol(class_symbol_table, current_class)->data;
+			ClassData* current_class_data = find_symbol(parser_context->class_symbol_table, current_class)->data;
 			function_symbol = find_symbol(current_class_data->member_functions, function_declaration_ast->function_name);
 		}
 
-		open_scope();
+		open_scope(parser_context);
 
-		wchar_t* parameter_buffer = create_parameter_buffer(((VariableDeclarationBundleAST*)function_declaration_ast->parameters));
+		wchar_t* parameter_buffer = create_parameter_buffer(parser_context, ((VariableDeclarationBundleAST*)function_declaration_ast->parameters));
 		FunctionData* function_data = function_symbol->data;
 
 		function_data->access_modifier = function_declaration_ast->access_modifier;
@@ -1122,13 +1132,13 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 		int i;
 		for (i = 0; i < function_declaration_ast->body_count; i++) {
-			result = join_string(result, generate_ir(function_declaration_ast->body[i], indentation + 1));
+			result = join_string(result, generate_ir(parser_context, function_declaration_ast->body[i], indentation + 1));
 		}
 
 		new_line(&result, indentation);
 		result = join_string(result, L"}");
 
-		close_scope();
+		close_scope(parser_context);
 
 		break;
 	}
@@ -1136,11 +1146,11 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_Class: {
 		ClassAST* class_ast = (ClassAST*)ast;
 
-		ClassData* class_data = find_symbol(class_symbol_table, class_ast->class_name)->data;
-		Symbol* parent_symbol = find_symbol(class_symbol_table, class_ast->parent_class_name);
+		ClassData* class_data = find_symbol(parser_context->class_symbol_table, class_ast->class_name)->data;
+		Symbol* parent_symbol = find_symbol(parser_context->class_symbol_table, class_ast->parent_class_name);
 		ClassData* parent_data = NULL;
 
-		open_scope();
+		open_scope(parser_context);
 
 		current_class = class_ast->class_name;
 
@@ -1153,19 +1163,19 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		swprintf(buffer, 128, L"class %d %d {", class_data->index, parent_data ? parent_data->index : 0);
 		result = join_string(result, buffer);
 
-		result = join_string(result, create_class_initializer(indentation, class_ast));
-		result = join_string(result, generate_ir(class_ast->constructor, indentation));
+		result = join_string(result, create_class_initializer(parser_context, indentation, class_ast));
+		result = join_string(result, generate_ir(parser_context, class_ast->constructor, indentation));
 
 		int i;
 		for (i = 0; i < class_ast->member_function_count; i++) {
-			result = join_string(result, generate_ir(class_ast->member_functions[i], indentation + 1));
+			result = join_string(result, generate_ir(parser_context, class_ast->member_functions[i], indentation + 1));
 		}
 
 		new_line(&result, indentation);
 		result = join_string(result, L"}\n");
 
 		current_class = L"";
-		close_scope();
+		close_scope(parser_context);
 
 		break;
 	}
@@ -1175,7 +1185,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 		int i;
 		for (i = 0; i < variable_declaration_bundle_ast->variable_count; i++) {
-			result = join_string(result, generate_ir(variable_declaration_bundle_ast->variable_declarations[i], indentation));
+			result = join_string(result, generate_ir(parser_context, variable_declaration_bundle_ast->variable_declarations[i], indentation));
 		}
 
 		break;
@@ -1187,25 +1197,25 @@ wchar_t* generate_ir(void* ast, int indentation) {
 		VariableData* data = NULL;
 
 		if (is_class_initializer) {
-			SymbolTable* member_variable_symbol_table = ((ClassData*)find_symbol(class_symbol_table, current_class)->data)->member_variables;
+			SymbolTable* member_variable_symbol_table = ((ClassData*)find_symbol(parser_context->class_symbol_table, current_class)->data)->member_variables;
 			data = create_variable_data(member_variable_symbol_table, variable_declaration_ast->variable_type, variable_declaration_ast->variable_name, variable_declaration_ast->access_modifier);
 			insert_variable_symbol(member_variable_symbol_table, variable_declaration_ast->variable_name, data);
 		}
 		else {
-			data = create_variable_data(variable_symbol_table, variable_declaration_ast->variable_type, variable_declaration_ast->variable_name, variable_declaration_ast->access_modifier);
-			insert_variable_symbol(variable_symbol_table, variable_declaration_ast->variable_name, data);
+			data = create_variable_data(parser_context->variable_symbol_table, variable_declaration_ast->variable_type, variable_declaration_ast->variable_name, variable_declaration_ast->access_modifier);
+			insert_variable_symbol(parser_context->variable_symbol_table, variable_declaration_ast->variable_name, data);
 		}
 
 		if (variable_declaration_ast->declaration) {
-			result = join_string(result, generate_ir(variable_declaration_ast->declaration, indentation));
+			result = join_string(result, generate_ir(parser_context, variable_declaration_ast->declaration, indentation));
 
-			if (!check_castability(get_type_of_last_element(variable_declaration_ast, current_class), get_type_of_last_element(variable_declaration_ast->declaration, current_class))) {
+			if (!check_castability(parser_context, get_type_of_last_element(parser_context, variable_declaration_ast, current_class), get_type_of_last_element(parser_context, variable_declaration_ast->declaration, current_class))) {
 				return;
 			}
 		}
 
 		// indexing for additional parent class member variables.
-		int parent_variable_count = get_parent_member_variable_count(current_class);
+		int parent_variable_count = get_parent_member_variable_count(parser_context, current_class);
 
 		wchar_t store_str_buffer[128];
 
@@ -1226,7 +1236,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IdentIncrease: {
 		IdentIncreaseAST* ident_increase_ast = (IdentIncreaseAST*)ast;
 
-		VariableData* variable_data = find_variable_data(ident_increase_ast->tok, current_class, ident_increase_ast->identifier);
+		VariableData* variable_data = find_variable_data(parser_context, ident_increase_ast->tok, current_class, ident_increase_ast->identifier);
 
 		new_line(&result, indentation);
 		wchar_t ident_increase_str_buffer[128];
@@ -1239,7 +1249,7 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IdentDecrease: {
 		IdentDecreaseAST* ident_decrease_ast = (IdentDecreaseAST*)ast;
 
-		VariableData* variable_data = find_variable_data(ident_decrease_ast->tok, current_class, ident_decrease_ast->identifier);
+		VariableData* variable_data = find_variable_data(parser_context, ident_decrease_ast->tok, current_class, ident_decrease_ast->identifier);
 
 		new_line(&result, indentation);
 		wchar_t ident_decrease_str_buffer[128];
@@ -1252,9 +1262,9 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_IfStatement: {
 		IfStatementAST* if_statement_ast = (IfStatementAST*)ast;
 
-		open_scope();
+		open_scope(parser_context);
 
-		close_scope();
+		close_scope(parser_context);
 
 		break;
 	}
@@ -1262,9 +1272,9 @@ wchar_t* generate_ir(void* ast, int indentation) {
 	case AST_ForStatement: {
 		ForStatementAST* for_statement_ast = (ForStatementAST*)ast;
 
-		open_scope();
+		open_scope(parser_context);
 
-		result = join_string(result, generate_ir(for_statement_ast->init, indentation));
+		result = join_string(result, generate_ir(parser_context, for_statement_ast->init, indentation));
 
 		label_id++;
 		int end_label_id = label_id;
@@ -1285,23 +1295,23 @@ wchar_t* generate_ir(void* ast, int indentation) {
 
 		int i;
 		for (i = 0; i < for_statement_ast->body_count; i++) {
-			result = join_string(result, generate_ir(for_statement_ast->body[i], indentation));
+			result = join_string(result, generate_ir(parser_context, for_statement_ast->body[i], indentation));
 		}
 
 
-		result = join_string(result, generate_ir(for_statement_ast->step, indentation));
+		result = join_string(result, generate_ir(parser_context, for_statement_ast->step, indentation));
 
 		swprintf(label_str_buffer, 64, L"@label %x", end_label_id);
 		new_line(&result, indentation);
 		result = join_string(result, label_str_buffer);
 
-		result = join_string(result, generate_ir(for_statement_ast->condition, indentation));
+		result = join_string(result, generate_ir(parser_context, for_statement_ast->condition, indentation));
 
 		swprintf(label_str_buffer, 64, L"@for %x", begin_label_id);
 		new_line(&result, indentation);
 		result = join_string(result, label_str_buffer);
 
-		close_scope();
+		close_scope(parser_context);
 
 		break;
 	}

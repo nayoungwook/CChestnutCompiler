@@ -9,6 +9,7 @@
 #define TABLE_SIZE 1024
 
 void* safe_malloc(size_t size);
+void* safe_relloc(void* ptr, size_t size);
 
 wchar_t* get_working_directory();
 wchar_t* read_file(const wchar_t* path);
@@ -51,16 +52,16 @@ Symbol* find_symbol_from_set(Set* target_set, const wchar_t* name);
 typedef struct _VariableData {
 	Type* type;
 	const wchar_t* name;
-	unsigned int index;
 	wchar_t* access_modifier;
+	unsigned int index;
 } VariableData;
 
 typedef struct _FunctionData {
 	const wchar_t* name;
 	Type* return_type;
 	unsigned int parameter_count;
-	int index;
 	Type** parameter_types;
+	unsigned int index;
 	wchar_t* access_modifier;
 } FunctionData;
 
@@ -76,4 +77,3 @@ typedef struct _ClassData {
 SymbolTable* create_symbol_table();
 Set* create_set();
 
-int is_primitive_type(Type* type);

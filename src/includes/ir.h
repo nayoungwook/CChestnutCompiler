@@ -10,35 +10,35 @@
 
 #define IDENTIFIER_NOT_FOUND -1
 
-wchar_t* create_class_initializer(int indentation, ClassAST* class_ast);
+wchar_t* create_class_initializer(ParserContext* parser_context, int indentation, ClassAST* class_ast);
 
-void open_scope();
-void close_scope();
+void open_scope(ParserContext* parser_context);
+void close_scope(ParserContext* parser_context);
 
 int get_prev_variable_index_size(SymbolTable* variable_symbol_table);
-int check_accessibility(const wchar_t* target_class_name, const wchar_t* access_modifier);
-int check_super_class(const wchar_t* from, const wchar_t* to);
+int check_accessibility(ParserContext* parser_context, const wchar_t* target_class_name, const wchar_t* access_modifier);
+int check_super_class(ParserContext* parser_context, const wchar_t* from, const wchar_t* to);
 
 VariableData* create_variable_data(SymbolTable* variable_symbol_table, Type* type, const wchar_t* name, const wchar_t* access_modifier);
 void insert_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name, VariableData* data);
 void remove_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name);
 
-Type* infer_type(void* ast, wchar_t* search_point_class_name);
-void check_function_call_condition(FunctionData* function_data, const void** parameters, int parameter_count);
+Type* infer_type(ParserContext* parser_context, void* ast, wchar_t* search_point_class_name);
+void check_function_call_condition(ParserContext* parser_context, FunctionData* function_data, const void** parameters, int parameter_count);
 void new_line(wchar_t** result, int indentation);
-Type* get_type_of_last_element(void* ast, const wchar_t* search_point_class_name);
+Type* get_type_of_last_element(ParserContext* parser_context, void* ast, const wchar_t* search_point_class_name);
 
-wchar_t* generate_ir(void* AST, int indentation);
-wchar_t* create_parameter_buffer(VariableDeclarationBundleAST* parameters_ast);
-void create_attribute_ir(const wchar_t* target_class_name, void* attribute, wchar_t** result, int indentation);
-void create_assign_ir(void* left_ast, void* right_ast, wchar_t** result, int indentation);
+wchar_t* generate_ir(ParserContext* parser_context, void* AST, int indentation);
+wchar_t* create_parameter_buffer(ParserContext* parser_context, VariableDeclarationBundleAST* parameters_ast);
+void create_attribute_ir(ParserContext* parser_context, const wchar_t* target_class_name, void* attribute, wchar_t** result, int indentation);
+void create_assign_ir(ParserContext* parser_context, void* left_ast, void* right_ast, wchar_t** result, int indentation);
 
-int get_member_variable_index(const wchar_t* class_name, const wchar_t* ident);
-int get_parent_member_variable_count(const wchar_t* class_name);
+int get_member_variable_index(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* ident);
+int get_parent_member_variable_count(ParserContext* parser_context, const wchar_t* class_name);
 
-int get_member_function_index(const wchar_t* class_name, const wchar_t* function_name);
-int get_parent_member_function_count(const wchar_t* class_name);
+int get_member_function_index(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* function_name);
+int get_parent_member_function_count(ParserContext* parser_context, const wchar_t* class_name);
 
-FunctionData* get_member_function_data(const wchar_t* class_name, const wchar_t* function_name);
-VariableData* get_member_variable_data(const wchar_t* class_name, const wchar_t* variable_name);
-VariableData* find_variable_data(Token* tok, const wchar_t* class_name, const wchar_t* identifier);
+FunctionData* get_member_function_data(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* function_name);
+FunctionData* find_function_data(ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* function_name, FunctionCallAST* function_call_ast);
+VariableData* find_variable_data(ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* identifier);

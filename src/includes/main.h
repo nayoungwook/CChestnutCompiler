@@ -10,5 +10,5 @@
 #include "parser.h"
 #include "ir.h"
 
-void initialize_global_symbol_table();
-void compile_file(const wchar_t* file_name);
+void initialize_primitive_types(ParserContext* parser_context);
+void parse_file(ParserContext* parser_context, const wchar_t* file_name);

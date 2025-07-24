@@ -34,10 +34,19 @@ void* safe_malloc(size_t size) {
 	return ptr;
 }
 
+void* safe_relloc(void* ptr, size_t size) {
+	void* re_ptr = realloc(ptr, size);
+	if (!re_ptr) {
+		fprintf(stderr, "realloc failed at %s:%d\n", __FILE__, __LINE__);
+	}
+	return re_ptr;
+}
+
 int* line_index_data;
 int* line_number_data;
 
 wchar_t* read_file(const wchar_t* file_path) {
+
 	FILE* fp = fopen(file_path, "r, ccs=UTF-8");
 	if (!fp) {
 		perror("파일 열기 실패");
@@ -153,13 +162,6 @@ Symbol* find_symbol(SymbolTable* cur_symbol_table, const wchar_t* name) {
 	}
 
 	return result;
-}
-
-extern Set* primitive_types;
-extern SymbolTable* class_hierarchy;
-
-int is_primitive_type(Type* type) {
-	return find_symbol_from_set(primitive_types, type->type_str) != NULL;
 }
 
 wchar_t* join_string(const wchar_t* str1, const wchar_t* str2) {
