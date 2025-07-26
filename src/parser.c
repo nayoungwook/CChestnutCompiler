@@ -49,7 +49,7 @@ FunctionData* create_function_data(SymbolTable* function_symbol_table, const wch
 	result->name = _wcsdup(name);
 	result->return_type = return_type;
 	result->index = function_symbol_table->size + 1;
-	result->access_modifier = L"default";
+	result->access_modifier = AM_DEFAULT;
 	result->parameter_types = NULL;
 	result->parameter_count = parameters->variable_count;
 
@@ -84,8 +84,10 @@ void insert_class_symbol(ParserContext* parser_context, ClassAST* ast) {
 
 	Symbol* symbol = (Symbol*)safe_malloc(sizeof(Symbol));
 	symbol->data = data;
-	symbol->symbol = ast->class_name;
+	symbol->symbol = _wcsdup(ast->class_name);
 	symbol->hash = _hash;
+	symbol->next = parser_context->class_symbol_table->table[_hash];
+
 	parser_context->class_symbol_table->size++;
 	parser_context->class_symbol_table->table[_hash] = symbol;
 }
@@ -350,13 +352,12 @@ void* create_return_ast(ParserContext* parser_context, Token* tok, wchar_t* str)
 	return result;
 }
 
-void* create_function_call_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
-	FunctionCallAST* result = (FunctionCallAST*)safe_malloc(sizeof(FunctionCallAST));
-	wchar_t* function_name = _wcsdup(tok->str);
-	result->function_name = function_name;
-	result->TYPE = AST_FunctionCall;
+FunctionCallParameterContext* parse_function_call_parameter(ParserContext* parser_context, wchar_t* str) {
+	FunctionCallParameterContext* result = (FunctionCallParameterContext*)safe_malloc(sizeof(FunctionCallParameterContext));
+
+	result->parameters = NULL;
 	result->parameter_count = 0;
-	result->tok = tok;
+
 	consume(str, TokLParen);
 
 	while (peek_token(str)->type != TokRParen) {
@@ -380,6 +381,27 @@ void* create_function_call_ast(ParserContext* parser_context, Token* tok, wchar_
 	}
 
 	consume(str, TokRParen);
+
+	return result;
+}
+
+void free_function_call_parameter(FunctionCallParameterContext* function_call_parameter) {
+	free(function_call_parameter);
+}
+
+void* create_function_call_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
+	FunctionCallAST* result = (FunctionCallAST*)safe_malloc(sizeof(FunctionCallAST));
+
+	FunctionCallParameterContext* function_call_parameter = parse_function_call_parameter(parser_context, str);
+
+	wchar_t* function_name = _wcsdup(tok->str);
+	result->function_name = function_name;
+	result->TYPE = AST_FunctionCall;
+	result->parameter_count = function_call_parameter->parameter_count;
+	result->parameters = function_call_parameter->parameters;
+	result->tok = tok;
+
+	free_function_call_parameter(function_call_parameter);
 
 	result->function_name = tok->str;
 	return result;
@@ -606,19 +628,35 @@ void insert_function_symbol(SymbolTable* function_symbol_table, FunctionDeclarat
 
 	Symbol* symbol = (Symbol*)safe_malloc(sizeof(Symbol));
 	symbol->data = data;
-	symbol->symbol = ast->function_name;
+	symbol->symbol = _wcsdup(ast->function_name);
 	symbol->hash = _hash;
+	symbol->next = function_symbol_table->table[_hash];
+
 	function_symbol_table->size++;
 	function_symbol_table->table[_hash] = symbol;
 }
 
-void remove_function_symbol(SymbolTable* function_symbol_table, const wchar_t* mangled_name) {
-	unsigned int _hash = hash(mangled_name);
-	function_symbol_table->size--;
+void remove_function_symbol(SymbolTable* function_symbol_table, const wchar_t* name) {
+	unsigned int _hash = hash(name);
+	Symbol* current = function_symbol_table->table[_hash];
+	Symbol* prev = NULL;
 
-	Symbol* target_symbol = function_symbol_table->table[_hash];
-	function_symbol_table->table[_hash] = function_symbol_table->table[_hash]->next;
-	free(target_symbol);
+	while (current != NULL) {
+		if (wcscmp(current->symbol, name) == 0) {
+			if (prev == NULL) {
+				function_symbol_table->table[_hash] = current->next;
+			}
+			else {
+				prev->next = current->next;
+			}
+
+			free(current);
+			function_symbol_table->size--;
+			return;
+		}
+		prev = current;
+		current = current->next;
+	}
 }
 
 Type* get_type(Token* tok, wchar_t* str) {
@@ -645,7 +683,7 @@ void* create_function_declaration_ast(ParserContext* parser_context, Token* tok,
 	FunctionDeclarationAST* function_declaration_ast = (FunctionDeclarationAST*)safe_malloc(sizeof(FunctionDeclarationAST));
 	function_declaration_ast->TYPE = AST_FunctionDeclaration;
 	function_declaration_ast->body_count = 0;
-	function_declaration_ast->access_modifier = L"default";
+	function_declaration_ast->access_modifier = AM_DEFAULT;
 
 	wchar_t* function_name = pull_token(str)->str;
 	function_declaration_ast->function_name = function_name;
@@ -771,7 +809,7 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
 		variable->variable_type = type_element;
 
 		variable->declaration = declaration;
-		variable->access_modifier = L"default";
+		variable->access_modifier = AM_DEFAULT;
 
 		if (bundles->variable_count == 0) {
 			bundles->variable_declarations = (VariableDeclarationAST*)safe_malloc(sizeof(VariableDeclarationAST) * 1);
@@ -793,15 +831,39 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
 	return bundles;
 }
 
-void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
+void create_class_constructor_data(ParserContext* parser_context, ClassAST* class_ast) {
+	Type* constructor_return_type_element = (Type*)safe_malloc(sizeof(Type));
+	constructor_return_type_element->type_str = L"void";
+	constructor_return_type_element->is_array = 0;
+	constructor_return_type_element->array_element_type = NULL;
 
-	wchar_t* class_name = pull_token(str)->str;
+	ClassData* class_data = ((ClassData*)find_symbol(parser_context->class_symbol_table, parser_context->current_class)->data);
+	class_data->constructor_data = create_function_data(class_data->member_functions, L"constructor", constructor_return_type_element, class_ast->constructor->parameters);
+}
+
+void initialize_constructor_of_class(ClassAST* class_ast) {
+	class_ast->constructor = (ConstructorAST*)safe_malloc(sizeof(ConstructorAST));
+	class_ast->constructor->TYPE = AST_Constructor;
+	class_ast->constructor->body_count = 0;
+	VariableDeclarationBundleAST* empty_parameters = (VariableDeclarationBundleAST*)safe_malloc(sizeof(VariableDeclarationBundleAST));
+	empty_parameters->variable_count = 0;
+	empty_parameters->variable_declarations = NULL;
+	class_ast->constructor->parameters = empty_parameters;
+}
+
+const wchar_t* get_parent_name(wchar_t* str) {
 	wchar_t* parent_name = L"";
-
 	if (peek_token(str)->type == TokExtends) {
 		consume(str, TokExtends);
 		parent_name = pull_token(str)->str;
 	}
+	return parent_name;
+}
+
+void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
+	wchar_t* class_name = pull_token(str)->str;
+
+	wchar_t* parent_name = get_parent_name(str);
 
 	ClassAST* class_ast = (ClassAST*)safe_malloc(sizeof(ClassAST));
 
@@ -813,14 +875,7 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
 	class_ast->member_function_count = 0;
 	class_ast->member_variable_bundle_count = 0;
 
-	// initialize for constructor
-	class_ast->constructor = (ConstructorAST*)safe_malloc(sizeof(ConstructorAST));
-	class_ast->constructor->TYPE = AST_Constructor;
-	class_ast->constructor->body_count = 0;
-	VariableDeclarationBundleAST* empty_parameters = (VariableDeclarationBundleAST*)safe_malloc(sizeof(VariableDeclarationBundleAST));
-	empty_parameters->variable_count = 0;
-	empty_parameters->variable_declarations = NULL;
-	class_ast->constructor->parameters = empty_parameters;
+	initialize_constructor_of_class(class_ast);
 
 	insert_type_symbol(parser_context, !wcscmp(parent_name, L"") ? NULL : parent_name, class_name);
 	insert_class_symbol(parser_context, class_ast);
@@ -867,12 +922,7 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
 		}
 	}
 
-	ClassData* class_data = ((ClassData*)find_symbol(parser_context->class_symbol_table, parser_context->current_class)->data);
-	Type* constructor_return_type_element = (Type*)safe_malloc(sizeof(Type));
-	constructor_return_type_element->type_str = L"void";
-	constructor_return_type_element->is_array = 0;
-	constructor_return_type_element->array_element_type = NULL;
-	class_data->constructor_data = create_function_data(class_data->member_functions, L"constructor", constructor_return_type_element, class_ast->constructor->parameters);
+	create_class_constructor_data(parser_context, class_ast);
 
 	parser_context->current_class = L"";
 
@@ -907,7 +957,7 @@ VariableDeclarationBundleAST* create_function_parameters(Token* tok, wchar_t* st
 		variable->variable_name = parameter_name;
 		variable->variable_type = parameter_type_element;
 		variable->declaration = NULL;
-		variable->access_modifier = L"default";
+		variable->access_modifier = AM_DEFAULT;
 
 		if (parameters->variable_count == 0) {
 			parameters->variable_declarations = (VariableDeclarationAST*)safe_malloc(sizeof(VariableDeclarationAST) * 1);
@@ -964,34 +1014,13 @@ void* create_new_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
 	Token* class_name_token = pull_token(str);
 	wchar_t* class_name = _wcsdup(class_name_token->str);
 
+	FunctionCallParameterContext* function_call_parameter = parse_function_call_parameter(parser_context, str);
+
 	result->TYPE = AST_New;
-	result->parameter_count = 0;
+	result->parameter_count = function_call_parameter->parameter_count;
+	result->parameters = function_call_parameter->parameters;
 	result->class_name = class_name;
 	result->tok = class_name_token;
-
-	consume(str, TokLParen);
-
-	while (peek_token(str)->type != TokRParen) {
-		void* parameter = parse_expression(parser_context, str);
-
-		if (result->parameter_count == 0) {
-			result->parameters = (void**)safe_malloc(sizeof(void*));
-		}
-		else {
-			result->parameters = (void**)safe_relloc(result->parameters, sizeof(void*) * (result->parameter_count + 1));
-		}
-
-		int index = result->parameter_count;
-		result->parameters[index] = parameter;
-
-		if (peek_token(str)->type == TokComma) {
-			consume(str, TokComma);
-		}
-
-		result->parameter_count++;
-	}
-
-	consume(str, TokRParen);
 
 	return result;
 }
@@ -1080,18 +1109,18 @@ void* parse(ParserContext* parser_context, const wchar_t* str) {
 	case TokPublic:
 	case TokProtected: {
 		void* element = parse(parser_context, str);
-		wchar_t* access_modifier = L"default";
+		wchar_t* access_modifier = AM_DEFAULT;
 
 		switch (tok->type)
 		{
 		case TokPrivate:
-			access_modifier = L"private";
+			access_modifier = AM_PRIVATE;
 			break;
 		case TokProtected:
-			access_modifier = L"protected";
+			access_modifier = AM_PROTECTED;
 			break;
 		case TokPublic:
-			access_modifier = L"public";
+			access_modifier = AM_PUBLIC;
 			break;
 		}
 

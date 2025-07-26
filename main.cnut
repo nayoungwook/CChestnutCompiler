@@ -1,45 +1,10 @@
 
-class Foo {
-  public var a: string = "";
-  public var foo: Foo = new Foo("asdf");
-  public var arr: array<int> = {3, 5, 6, 7};
-  private var b: int = 0;
-  
-  constructor(a: string){
-    this.a = a;
-  }
-  
-  public func test(): Foo {
-    this.beautiful_ones(5);
-  }
-
-  public func beautiful_ones(a: int): Foo {
-    this.a = a;
-  }
-}
-
-class Bar extends Foo {
-  constructor(a: string){
-    this.a = a;
-  }
-}
-
-func add(a: int, b: int) : array<int> {
-  return a + b;
-}
-
 func main(): void {
-  var foo: Bar = new Bar("qwer");
+  var a: int = 0;
 
-  foo.beautiful_ones(4).test().foo.a = "asdf";
-  foo.beautiful_ones(5).test().foo.arr = {1, 5, 6, 7};
-
-  var a: string = "";
-  a = "asdf";
-
-  foo = new Bar("asdf");
-  add(5, 4);
-
-  for(var i:int =0; i<10; i++){
+  if(a == 0){
+    var b: int = 3;
+  }else if(a == 3){
+  }else{
   }
 }

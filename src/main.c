@@ -26,7 +26,7 @@ void parse_file(ParserContext* parser_context, const wchar_t* file_name) {
 		set_file_string(parser_context, file);
 		void* ast = parse(parser_context, file);
 
-		printf("%S\n", generate_ir(parser_context, ast, 0));
+		printf("%S\n", create_ir(parser_context, ast, 0));
 	}
 }
 

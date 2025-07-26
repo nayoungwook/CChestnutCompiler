@@ -5,6 +5,12 @@
 #include "util.h"
 #include "error.h"
 
+// for access modifier
+#define AM_DEFAULT 1
+#define AM_PUBLIC 2
+#define AM_PRIVATE 3
+#define AM_PROTECTED 4
+
 typedef struct _ParserContext {
 	wchar_t* current_class;
 	wchar_t* current_function_name;
@@ -19,6 +25,13 @@ typedef struct _ParserContext {
 
 	Set* primitive_types;
 } ParserContext;
+
+typedef struct _FunctionCallParameterContext {
+	void** parameters;
+	int parameter_count;
+} FunctionCallParameterContext;
+FunctionCallParameterContext* parse_function_call_parameter(ParserContext* parser_context, wchar_t* str);
+void free_function_call_parameter(FunctionCallParameterContext* function_call_parameter);
 
 void set_file_string(ParserContext* parser_context, const wchar_t* str);
 
@@ -59,6 +72,10 @@ void remove_function_symbol(SymbolTable* function_symbol_table, const wchar_t* n
 ClassData* create_class_data(ParserContext* parser_context, ClassAST* class_ast);
 void insert_class_symbol(ParserContext* parser_context, ClassAST* ast);
 void remove_class_symbol(ParserContext* parser_context, const wchar_t* name);
+void create_class_constructor_data(ParserContext* parser_context, ClassAST* class_ast);
+
+const wchar_t* get_parent_name(wchar_t* str);
+void initialize_constructor_of_class(ClassAST* class_ast);
 
 // AST creating functions
 void* create_if_statement_ast(ParserContext* parser_context, Token* tok, wchar_t* str);

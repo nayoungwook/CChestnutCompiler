@@ -52,7 +52,7 @@ typedef struct {
 	wchar_t* variable_name;
 	Type* variable_type;
 	void* declaration;
-	wchar_t* access_modifier;
+	int access_modifier;
 } VariableDeclarationAST;
 
 typedef struct {
@@ -92,7 +92,7 @@ typedef struct {
 	VariableDeclarationBundleAST* parameters;
 	void** body;
 	int body_count;
-	wchar_t* access_modifier;
+	int access_modifier;
 } FunctionDeclarationAST;
 
 typedef struct {
@@ -135,7 +135,7 @@ typedef struct {
 	VariableDeclarationBundleAST* parameters;
 	void** body;
 	int body_count;
-	wchar_t* access_modifier;
+	int access_modifier;
 } ConstructorAST;
 
 typedef struct {
