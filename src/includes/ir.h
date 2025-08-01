@@ -51,3 +51,14 @@ wchar_t* create_bin_expr_ir(ParserContext* parser_context, BinExprAST* bin_expr_
 wchar_t* create_identifier_ir(ParserContext* parser_context, IdentifierAST* identifier_ast, int indentation);
 wchar_t* create_string_literal_ir(ParserContext* parser_context, StringLiteralAST* string_literal_ast, int indentation);
 wchar_t* create_new_ir(ParserContext* parser_context, NewAST* new_ast, int indentation);
+wchar_t* create_array_access_ir(ParserContext* parser_context, ArrayAccessAST* ast, int indentation);
+wchar_t* create_function_call_ir(ParserContext* parser_context, FunctionCallAST* function_call_ast, int indentation);
+wchar_t* create_number_literal_ir(ParserContext* parser_context, NumberLiteralAST* number_literal_ast, int indentation);
+wchar_t* create_constructor_ir(ParserContext* parser_context, ConstructorAST* constructor_ast, int indentation);
+wchar_t* create_function_declaration_ir(ParserContext* parser_context, FunctionDeclarationAST* function_declaration_ast, int indentation);
+wchar_t* create_class_ir(ParserContext* parser_context, ClassAST* ast, int indentation);
+wchar_t* create_variable_declaration_ir(ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast, int indentation);
+wchar_t* create_ident_increase_ir(ParserContext* parser_context, IdentIncreaseAST* ident_increase_ast, int indentation);
+wchar_t* create_ident_decrease_ir(ParserContext* parser_context, IdentDecreaseAST* ident_decrease_ast, int indentation);
+wchar_t* create_if_statement_ir(ParserContext* parser_context, IfStatementAST* if_statement_ast, int indentation);
+wchar_t* create_for_statement_ir(ParserContext* parser_context, ForStatementAST* for_statement_ast, int indentation);
