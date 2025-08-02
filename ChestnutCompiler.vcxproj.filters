@@ -33,6 +33,9 @@
     <ClCompile Include="src\error.c">
       <Filter>source file</Filter>
     </ClCompile>
+    <ClCompile Include="src\symbol_table.c">
+      <Filter>source file</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\includes\ir.h">

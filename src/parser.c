@@ -10,7 +10,6 @@ ParserContext* create_parser_context() {
 	return parser_context;
 }
 
-
 int is_primitive_type(ParserContext* parser_context, Type* type) {
 	return find_symbol_from_set(parser_context->primitive_types, type->type_str) != NULL;
 }
@@ -76,29 +75,6 @@ ClassData* create_class_data(ParserContext* parser_context, ClassAST* class_ast)
 	result->member_functions = create_symbol_table();
 
 	return result;
-}
-
-void insert_class_symbol(ParserContext* parser_context, ClassAST* ast) {
-	ClassData* data = create_class_data(parser_context, ast);
-	unsigned int _hash = hash(data->name);
-
-	Symbol* symbol = (Symbol*)safe_malloc(sizeof(Symbol));
-	symbol->data = data;
-	symbol->symbol = _wcsdup(ast->class_name);
-	symbol->hash = _hash;
-	symbol->next = parser_context->class_symbol_table->table[_hash];
-
-	parser_context->class_symbol_table->size++;
-	parser_context->class_symbol_table->table[_hash] = symbol;
-}
-
-void remove_class_symbol(ParserContext* parser_context, const wchar_t* name) {
-	unsigned int _hash = hash(name);
-	parser_context->class_symbol_table->size--;
-
-	Symbol* target_symbol = parser_context->class_symbol_table->table[_hash];
-	parser_context->class_symbol_table->table[_hash] = parser_context->class_symbol_table->table[_hash]->next;
-	free(target_symbol);
 }
 
 void* parse_term(ParserContext* parser_context, wchar_t* str) {
@@ -229,6 +205,7 @@ void* parse_expression(ParserContext* parser_context, wchar_t* str) {
 
 		node = bin_expr;
 	}
+
 	return node;
 }
 
@@ -236,6 +213,7 @@ void consume(wchar_t* str, TokenType expected_type) {
 	Token* tok = pull_token(str);
 
 	if (tok->type != expected_type) {
+		printf("%d ", expected_type);
 		handle_error(ER1001, tok, L"main.cnut", str);
 	}
 }
@@ -347,8 +325,6 @@ void* create_return_ast(ParserContext* parser_context, Token* tok, wchar_t* str)
 	((ReturnAST*)result)->expression = expression;
 	((ReturnAST*)result)->TYPE = AST_Return;
 
-	consume(str, TokSemiColon);
-
 	return result;
 }
 
@@ -404,6 +380,7 @@ void* create_function_call_ast(ParserContext* parser_context, Token* tok, wchar_
 	free_function_call_parameter(function_call_parameter);
 
 	result->function_name = tok->str;
+
 	return result;
 }
 
@@ -466,10 +443,6 @@ void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* 
 				((IdentDecreaseAST*)result)->TYPE = AST_IdentDecrease;
 				((IdentDecreaseAST*)result)->tok = tok;
 			}
-
-			if (peek_token(str)->type == TokSemiColon) {
-				consume(str, TokSemiColon);
-			}
 		}
 		else {
 			result = (IdentifierAST*)safe_malloc(sizeof(IdentifierAST));
@@ -496,7 +469,8 @@ void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* 
 		}
 	}
 
-	if (!is_attribute_identifier && peek_token(str)->type == TokAssign) {
+	int is_assigned = !is_attribute_identifier && peek_token(str)->type == TokAssign;
+	if (is_assigned) {
 		consume(str, TokAssign);
 
 		void* right_term = parse_expression(parser_context, str);
@@ -507,10 +481,13 @@ void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* 
 		bin_expr_ast->right = right_term;
 		bin_expr_ast->opType = OpASSIGN;
 
-		consume(str, TokSemiColon);
-
-		return bin_expr_ast;
+		result = bin_expr_ast;
 	}
+
+	if (peek_token(str)->type == TokSemiColon) {
+		consume(str, TokSemiColon);
+	}
+
 	return result;
 }
 
@@ -739,10 +716,16 @@ void* create_for_statement_ast(ParserContext* parser_context, Token* tok, wchar_
 	consume(str, TokLParen); // consume (
 
 	void* init = parse_expression(parser_context, str);
-	consume(str, TokSemiColon);
+
+	if (peek_token(str)->type == TokSemiColon) {
+		consume(str, TokSemiColon);
+	}
 
 	void* condition = parse_expression(parser_context, str);
-	consume(str, TokSemiColon);
+
+	if (peek_token(str)->type == TokSemiColon) {
+		consume(str, TokSemiColon);
+	}
 
 	void* step = parse_expression(parser_context, str);
 
@@ -822,8 +805,8 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
 		bundles->variable_declarations[bundles->variable_count] = variable;
 		bundles->variable_count++;
 
-		Token* tok = peek_token(str);
-		if (tok->type == TokSemiColon) {
+		if (peek_token(str)->type == TokSemiColon) {
+			consume(str, TokSemiColon);
 			break;
 		}
 	}
@@ -878,7 +861,7 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
 	initialize_constructor_of_class(class_ast);
 
 	insert_type_symbol(parser_context, !wcscmp(parent_name, L"") ? NULL : parent_name, class_name);
-	insert_class_symbol(parser_context, class_ast);
+	insert_class_symbol(parser_context, create_class_data(parser_context, class_ast));
 
 	parser_context->current_class = class_ast->class_name;
 
@@ -1068,7 +1051,6 @@ void* parse(ParserContext* parser_context, const wchar_t* str) {
 	Token* tok = pull_token(str);
 
 	switch (tok->type) {
-
 	case TokLBracket:
 		return create_array_declaration_ast(parser_context, tok, str);
 

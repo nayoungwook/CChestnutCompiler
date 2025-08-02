@@ -3,49 +3,40 @@
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\includes\ast.h(30,20): warning C4091: 'typedef ': ignored on left of 'Type' when no variable is declared
   (compiling source file 'src/ir.c')
   
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(34,26): warning C4047: '=': 'wchar_t *' differs in levels of indirection from 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(208,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(230,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(304,20): warning C4090: '=': different 'const' qualifiers
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(346,11): warning C4133: 'function': incompatible types - from 'unsigned short [70]' to 'const char *const '
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(346,11): warning C4477: 'printf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'Type *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(346,11): warning C4477: 'printf' : format string '%s' requires an argument of type 'char *', but variadic argument 2 has type 'Type *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(416,17): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(454,20): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(454,26): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(498,83): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(498,83): warning C4024: 'check_accessibility': different types for formal and actual parameter 3
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(522,83): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(522,83): warning C4024: 'check_accessibility': different types for formal and actual parameter 3
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(542,83): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(542,83): warning C4024: 'check_accessibility': different types for formal and actual parameter 3
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(564,83): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(564,83): warning C4024: 'check_accessibility': different types for formal and actual parameter 3
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(573,17): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(609,49): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(780,83): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(780,83): warning C4024: 'check_accessibility': different types for formal and actual parameter 3
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(800,83): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(800,83): warning C4024: 'check_accessibility': different types for formal and actual parameter 3
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(670,12): warning C4101: 'store_str_buffer': unreferenced local variable
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(813,11): warning C4101: 'store_str_buffer': unreferenced local variable
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(842,75): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(889,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1078,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1138,33): warning C4047: '=': 'wchar_t *' differs in levels of indirection from 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1183,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1213,4): warning C4033: 'create_variable_declaration_ir' must return a value
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1295,10): warning C4101: 'for_str_buffer': unreferenced local variable
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1368,89): warning C4133: 'function': incompatible types - from 'FunctionCallAST *' to 'ArrayAccessAST *'
-  main.c
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\includes\ast.h(30,20): warning C4091: 'typedef ': ignored on left of 'Type' when no variable is declared
-  (compiling source file 'src/main.c')
-  
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\main.c(9,17): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\main.c(25,32): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\main.c(39,29): warning C4133: 'function': incompatible types - from 'char [10]' to 'const wchar_t *'
-  Generating Code...
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(443,1): warning C4715: 'infer_type': not all control paths return a value
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(884,1): warning C4716: 'create_if_statement_block': must return a value
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1233,1): warning C4715: 'create_variable_declaration_ir': not all control paths return a value
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(13,26): warning C4047: '=': 'wchar_t *' differs in levels of indirection from 'int'
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(187,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(209,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(283,20): warning C4090: '=': different 'const' qualifiers
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(325,11): warning C4133: 'function': incompatible types - from 'unsigned short [70]' to 'const char *const '
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(325,11): warning C4477: 'printf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'Type *'
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(325,11): warning C4477: 'printf' : format string '%s' requires an argument of type 'char *', but variadic argument 2 has type 'Type *'
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(395,17): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(433,20): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(433,26): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(477,83): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(477,83): warning C4024: 'check_accessibility': different types for formal and actual parameter 3
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(501,83): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(501,83): warning C4024: 'check_accessibility': different types for formal and actual parameter 3
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(521,83): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(521,83): warning C4024: 'check_accessibility': different types for formal and actual parameter 3
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(543,83): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(543,83): warning C4024: 'check_accessibility': different types for formal and actual parameter 3
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(552,17): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(588,49): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(759,83): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(759,83): warning C4024: 'check_accessibility': different types for formal and actual parameter 3
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(779,83): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(779,83): warning C4024: 'check_accessibility': different types for formal and actual parameter 3
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(649,12): warning C4101: 'store_str_buffer': unreferenced local variable
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(792,11): warning C4101: 'store_str_buffer': unreferenced local variable
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(821,75): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(868,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1057,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1117,33): warning C4047: '=': 'wchar_t *' differs in levels of indirection from 'int'
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1162,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1192,4): warning C4033: 'create_variable_declaration_ir' must return a value
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1274,10): warning C4101: 'for_str_buffer': unreferenced local variable
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(422,1): warning C4715: 'infer_type': not all control paths return a value
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(863,1): warning C4716: 'create_if_statement_block': must return a value
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1212,1): warning C4715: 'create_variable_declaration_ir': not all control paths return a value
   ChestnutCompiler.vcxproj -> C:\Users\nayou\source\repos\CChestnut\x64\Debug\CChestnutCompiler.exe

@@ -5,27 +5,6 @@ static int label_id = 0;
 static int is_class_initializer = 0;
 static wchar_t* current_class = L"";
 
-void insert_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name, VariableData* data) {
-	unsigned int _hash = hash(name);
-	variable_symbol_table->size++;
-
-	Symbol* symbol = (Symbol*)safe_malloc(sizeof(Symbol));
-	symbol->data = data;
-	symbol->symbol = name;
-	symbol->hash = _hash;
-	symbol->next = variable_symbol_table->table[_hash];
-
-	variable_symbol_table->table[_hash] = symbol;
-}
-
-void remove_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name) {
-	unsigned int _hash = hash(name);
-	variable_symbol_table->size--;
-	Symbol* target_symbol = variable_symbol_table->table[_hash];
-	variable_symbol_table->table[_hash] = variable_symbol_table->table[_hash]->next;
-	free(target_symbol);
-}
-
 VariableData* create_variable_data(SymbolTable* variable_symbol_table, Type* type, const wchar_t* name, int access_modifier) {
 	VariableData* result = (VariableData*)safe_malloc(sizeof(VariableData));
 	result->type = type;
@@ -216,7 +195,7 @@ wchar_t* create_class_initializer(ParserContext* parser_context, int indentation
 	return result;
 }
 
-wchar_t* create_class_constructor(ParserContext* parser_context, int indentation, ClassAST* class_ast) {
+wchar_t* create_class_constructor_ir(ParserContext* parser_context, int indentation, ClassAST* class_ast) {
 	wchar_t* result = L"";
 	wchar_t buffer[128];
 
@@ -1365,7 +1344,7 @@ wchar_t* create_ir(ParserContext* parser_context, void* ast, int indentation) {
 	}
 
 	case AST_FunctionCall: {
-		result = join_string(result, create_array_access_ir(parser_context, (FunctionCallAST*)ast, indentation));
+		result = join_string(result, create_function_call_ir(parser_context, (FunctionCallAST*)ast, indentation));
 		break;
 	}
 

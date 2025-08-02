@@ -10,5 +10,9 @@
 #include "parser.h"
 #include "ir.h"
 
+#pragma warning (disable : 5287) // operands are different enum types 'TokenType' and 'TokenType';
+#pragma warning (disable : 5286) // operands are different enum types 'TokenType' and 'TokenType';
+
+
 void initialize_primitive_types(ParserContext* parser_context);
 void parse_file(ParserContext* parser_context, const wchar_t* file_name);

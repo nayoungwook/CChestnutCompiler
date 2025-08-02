@@ -17,7 +17,7 @@ wchar_t* substr(const wchar_t* str, int s, int e) {
 	}
 
 	int length = e - s + 1;
-	wchar_t* result = (wchar_t*)malloc(sizeof(wchar_t) * (length + 1));
+	wchar_t* result = safe_malloc(sizeof(wchar_t) * (length + 1));;
 
 	wcsncpy_s(result, length + 1, str + s, length);
 
@@ -111,7 +111,7 @@ SymbolTable* create_symbol_table() {
 }
 
 Set* create_set() {
-	Set* set = (Set*)malloc(sizeof(Set));
+	Set* set = (Set*)safe_malloc(sizeof(Set));;
 
 	if (set) {
 		set->size = 0;

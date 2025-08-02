@@ -70,7 +70,7 @@ void insert_function_symbol(SymbolTable* function_symbol_table, FunctionDeclarat
 void remove_function_symbol(SymbolTable* function_symbol_table, const wchar_t* name);
 
 ClassData* create_class_data(ParserContext* parser_context, ClassAST* class_ast);
-void insert_class_symbol(ParserContext* parser_context, ClassAST* ast);
+void insert_class_symbol(ParserContext* parser_context, ClassData* class_data);
 void remove_class_symbol(ParserContext* parser_context, const wchar_t* name);
 void create_class_constructor_data(ParserContext* parser_context, ClassAST* class_ast);
 
