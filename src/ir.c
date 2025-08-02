@@ -5,16 +5,6 @@ static int label_id = 0;
 static int is_class_initializer = 0;
 static wchar_t* current_class = L"";
 
-VariableData* create_variable_data(SymbolTable* variable_symbol_table, Type* type, const wchar_t* name, int access_modifier) {
-	VariableData* result = (VariableData*)safe_malloc(sizeof(VariableData));
-	result->type = type;
-	result->name = _wcsdup(name);
-	result->index = variable_symbol_table->size + get_prev_variable_index_size(variable_symbol_table) + 1;
-	result->access_modifier = access_modifier;
-
-	return result;
-}
-
 int get_prev_variable_index_size(SymbolTable* variable_symbol_table) {
 	SymbolTable* searcher_table = variable_symbol_table;
 
@@ -810,6 +800,11 @@ void create_assign_ir(ParserContext* parser_context, void* left_ast, void* right
 }
 
 void check_function_call_condition(ParserContext* parser_context, FunctionData* function_data, const void** parameters, int parameter_count) {
+
+	if (function_data->parameter_types == VARIABLE_ARGUMENTS) {// pass the case for the variable arguments
+		return;
+	}
+
 	if (function_data->parameter_count != parameter_count) {
 		printf("[Temporary error] at ir.c Type not matched\n");
 		abort();
@@ -1044,17 +1039,26 @@ wchar_t* create_function_call_ir(ParserContext* parser_context, FunctionCallAST*
 
 	Symbol* local_symbol = find_symbol(parser_context->function_symbol_table, function_call_ast->function_name);
 
-	if (local_symbol == NULL) {
+	int member_call = local_symbol == NULL;
+	int local_call = (local_symbol != NULL) && !((FunctionData*)local_symbol->data)->is_builtin_function;
+	int builtin_call = (local_symbol != NULL) && ((FunctionData*)local_symbol->data)->is_builtin_function;
+
+	if (member_call) {
 		swprintf(function_call_buffer, 128, L"@mcall %d %d", get_member_function_index(parser_context, current_class, function_call_ast->function_name), function_call_ast->parameter_count);
 	}
-	else {
+
+	if (local_call) {
 		swprintf(function_call_buffer, 128, L"@call %d %d", ((FunctionData*)local_symbol->data)->index, function_call_ast->parameter_count);
+	}
+
+	if (builtin_call) {
+		swprintf(function_call_buffer, 128, L"@bcall %d %d", ((FunctionData*)local_symbol->data)->index, function_call_ast->parameter_count);
 	}
 
 	check_function_call_condition(parser_context, function_data, function_call_ast->parameters, function_call_ast->parameter_count);
 
 	int i;
-	for (i = 0; i < function_data->parameter_count; i++) {
+	for (i = 0; i < function_call_ast->parameter_count; i++) {
 		result = join_string(result, create_ir(parser_context, function_call_ast->parameters[i], indentation));
 	}
 

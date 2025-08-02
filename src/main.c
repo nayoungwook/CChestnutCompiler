@@ -35,6 +35,7 @@ int wmain(int arc, char* args[]) {
 
 	ParserContext* parser_context = create_parser_context();
 	initialize_primitive_types(parser_context);
+	initialize_builtin_functions(parser_context);
 
 	parse_file(parser_context, "main.cnut");
 

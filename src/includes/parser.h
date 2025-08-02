@@ -11,6 +11,8 @@
 #define AM_PRIVATE 3
 #define AM_PROTECTED 4
 
+#define VARIABLE_ARGUMENTS -1
+
 typedef struct _ParserContext {
 	wchar_t* current_class;
 	wchar_t* current_function_name;
@@ -66,7 +68,8 @@ void remove_type_symbol(ParserContext* parser_context, const wchar_t* type_str);
 void insert_set_symbol(Set* target_set, const wchar_t* str);
 
 FunctionData* create_function_data(SymbolTable* function_symbol_table, const wchar_t* name, Type* return_type, VariableDeclarationBundleAST* parameters);
-void insert_function_symbol(SymbolTable* function_symbol_table, FunctionDeclarationAST* ast);
+FunctionData* create_builtin_function_data(unsigned int id);
+void insert_function_symbol(SymbolTable* function_symbol_table, FunctionData* function_data);
 void remove_function_symbol(SymbolTable* function_symbol_table, const wchar_t* name);
 
 ClassData* create_class_data(ParserContext* parser_context, ClassAST* class_ast);

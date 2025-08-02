@@ -9,6 +9,7 @@
 #include "token.h"
 #include "parser.h"
 #include "ir.h"
+#include "builtin.h"
 
 #pragma warning (disable : 5287) // operands are different enum types 'TokenType' and 'TokenType';
 #pragma warning (disable : 5286) // operands are different enum types 'TokenType' and 'TokenType';

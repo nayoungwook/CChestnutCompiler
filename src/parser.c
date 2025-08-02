@@ -29,54 +29,6 @@ void initialize_parser_context(ParserContext* parser_context) {
 	parser_context->primitive_types = create_set();
 }
 
-void insert_set_symbol(Set* target_set, const wchar_t* str) {
-	unsigned int _hash = hash(str);
-	target_set->size++;
-
-	Symbol* symbol = (Symbol*)safe_malloc(sizeof(Symbol));
-	symbol->data = str;
-	symbol->symbol = str;
-	symbol->hash = _hash;
-	symbol->next = target_set->table[_hash];
-
-	target_set->table[_hash] = symbol;
-}
-
-FunctionData* create_function_data(SymbolTable* function_symbol_table, const wchar_t* name, Type* return_type, VariableDeclarationBundleAST* parameters) {
-	FunctionData* result = (FunctionData*)safe_malloc(sizeof(FunctionData));
-
-	result->name = _wcsdup(name);
-	result->return_type = return_type;
-	result->index = function_symbol_table->size + 1;
-	result->access_modifier = AM_DEFAULT;
-	result->parameter_types = NULL;
-	result->parameter_count = parameters->variable_count;
-
-	int i;
-	for (i = 0; i < parameters->variable_count; i++) {
-		result->parameter_types = (Type**)safe_relloc(result->parameter_types, sizeof(Type*) * (i + 1));
-
-		VariableDeclarationAST* variable_declaration = parameters->variable_declarations[i];
-		result->parameter_types[i] = variable_declaration->variable_type;
-	}
-
-	return result;
-}
-
-ClassData* create_class_data(ParserContext* parser_context, ClassAST* class_ast) {
-	ClassData* result = (ClassData*)safe_malloc(sizeof(ClassData));
-	parser_context->class_count++;
-
-	result->name = _wcsdup(class_ast->class_name);
-	result->parent_class_name = _wcsdup(class_ast->parent_class_name);
-	result->index = parser_context->class_count;
-
-	result->member_variables = create_symbol_table();
-	result->member_functions = create_symbol_table();
-
-	return result;
-}
-
 void* parse_term(ParserContext* parser_context, wchar_t* str) {
 	void* node = parse(parser_context, str);
 
@@ -221,7 +173,7 @@ void consume(wchar_t* str, TokenType expected_type) {
 void* create_if_statement_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
 	IfStatementAST* if_statement = (IfStatementAST*)safe_malloc(sizeof(IfStatementAST));
 
-	IfType if_type = StmtIf;
+	IfStatementType if_type = StmtIf;
 
 	if (peek_token(str)->type == TokElse) {
 		consume(str, TokElse);
@@ -557,85 +509,6 @@ int check_castability(ParserContext* parser_context, Type* from, Type* to) {
 	return 0;
 }
 
-Symbol* create_type_symbol(const wchar_t* type_str, ClassType* type) {
-	Symbol* symbol = (Symbol*)safe_malloc(sizeof(Symbol));
-
-	unsigned int _hash = hash(type_str);
-
-	symbol->data = type;
-	symbol->symbol = type_str;
-	symbol->hash = _hash;
-
-	return symbol;
-}
-
-void insert_type_symbol(ParserContext* parser_context, ClassType* target_type, const wchar_t* type_str) {
-	ClassType* child = (ClassType*)safe_malloc(sizeof(ClassType));
-	child->type_str = type_str;
-	child->parent_type = target_type;
-	child->child_types = NULL;
-
-	Symbol* child_symbol = create_type_symbol(type_str, child);
-	child_symbol->next = parser_context->class_hierarchy->table[child_symbol->hash];
-	parser_context->class_hierarchy->table[child_symbol->hash] = child_symbol;
-
-	if (target_type) {
-		if (!target_type->child_types) {
-			target_type->child_types = create_symbol_table();
-		}
-
-		Symbol* child_symbol = create_type_symbol(type_str, child);
-		child_symbol->next = target_type->child_types->table[child_symbol->hash];
-		target_type->child_types->table[child_symbol->hash] = child_symbol;
-		target_type->child_types->size++;
-	}
-}
-
-void remove_type_symbol(ParserContext* parser_context, const wchar_t* type_str) {
-	unsigned int _hash = hash(type_str);
-	parser_context->class_hierarchy->size--;
-
-	Symbol* target_symbol = parser_context->class_hierarchy->table[_hash];
-	parser_context->class_hierarchy->table[_hash] = parser_context->class_hierarchy->table[_hash]->next;
-}
-
-void insert_function_symbol(SymbolTable* function_symbol_table, FunctionDeclarationAST* ast) {
-	FunctionData* data = create_function_data(function_symbol_table, ast->function_name, ast->return_type, ast->parameters);
-	unsigned int _hash = hash(data->name);
-
-	Symbol* symbol = (Symbol*)safe_malloc(sizeof(Symbol));
-	symbol->data = data;
-	symbol->symbol = _wcsdup(ast->function_name);
-	symbol->hash = _hash;
-	symbol->next = function_symbol_table->table[_hash];
-
-	function_symbol_table->size++;
-	function_symbol_table->table[_hash] = symbol;
-}
-
-void remove_function_symbol(SymbolTable* function_symbol_table, const wchar_t* name) {
-	unsigned int _hash = hash(name);
-	Symbol* current = function_symbol_table->table[_hash];
-	Symbol* prev = NULL;
-
-	while (current != NULL) {
-		if (wcscmp(current->symbol, name) == 0) {
-			if (prev == NULL) {
-				function_symbol_table->table[_hash] = current->next;
-			}
-			else {
-				prev->next = current->next;
-			}
-
-			free(current);
-			function_symbol_table->size--;
-			return;
-		}
-		prev = current;
-		current = current->next;
-	}
-}
-
 Type* get_type(Token* tok, wchar_t* str) {
 	wchar_t* type = pull_token(str)->str;
 
@@ -696,11 +569,13 @@ void* create_function_declaration_ast(ParserContext* parser_context, Token* tok,
 	consume(str, TokRBracket); // consume }
 
 	if (!wcscmp(parser_context->current_class, L"")) {
-		insert_function_symbol(parser_context->function_symbol_table, function_declaration_ast);
+		FunctionData* data = create_function_data(parser_context->function_symbol_table, function_name, function_declaration_ast->return_type, parameters);
+		insert_function_symbol(parser_context->function_symbol_table, data);
 	}
 	else {
 		SymbolTable* member_function_symbol_table = ((ClassData*)find_symbol(parser_context->class_symbol_table, parser_context->current_class)->data)->member_functions;
-		insert_function_symbol(member_function_symbol_table, function_declaration_ast);
+		FunctionData* data = create_function_data(parser_context->function_symbol_table, function_name, function_declaration_ast->return_type, parameters);
+		insert_function_symbol(member_function_symbol_table, data);
 	}
 	parser_context->current_function_name = L"";
 

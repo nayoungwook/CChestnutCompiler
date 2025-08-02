@@ -63,6 +63,7 @@ typedef struct _FunctionData {
 	Type** parameter_types;
 	unsigned int index;
 	wchar_t* access_modifier;
+	int is_builtin_function;
 } FunctionData;
 
 typedef struct _ClassData {

@@ -36,6 +36,12 @@
     <ClCompile Include="src\symbol_table.c">
       <Filter>source file</Filter>
     </ClCompile>
+    <ClCompile Include="src\data.c">
+      <Filter>source file</Filter>
+    </ClCompile>
+    <ClCompile Include="src\builtin.c">
+      <Filter>source file</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\includes\ir.h">
@@ -57,6 +63,9 @@
       <Filter>header file</Filter>
     </ClInclude>
     <ClInclude Include="src\includes\error.h">
+      <Filter>header file</Filter>
+    </ClInclude>
+    <ClInclude Include="src\includes\builtin.h">
       <Filter>header file</Filter>
     </ClInclude>
   </ItemGroup>
