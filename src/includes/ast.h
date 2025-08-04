@@ -25,6 +25,7 @@ typedef enum {
 	AST_Null = 17,
 	AST_ArrayDeclaration = 18,
 	AST_ArrayAccess = 19,
+	AST_BoolLiteral = 20,
 }ASTType;
 
 typedef struct Type;
@@ -46,6 +47,12 @@ typedef struct {
 	void* attribute;
 	Token* tok;
 } IdentifierAST;
+
+typedef struct {
+	ASTType TYPE;
+	char bool_type;
+	Token* tok;
+} BoolLiteralAST;
 
 typedef struct {
 	ASTType TYPE;

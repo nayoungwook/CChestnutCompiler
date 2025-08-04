@@ -76,6 +76,9 @@ typedef enum {
 
 	TokConstructor = 50,
 	TokNew = 51,
+
+	TokTrue = 52,
+	TokFalse = 53,
 }TokenType;
 
 typedef struct _Token {

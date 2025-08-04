@@ -62,3 +62,4 @@ wchar_t* create_ident_increase_ir(ParserContext* parser_context, IdentIncreaseAS
 wchar_t* create_ident_decrease_ir(ParserContext* parser_context, IdentDecreaseAST* ident_decrease_ast, int indentation);
 wchar_t* create_if_statement_ir(ParserContext* parser_context, IfStatementAST* if_statement_ast, int indentation);
 wchar_t* create_for_statement_ir(ParserContext* parser_context, ForStatementAST* for_statement_ast, int indentation);
+wchar_t* create_bool_literal_ir(ParserContext* parser_context, BoolLiteralAST* bool_literal_ast, int indentation);

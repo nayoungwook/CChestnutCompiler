@@ -1,5 +1,13 @@
 #include "includes/util.h"
 
+Type* clone_type(Type* type) {
+	Type* result = (Type*)safe_malloc(sizeof(Type));
+	result->array_element_type = type->array_element_type;
+	result->is_array = type->is_array;
+	result->type_str = _wcsdup(type->type_str);
+	return result;
+}
+
 wchar_t* get_working_directory() {
 	wchar_t cwd[1024];
 	int result = _wgetcwd(cwd, sizeof(cwd) / sizeof(wchar_t));
@@ -34,7 +42,7 @@ void* safe_malloc(size_t size) {
 	return ptr;
 }
 
-void* safe_relloc(void* ptr, size_t size) {
+void* safe_realloc(void* ptr, size_t size) {
 	void* re_ptr = realloc(ptr, size);
 	if (!re_ptr) {
 		fprintf(stderr, "realloc failed at %s:%d\n", __FILE__, __LINE__);
@@ -77,8 +85,8 @@ wchar_t* read_file(const wchar_t* file_path) {
 
 		if (size >= capacity) {
 			capacity *= 2;
-			line_index_data = (int*)realloc(line_index_data, sizeof(int) * capacity);
-			line_number_data = (int*)realloc(line_number_data, sizeof(int) * capacity);
+			line_index_data = (int*)safe_realloc(line_index_data, sizeof(int) * capacity);
+			line_number_data = (int*)safe_realloc(line_number_data, sizeof(int) * capacity);
 		}
 
 		line_number++;

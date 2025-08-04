@@ -1,24 +1,5 @@
 #include "includes/ir.h"
 #include "includes/parser.h"
-#include "includes/builtin.h"
-
-FunctionData* create_builtin_function_data(unsigned int id) {
-	FunctionData* result = (FunctionData*)safe_malloc(sizeof(FunctionData));
-	result->index = id;
-
-	switch (id)
-	{
-	case BUILTIN_PRINT:
-		result->name = L"print";
-		result->parameter_count = VARIABLE_ARGUMENTS;
-		result->parameter_types = VARIABLE_ARGUMENTS;
-		result->return_type = L"void";
-		result->is_builtin_function = 1;
-		break;
-	}
-
-	return result;
-}
 
 FunctionData* create_function_data(SymbolTable* function_symbol_table, const wchar_t* name, Type* return_type, VariableDeclarationBundleAST* parameters) {
 	FunctionData* result = (FunctionData*)safe_malloc(sizeof(FunctionData));
@@ -33,7 +14,7 @@ FunctionData* create_function_data(SymbolTable* function_symbol_table, const wch
 
 	int i;
 	for (i = 0; i < parameters->variable_count; i++) {
-		result->parameter_types = (Type**)safe_relloc(result->parameter_types, sizeof(Type*) * (i + 1));
+		result->parameter_types = (Type**)safe_realloc(result->parameter_types, sizeof(Type*) * (i + 1));
 
 		VariableDeclarationAST* variable_declaration = parameters->variable_declarations[i];
 		result->parameter_types[i] = variable_declaration->variable_type;

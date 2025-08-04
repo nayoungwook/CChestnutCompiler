@@ -213,7 +213,7 @@ void* create_if_statement_ast(ParserContext* parser_context, Token* tok, wchar_t
 			if_statement->body = (void**)safe_malloc(sizeof(void*));
 		}
 		else {
-			if_statement->body = (void**)safe_relloc(if_statement->body, sizeof(void*) * (if_statement->body_count + 1));
+			if_statement->body = (void**)safe_realloc(if_statement->body, sizeof(void*) * (if_statement->body_count + 1));
 		}
 
 		if_statement->body[if_statement->body_count] = body_element;
@@ -295,7 +295,7 @@ FunctionCallParameterContext* parse_function_call_parameter(ParserContext* parse
 			result->parameters = (void**)safe_malloc(sizeof(void*));
 		}
 		else {
-			result->parameters = (void**)safe_relloc(result->parameters, sizeof(void*) * (result->parameter_count + 1));
+			result->parameters = (void**)safe_realloc(result->parameters, sizeof(void*) * (result->parameter_count + 1));
 		}
 
 		int index = result->parameter_count;
@@ -303,6 +303,12 @@ FunctionCallParameterContext* parse_function_call_parameter(ParserContext* parse
 
 		if (peek_token(str)->type == TokComma) {
 			consume(str, TokComma);
+		}
+		else if (peek_token(str)->type == TokRParen) {
+			break;
+		}
+		else {
+			handle_error(ER1001, peek_token(str), parser_context->current_file_name, parser_context->file_str);
 		}
 
 		result->parameter_count++;
@@ -350,7 +356,7 @@ void* create_array_access_ast(ParserContext* parser_context, void* target_array,
 		void* index = parse_expression(parser_context, str);
 		consume(str, TokRSquareBracket);
 
-		indexes = (void**)safe_relloc(indexes, (access_count + 1) * sizeof(void*));
+		indexes = (void**)safe_realloc(indexes, (access_count + 1) * sizeof(void*));
 		indexes[access_count] = index;
 
 		access_count++;
@@ -434,10 +440,6 @@ void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* 
 		bin_expr_ast->opType = OpASSIGN;
 
 		result = bin_expr_ast;
-	}
-
-	if (peek_token(str)->type == TokSemiColon) {
-		consume(str, TokSemiColon);
 	}
 
 	return result;
@@ -558,7 +560,7 @@ void* create_function_declaration_ast(ParserContext* parser_context, Token* tok,
 			function_declaration_ast->body = (void**)safe_malloc(sizeof(void*));
 		}
 		else {
-			function_declaration_ast->body = (void**)safe_relloc(function_declaration_ast->body, sizeof(void*) * (function_declaration_ast->body_count + 1));
+			function_declaration_ast->body = (void**)safe_realloc(function_declaration_ast->body, sizeof(void*) * (function_declaration_ast->body_count + 1));
 		}
 
 		function_declaration_ast->body[function_declaration_ast->body_count] = body_element;
@@ -619,7 +621,7 @@ void* create_for_statement_ast(ParserContext* parser_context, Token* tok, wchar_
 			for_statement->body = (void**)safe_malloc(sizeof(void*));
 		}
 		else {
-			for_statement->body = (void**)safe_relloc(for_statement->body, sizeof(void*) * (for_statement->body_count + 1));
+			for_statement->body = (void**)safe_realloc(for_statement->body, sizeof(void*) * (for_statement->body_count + 1));
 		}
 
 		for_statement->body[for_statement->body_count] = body_element;
@@ -674,7 +676,7 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
 		}
 		else {
 			bundles->variable_declarations
-				= (VariableDeclarationAST*)safe_relloc(bundles->variable_declarations, sizeof(VariableDeclarationAST) * (bundles->variable_count + 1));
+				= (VariableDeclarationAST*)safe_realloc(bundles->variable_declarations, sizeof(VariableDeclarationAST) * (bundles->variable_count + 1));
 		}
 
 		bundles->variable_declarations[bundles->variable_count] = variable;
@@ -754,7 +756,7 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
 				class_ast->member_functions = (void**)safe_malloc(sizeof(void*));
 			}
 			else {
-				class_ast->member_functions = (void**)safe_relloc(class_ast->member_functions, class_ast->member_function_count * sizeof(void*));
+				class_ast->member_functions = (void**)safe_realloc(class_ast->member_functions, class_ast->member_function_count * sizeof(void*));
 			}
 
 			class_ast->member_functions[class_ast->member_function_count - 1] = body_element;
@@ -767,7 +769,7 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
 				class_ast->member_variables = (void**)safe_malloc(sizeof(void*));
 			}
 			else {
-				class_ast->member_variables = (void**)safe_relloc(class_ast->member_variables, class_ast->member_variable_bundle_count * sizeof(void*));
+				class_ast->member_variables = (void**)safe_realloc(class_ast->member_variables, class_ast->member_variable_bundle_count * sizeof(void*));
 			}
 
 			class_ast->member_variables[class_ast->member_variable_bundle_count - 1] = body_element;
@@ -822,7 +824,7 @@ VariableDeclarationBundleAST* create_function_parameters(Token* tok, wchar_t* st
 		}
 		else {
 			parameters->variable_declarations
-				= (VariableDeclarationAST*)safe_relloc(parameters->variable_declarations, sizeof(VariableDeclarationAST) * (parameters->variable_count + 1));
+				= (VariableDeclarationAST*)safe_realloc(parameters->variable_declarations, sizeof(VariableDeclarationAST) * (parameters->variable_count + 1));
 		}
 
 		parameters->variable_declarations[parameters->variable_count] = variable;
@@ -851,7 +853,7 @@ void* create_constructor_ast(ParserContext* parser_context, Token* tok, wchar_t*
 			constructor_ast->body = (void**)safe_malloc(sizeof(void*));
 		}
 		else {
-			constructor_ast->body = (void**)safe_relloc(constructor_ast->body, sizeof(void*) * (constructor_ast->body_count + 1));
+			constructor_ast->body = (void**)safe_realloc(constructor_ast->body, sizeof(void*) * (constructor_ast->body_count + 1));
 		}
 
 		constructor_ast->body[constructor_ast->body_count] = body_element;
@@ -899,7 +901,7 @@ void* create_array_declaration_ast(ParserContext* parser_context, Token* tok, wc
 	void** elements = NULL;
 
 	while (peek_token(str)->type != TokRBracket) {
-		elements = (void**)safe_relloc(elements, sizeof(void*) * (element_count + 1));
+		elements = (void**)safe_realloc(elements, sizeof(void*) * (element_count + 1));
 		void* element = parse(parser_context, str);
 
 		elements[element_count] = element;
@@ -922,6 +924,14 @@ void* create_array_declaration_ast(ParserContext* parser_context, Token* tok, wc
 	return result;
 }
 
+void* create_bool_literal_ast(ParserContext* parser_context, Token* tok, const wchar_t* str) {
+	BoolLiteralAST* literal = (BoolLiteralAST*)safe_malloc(sizeof(BoolLiteralAST));
+	literal->TYPE = AST_BoolLiteral;
+	literal->bool_type = wcscmp(tok->str, L"true") == 0;
+
+	return literal;
+}
+
 void* parse(ParserContext* parser_context, const wchar_t* str) {
 	Token* tok = pull_token(str);
 
@@ -934,6 +944,10 @@ void* parse(ParserContext* parser_context, const wchar_t* str) {
 
 	case TokLParen:
 		return create_paren_group_ast(parser_context, tok, str);
+
+	case TokTrue:
+	case TokFalse:
+		return create_bool_literal_ast(parser_context, tok, str);
 
 	case TokStringLiteral:
 		return create_string_literal_ast(parser_context, tok, str);

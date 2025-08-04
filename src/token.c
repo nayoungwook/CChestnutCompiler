@@ -26,6 +26,8 @@ KeywordEntry keyword_table[] = {
 	{L"protected", TokProtected},
 	{L"constructor", TokConstructor},
 	{L"new", TokNew},
+	{L"true", TokTrue},
+	{L"false", TokFalse},
 	{NULL, TokEOF},
 };
 

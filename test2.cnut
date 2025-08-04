@@ -24,7 +24,7 @@ func add(a: int, b: int) : array<int> {
 
 func main(): void {
   var foo: Foo = new Foo("qwer");
-
+ 
   foo.beautiful_ones(4).test().foo.a = "asdf";
   foo.beautiful_ones(5).test().foo.arr = {1, 5, 6, 7};
 
@@ -35,5 +35,6 @@ func main(): void {
   add(5, 4);
 
   for(var i:int =0; i<10; i++){
+    var a: int = print(i, " ");
   }
 }

@@ -9,7 +9,7 @@
 #define TABLE_SIZE 1024
 
 void* safe_malloc(size_t size);
-void* safe_relloc(void* ptr, size_t size);
+void* safe_realloc(void* ptr, size_t size);
 
 wchar_t* get_working_directory();
 wchar_t* read_file(const wchar_t* path);
@@ -25,6 +25,7 @@ typedef struct _Type {
 	struct _Type* array_element_type;
 	int is_array;
 } Type;
+Type* clone_type(Type* type);
 
 // Data Store
 typedef struct _Symbol {

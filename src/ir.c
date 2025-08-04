@@ -267,6 +267,7 @@ Type* infer_type(ParserContext* parser_context, void* ast, wchar_t* search_point
 	ASTType type = *((ASTType*)(ast));
 
 	switch (type) {
+
 	case AST_NumberLiteral: {
 		NumberLiteralAST* number_ast = (NumberLiteralAST*)ast;
 		Type* result = (Type*)safe_malloc(sizeof(Type));
@@ -282,6 +283,14 @@ Type* infer_type(ParserContext* parser_context, void* ast, wchar_t* search_point
 		result->is_array = 0;
 		return result;
 	}
+	case AST_BoolLiteral: {
+		Type* result = (Type*)safe_malloc(sizeof(Type));
+		result->type_str = L"bool";
+		result->array_element_type = NULL;
+		result->is_array = 0;
+		return result;
+	}
+
 	case AST_Identifier: {
 		IdentifierAST* ident_ast = (IdentifierAST*)ast;
 
@@ -296,7 +305,7 @@ Type* infer_type(ParserContext* parser_context, void* ast, wchar_t* search_point
 
 		VariableData* data = find_variable_data(parser_context, ident_ast->tok, search_point_class_name, ident_ast->identifier);
 
-		return data->type;
+		return clone_type(data->type);
 	}
 	case AST_BinExpr: {
 		BinExprAST* bin_expr_ast = (BinExprAST*)ast;
@@ -316,14 +325,14 @@ Type* infer_type(ParserContext* parser_context, void* ast, wchar_t* search_point
 			abort();
 		}
 		break;
+	}
 
 	case AST_VariableDeclaration: {
 		VariableDeclarationAST* variable_declaration_ast = (VariableDeclarationAST*)ast;
 
-		return variable_declaration_ast->variable_type;
+		return clone_type(variable_declaration_ast->variable_type);
 
 		break;
-	}
 	}
 
 	case AST_FunctionCall: {
@@ -331,7 +340,7 @@ Type* infer_type(ParserContext* parser_context, void* ast, wchar_t* search_point
 
 		FunctionData* function_data = find_function_data(parser_context, function_call_ast->tok, search_point_class_name, function_call_ast->function_name, ast);
 
-		return function_data->return_type;
+		return clone_type(function_data->return_type);
 	}
 
 	case AST_IdentIncrease:
@@ -340,7 +349,7 @@ Type* infer_type(ParserContext* parser_context, void* ast, wchar_t* search_point
 			IdentIncreaseAST* ident_increase = (IdentIncreaseAST*)ast;
 
 			VariableData* data = find_variable_data(parser_context, ident_increase->tok, search_point_class_name, ident_increase->identifier);
-			return data->type;
+			return clone_type(data->type);
 		}
 
 		if (type == AST_IdentDecrease) {
@@ -348,7 +357,7 @@ Type* infer_type(ParserContext* parser_context, void* ast, wchar_t* search_point
 
 			VariableData* data = find_variable_data(parser_context, ident_decrease->tok, search_point_class_name, ident_decrease->identifier);
 
-			return data->type;
+			return clone_type(data->type);
 		}
 	}
 
@@ -600,7 +609,6 @@ Type* get_type_of_last_element(ParserContext* parser_context, void* ast, const w
 
 void create_assign_ir(ParserContext* parser_context, void* left_ast, void* right_ast, wchar_t** result, int indentation) {
 	if (!check_castability(parser_context, get_type_of_last_element(parser_context, left_ast, current_class), get_type_of_last_element(parser_context, right_ast, current_class))) {
-		// handle error for unmathed types of assign
 		return;
 	}
 
@@ -739,7 +747,10 @@ void create_assign_ir(ParserContext* parser_context, void* left_ast, void* right
 	// process the last ast for store.
 	switch (*((ASTType*)last_ast)) {
 	case AST_Identifier: {
-		wchar_t* target_class_name = infer_type(parser_context, temp_left_ast, L"")->type_str;
+		Type* target_class_type = infer_type(parser_context, temp_left_ast, L"");
+		wchar_t* target_class_name = target_class_type->type_str;
+		free(target_class_type);
+
 		Symbol* target_class_symbol = find_symbol(parser_context->class_symbol_table, target_class_name);
 		ClassData* target_class = target_class_symbol->data;
 
@@ -855,6 +866,8 @@ wchar_t* create_if_statement_block(ParserContext* parser_context, IfStatementAST
 		swprintf(if_statement_buffer, 128, L"@label %d", block_id);
 		result = join_string(result, if_statement_buffer);
 	}
+
+	return result;
 }
 
 wchar_t* create_array_declaration_ir(ParserContext* parser_context, ArrayDeclarationAST* array_declaration_ast, int indentation) {
@@ -968,7 +981,9 @@ wchar_t* create_identifier_ir(ParserContext* parser_context, IdentifierAST* iden
 	}
 
 	if (identifier_ast->attribute != NULL) {
-		wchar_t* target_class_name = infer_type(parser_context, identifier_ast, current_class)->type_str;
+		Type* target_class_type = infer_type(parser_context, identifier_ast, current_class);
+		wchar_t* target_class_name = target_class_type->type_str;
+		free(target_class_type);
 		create_attribute_ir(parser_context, target_class_name, identifier_ast->attribute, &result, indentation);
 	}
 	return result;
@@ -1192,7 +1207,9 @@ wchar_t* create_variable_declaration_ir(ParserContext* parser_context, VariableD
 	if (variable_declaration_ast->declaration) {
 		result = join_string(result, create_ir(parser_context, variable_declaration_ast->declaration, indentation));
 
-		if (!check_castability(parser_context, get_type_of_last_element(parser_context, variable_declaration_ast, current_class), get_type_of_last_element(parser_context, variable_declaration_ast->declaration, current_class))) {
+		Type* from_type = get_type_of_last_element(parser_context, variable_declaration_ast, current_class);
+		Type* to_type = get_type_of_last_element(parser_context, variable_declaration_ast->declaration, current_class);
+		if (!check_castability(parser_context, from_type, to_type)) {
 			return;
 		}
 	}
@@ -1249,7 +1266,8 @@ wchar_t* create_if_statement_ir(ParserContext* parser_context, IfStatementAST* i
 	label_id++;
 	int end_label_id = label_id;
 
-	create_if_statement_block(parser_context, if_statement_ast, indentation, end_label_id);
+	wchar_t* block_buffer = create_if_statement_block(parser_context, if_statement_ast, indentation, end_label_id);
+	result = join_string(result, block_buffer);
 
 	wchar_t if_statement_buffer[128];
 	if (if_statement_ast->next_statement != NULL) {
@@ -1298,11 +1316,23 @@ wchar_t* create_for_statement_ir(ParserContext* parser_context, ForStatementAST*
 
 	result = join_string(result, create_ir(parser_context, for_statement_ast->condition, indentation));
 
-	swprintf(label_str_buffer, 64, L"@for %x", begin_label_id);
+	swprintf(label_str_buffer, 64, L"@je %x", begin_label_id);
 	new_line(&result, indentation);
 	result = join_string(result, label_str_buffer);
 
 	close_scope(parser_context);
+	return result;
+}
+
+wchar_t* create_bool_literal_ir(ParserContext* parser_context, BoolLiteralAST* bool_literal_ast, int indentation) {
+	wchar_t* result = L"";
+
+	wchar_t bool_literal_buffer[128];
+	swprintf(bool_literal_buffer, 128, L"@push bool %s", bool_literal_ast->bool_type ? L"true" : L"false");
+
+	new_line(&result, indentation);
+	result = join_string(result, bool_literal_buffer);
+
 	return result;
 }
 
@@ -1311,6 +1341,11 @@ wchar_t* create_ir(ParserContext* parser_context, void* ast, int indentation) {
 	wchar_t* result = L"";
 
 	switch (*((ASTType*)ast)) {
+
+	case AST_BoolLiteral: {
+		result = join_string(result, create_bool_literal_ir(parser_context, (BoolLiteralAST*)ast, indentation));
+		break;
+	}
 
 	case AST_ArrayDeclaration: {
 		result = join_string(result, create_array_declaration_ir(parser_context, (ArrayDeclarationAST*)ast, indentation));

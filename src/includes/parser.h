@@ -68,7 +68,6 @@ void remove_type_symbol(ParserContext* parser_context, const wchar_t* type_str);
 void insert_set_symbol(Set* target_set, const wchar_t* str);
 
 FunctionData* create_function_data(SymbolTable* function_symbol_table, const wchar_t* name, Type* return_type, VariableDeclarationBundleAST* parameters);
-FunctionData* create_builtin_function_data(unsigned int id);
 void insert_function_symbol(SymbolTable* function_symbol_table, FunctionData* function_data);
 void remove_function_symbol(SymbolTable* function_symbol_table, const wchar_t* name);
 
@@ -95,5 +94,6 @@ void* create_constructor_ast(ParserContext* parser_context, Token* tok, wchar_t*
 void* create_new_ast(ParserContext* parser_context, Token* tok, wchar_t* str);
 void* create_array_declaration_ast(ParserContext* parser_context, Token* tok, wchar_t* str);
 void* create_array_access_ast(ParserContext* parser_context, void* target_array, Token* tok, wchar_t* str);
+void* create_bool_literal_ast(ParserContext* parser_context, Token* tok, const wchar_t* str);
 
 VariableDeclarationBundleAST* create_function_parameters(Token* tok, wchar_t* str);
