@@ -16,4 +16,4 @@
 
 
 void initialize_primitive_types(ParserContext* parser_context);
-void parse_file(ParserContext* parser_context, const wchar_t* file_name);
+void parse_file(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* file_name);

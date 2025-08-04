@@ -19,14 +19,14 @@ void initialize_primitive_types(ParserContext* parser_context) {
 	insert_set_symbol(parser_context->primitive_types, L"char");
 }
 
-void parse_file(ParserContext* parser_context, const wchar_t* file_name) {
+void parse_file(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* file_name) {
 	wchar_t* file = read_file(file_name);
 
 	while (peek_token(file)->type != TokEOF) {
 		set_file_string(parser_context, file);
 		void* ast = parse(parser_context, file);
 
-		printf("%S\n", create_ir(parser_context, ast, 0));
+		printf("%S\n", create_ir(ir_context, parser_context, ast, 0));
 	}
 }
 
@@ -34,10 +34,11 @@ int wmain(int arc, char* args[]) {
 	setlocale(LC_ALL, "");
 
 	ParserContext* parser_context = create_parser_context();
+	IrGenContext* ir_context = create_ir_context();
 	initialize_primitive_types(parser_context);
 	initialize_builtin_functions(parser_context);
 
-	parse_file(parser_context, "main.cnut");
+	parse_file(ir_context, parser_context, "main.cnut");
 
 	return 0;
 }

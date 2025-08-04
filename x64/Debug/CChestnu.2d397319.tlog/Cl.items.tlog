@@ -6,4 +6,5 @@ C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\main.c;C:\Users\nayo
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\parser.obj
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\symbol_table.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\symbol_table.obj
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\token.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\token.obj
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\type.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\type.obj
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c;C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\util.obj

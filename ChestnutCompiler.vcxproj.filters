@@ -42,6 +42,9 @@
     <ClCompile Include="src\builtin.c">
       <Filter>source file</Filter>
     </ClCompile>
+    <ClCompile Include="src\type.c">
+      <Filter>source file</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\includes\ir.h">

@@ -300,6 +300,7 @@ FunctionCallParameterContext* parse_function_call_parameter(ParserContext* parse
 
 		int index = result->parameter_count;
 		result->parameters[index] = parameter;
+		result->parameter_count++;
 
 		if (peek_token(str)->type == TokComma) {
 			consume(str, TokComma);
@@ -310,8 +311,6 @@ FunctionCallParameterContext* parse_function_call_parameter(ParserContext* parse
 		else {
 			handle_error(ER1001, peek_token(str), parser_context->current_file_name, parser_context->file_str);
 		}
-
-		result->parameter_count++;
 	}
 
 	consume(str, TokRParen);
@@ -440,91 +439,6 @@ void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* 
 		bin_expr_ast->opType = OpASSIGN;
 
 		result = bin_expr_ast;
-	}
-
-	return result;
-}
-
-int is_same_type(Type* t1, Type* t2) {
-	if (!wcscmp(t1->type_str, t2->type_str)) {
-		if (!wcscmp(t1->type_str, L"array")) {
-			return is_same_type(t1->array_element_type, t2->array_element_type);
-		}
-
-		return 1;
-	}
-	else {
-		// handle error
-		printf("[Temporary error] Error at parser.c you can\'t cast between %S and %S.\n", t1->type_str, t2->type_str);
-
-		return 0;
-	}
-}
-
-int check_castability(ParserContext* parser_context, Type* from, Type* to) {
-	int primitive_count = 0;
-
-	if (is_primitive_type(parser_context, from)) primitive_count++;
-	if (is_primitive_type(parser_context, to)) primitive_count++;
-
-	if (primitive_count == 2) { // both are primitive type.
-		return 1;
-	}
-	else if (primitive_count == 1) { // only one type is primitive type.
-		return 0;
-	}
-
-	// check for the castability between non primitives.
-	Symbol* from_symbol = find_symbol(parser_context->class_hierarchy, from->type_str);
-	Symbol* to_symbol = find_symbol(parser_context->class_hierarchy, to->type_str);
-
-	if (from_symbol) { // are they classes?
-		ClassType* from_type = ((ClassType*)from_symbol->data);
-		ClassType* to_type = ((ClassType*)to_symbol->data);
-		while (1) {
-			// to -> next search find from.
-			// up casting.
-			if (is_same_type(from, to)) {
-				return 1;
-			}
-
-			if (!from_type->parent_type) {
-				return 0;
-			}
-
-			from_type = from_type->parent_type;
-		}
-		return 1;
-	}
-	else {
-		if (!wcscmp(from->type_str, L"null")) { // null to class
-			if (to_symbol) {
-				return 1;
-			}
-		}
-
-		if (is_same_type(from, to))return 1;
-
-		return 0;
-	}
-
-	return 0;
-}
-
-Type* get_type(Token* tok, wchar_t* str) {
-	wchar_t* type = pull_token(str)->str;
-
-	Type* result = (Type*)safe_malloc(sizeof(Type));
-	result->type_str = _wcsdup(type);
-	result->array_element_type = NULL;
-	result->is_array = 0;
-
-	if (!wcscmp(type, L"array")) { // for array
-		consume(str, TokLesser);
-		Type* array_element_type = get_type(tok, str);
-		result->array_element_type = array_element_type;
-		result->is_array = 1;
-		consume(str, TokGreater);
 	}
 
 	return result;
