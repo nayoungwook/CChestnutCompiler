@@ -816,7 +816,7 @@ void* create_array_declaration_ast(ParserContext* parser_context, Token* tok, wc
 
 	while (peek_token(str)->type != TokRBracket) {
 		elements = (void**)safe_realloc(elements, sizeof(void*) * (element_count + 1));
-		void* element = parse(parser_context, str);
+		void* element = parse_expression(parser_context, str);
 
 		elements[element_count] = element;
 		element_count++;

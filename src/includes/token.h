@@ -18,7 +18,6 @@ typedef enum {
 	TokStringLiteral = 2,
 	TokCharacterLiteral = 3,
 	TokBoolLiteral = 4,
-
 	TokEqual = 5,
 	TokNotEqual = 6,
 	TokSharp = 7,

@@ -6,7 +6,7 @@ FunctionData* create_function_data(SymbolTable* function_symbol_table, const wch
 
 	result->name = _wcsdup(name);
 	result->return_type = return_type;
-	result->index = function_symbol_table->size + 1;
+	result->index = function_symbol_table->size;
 	result->access_modifier = AM_DEFAULT;
 	result->parameter_types = NULL;
 	result->parameter_count = parameters->variable_count;

@@ -1,34 +1,4 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(538,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (ChestnutCompiler.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  ir.c
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\includes\ast.h(31,20): warning C4091: 'typedef ': ignored on left of 'Type' when no variable is declared
-  (compiling source file 'src/ir.c')
-  
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(181,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(203,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(279,20): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(279,26): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(323,95): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(323,95): warning C4024: 'check_accessibility': different types for formal and actual parameter 4
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(347,95): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(347,95): warning C4024: 'check_accessibility': different types for formal and actual parameter 4
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(367,95): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(367,95): warning C4024: 'check_accessibility': different types for formal and actual parameter 4
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(389,95): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(389,95): warning C4024: 'check_accessibility': different types for formal and actual parameter 4
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(398,17): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(583,95): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(583,95): warning C4024: 'check_accessibility': different types for formal and actual parameter 4
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(603,95): warning C4047: 'function': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(603,95): warning C4024: 'check_accessibility': different types for formal and actual parameter 4
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(470,12): warning C4101: 'store_str_buffer': unreferenced local variable
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(616,11): warning C4101: 'store_str_buffer': unreferenced local variable
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(637,37): warning C4047: '==': 'Type **' differs in levels of indirection from 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(649,87): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(698,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(958,33): warning C4047: '=': 'wchar_t *' differs in levels of indirection from 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1003,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1036,4): warning C4033: 'create_variable_declaration_ir' must return a value
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1119,10): warning C4101: 'for_str_buffer': unreferenced local variable
   parser.c
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\includes\ast.h(31,20): warning C4091: 'typedef ': ignored on left of 'Type' when no variable is declared
   (compiling source file 'src/parser.c')
@@ -165,20 +135,5 @@ C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(901,8): war
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(904,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(907,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(935,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
-  util.c
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c(16,11): warning C4133: 'function': incompatible types - from 'char [21]' to 'const wchar_t *const '
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c(13,6): warning C4047: 'initializing': 'int' differs in levels of indirection from 'wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c(58,19): warning C4133: 'function': incompatible types - from 'const wchar_t *' to 'const char *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c(61,3): warning C4047: 'return': 'wchar_t *' differs in levels of indirection from 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c(73,3): warning C4047: 'return': 'wchar_t *' differs in levels of indirection from 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c(93,27): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c(116,30): warning C4047: 'function': 'int' differs in levels of indirection from 'void *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c(116,30): warning C4024: 'memset': different types for formal and actual parameter 2
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c(127,21): warning C4047: 'function': 'int' differs in levels of indirection from 'void *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c(127,21): warning C4024: 'memset': different types for formal and actual parameter 2
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c(141,27): warning C4013: 'strcmp' undefined; assuming extern returning int
-  Generating Code...
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\util.c(19,1): warning C4172: returning address of local variable or temporary : cwd
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\parser.c(939,1): warning C4715: 'parse': not all control paths return a value
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1056,1): warning C4715: 'create_variable_declaration_ir': not all control paths return a value
   ChestnutCompiler.vcxproj -> C:\Users\nayou\source\repos\CChestnut\x64\Debug\CChestnutCompiler.exe
