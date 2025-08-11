@@ -43,19 +43,20 @@ typedef struct {
 
 typedef struct {
 	ASTType TYPE;
+	Token* tok;
 	wchar_t* identifier;
 	void* attribute;
-	Token* tok;
 } IdentifierAST;
 
 typedef struct {
 	ASTType TYPE;
-	char bool_type;
 	Token* tok;
+	char bool_type;
 } BoolLiteralAST;
 
 typedef struct {
 	ASTType TYPE;
+	Token* tok;
 	wchar_t* variable_name;
 	Type* variable_type;
 	void* declaration;
@@ -64,6 +65,7 @@ typedef struct {
 
 typedef struct {
 	ASTType TYPE;
+	Token* tok;
 	VariableDeclarationAST** variable_declarations;
 	int variable_count;
 } VariableDeclarationBundleAST;

@@ -26,33 +26,46 @@ Type* get_type_of_last_element(IrGenContext* ir_context, ParserContext* parser_c
 	return result;
 }
 
-int is_same_type(Type* t1, Type* t2) {
+bool is_same_type(Type* t1, Type* t2) {
 	if (!wcscmp(t1->type_str, t2->type_str)) {
 		if (!wcscmp(t1->type_str, L"array")) {
 			return is_same_type(t1->array_element_type, t2->array_element_type);
 		}
 
-		return 1;
+		return true;
 	}
 	else {
 		// handle error
 		printf("[Temporary error] Error at parser.c you can\'t cast between %S and %S.\n", t1->type_str, t2->type_str);
 
-		return 0;
+		return false;
 	}
 }
 
-int check_castability(ParserContext* parser_context, Type* from, Type* to) {
+void check_type_of_variable_declaration(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast) {
+	const wchar_t* type_str = variable_declaration_ast->variable_type;
+
+	int result = 0;
+
+	if (find_symbol_from_set(parser_context->primitive_types, type_str) == NULL) result = 1;
+	if (find_symbol_from_set(parser_context->class_symbol_table, type_str) == NULL) result = 1;
+
+	if (result) {
+		handle_error(ER_TypeNotExist, get_token_of_ast(variable_declaration_ast), parser_context->current_file_name, parser_context->file_str);
+	}
+}
+
+bool check_castability(ParserContext* parser_context, Type* from, Type* to) {
 	int primitive_count = 0;
 
 	if (is_primitive_type(parser_context, from)) primitive_count++;
 	if (is_primitive_type(parser_context, to)) primitive_count++;
 
 	if (primitive_count == 2) { // both are primitive type.
-		return 1;
+		return true;
 	}
 	else if (primitive_count == 1) { // only one type is primitive type.
-		return 0;
+		return false;
 	}
 
 	// check for the castability between non primitives.
@@ -60,36 +73,38 @@ int check_castability(ParserContext* parser_context, Type* from, Type* to) {
 	Symbol* to_symbol = find_symbol(parser_context->class_hierarchy, to->type_str);
 
 	if (from_symbol) { // are they classes?
-		ClassType* from_type = ((ClassType*)from_symbol->data);
-		ClassType* to_type = ((ClassType*)to_symbol->data);
-		while (1) {
-			// to -> next search find from.
-			// up casting.
-			if (is_same_type(from, to)) {
-				return 1;
-			}
-
-			if (!from_type->parent_type) {
-				return 0;
-			}
-
-			from_type = from_type->parent_type;
-		}
-		return 1;
+		goto class_type_check;
 	}
 	else {
-		if (!wcscmp(from->type_str, L"null")) { // null to class
-			if (to_symbol) {
-				return 1;
-			}
-		}
-
-		if (is_same_type(from, to))return 1;
-
-		return 0;
+		goto default_type_check;
 	}
 
-	return 0;
+class_type_check:
+	ClassType* from_type = ((ClassType*)from_symbol->data);
+	ClassType* to_type = ((ClassType*)to_symbol->data);
+	while (1) {
+		// to -> next search find from.
+		// up casting.
+		if (is_same_type(from, to)) {
+			return true;
+		}
+
+		if (!from_type->parent_type) {
+			return false;
+		}
+
+		from_type = from_type->parent_type;
+	}
+	return true;
+
+default_type_check:
+	if (!wcscmp(from->type_str, L"null")) { // null to class
+		if (to_symbol) {
+			return true;
+		}
+	}
+
+	return is_same_type(from, to);
 }
 
 Type* get_type(Token* tok, wchar_t* str) {

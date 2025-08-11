@@ -10,7 +10,7 @@ ParserContext* create_parser_context() {
 	return parser_context;
 }
 
-int is_primitive_type(ParserContext* parser_context, Type* type) {
+bool is_primitive_type(ParserContext* parser_context, Type* type) {
 	return find_symbol_from_set(parser_context->primitive_types, type->type_str) != NULL;
 }
 
@@ -122,7 +122,7 @@ void* parse_compare_expression(ParserContext* parser_context, wchar_t* str) {
 		bin_expr->right = right;
 
 		if (op_type == OpNone) {
-			handle_error(ER1005, operator_token, parser_context->current_file_name, parser_context->file_str);
+			handle_error(ER_UndefinedOperator, operator_token, parser_context->current_file_name, parser_context->file_str);
 		}
 
 		bin_expr->opType = op_type;
@@ -166,7 +166,7 @@ void consume(wchar_t* str, TokenType expected_type) {
 
 	if (tok->type != expected_type) {
 		printf("%d ", expected_type);
-		handle_error(ER1001, tok, L"main.cnut", str);
+		handle_error(ER_UnexpectedToken, tok, L"main.cnut", str);
 	}
 }
 
@@ -309,7 +309,7 @@ FunctionCallParameterContext* parse_function_call_parameter(ParserContext* parse
 			break;
 		}
 		else {
-			handle_error(ER1001, peek_token(str), parser_context->current_file_name, parser_context->file_str);
+			handle_error(ER_UnexpectedToken, peek_token(str), parser_context->current_file_name, parser_context->file_str);
 		}
 	}
 
@@ -484,7 +484,7 @@ void* create_function_declaration_ast(ParserContext* parser_context, Token* tok,
 
 	consume(str, TokRBracket); // consume }
 
-	if (!wcscmp(parser_context->current_class, L"")) {
+	if (wcscmp(parser_context->current_class, L"") == 0) {
 		FunctionData* data = create_function_data(parser_context->function_symbol_table, function_name, function_declaration_ast->return_type, parameters);
 		insert_function_symbol(parser_context->function_symbol_table, data);
 	}
@@ -579,7 +579,7 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
 		VariableDeclarationAST* variable = (VariableDeclarationAST*)safe_malloc(sizeof(VariableDeclarationAST));
 		variable->TYPE = AST_VariableDeclaration;
 		variable->variable_name = name;
-
+		variable->tok = name_token;
 		variable->variable_type = type_element;
 
 		variable->declaration = declaration;
@@ -651,7 +651,7 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
 
 	initialize_constructor_of_class(class_ast);
 
-	insert_type_symbol(parser_context, !wcscmp(parent_name, L"") ? NULL : parent_name, class_name);
+	insert_type_symbol(parser_context, wcscmp(parent_name, L"") == 0 ? NULL : parent_name, class_name);
 	insert_class_symbol(parser_context, create_class_data(parser_context, class_ast));
 
 	parser_context->current_class = class_ast->class_name;

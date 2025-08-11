@@ -1,10 +1,16 @@
 
-func add(): void {
-  print("asdf");
+func get_five(): int {
+  return 5;
 }
 
 func main(): void {
   var k: float = 3;
-  var arr: array<int> = {3, 5 + 3, 5, k * 3};
-  print(arr[k + 3]);
+  var arr: array<int> =
+    {3, 5 + 3, 5, k * 3, 3 + 5 * (3 + 5), get_five() * 2};
+
+  var a: string = "";
+  
+  for(var i: int=0; i<arr.size(); i++){
+    print(arr[i], " ");
+  }
 }

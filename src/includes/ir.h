@@ -12,7 +12,7 @@
 
 typedef struct _IrGenContext {
 	int label_id;
-	int is_class_initializer;
+	bool is_class_initializer;
 	wchar_t* current_class;
 } IrGenContext;
 
@@ -23,12 +23,16 @@ void open_scope(ParserContext* parser_context);
 void close_scope(ParserContext* parser_context);
 
 int get_prev_variable_index_size(SymbolTable* variable_symbol_table);
-int check_accessibility(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, int access_modifier);
-int check_super_class(ParserContext* parser_context, const wchar_t* from, const wchar_t* to);
+bool check_accessibility(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, int access_modifier);
+bool check_super_class(ParserContext* parser_context, const wchar_t* from, const wchar_t* to);
+
+void check_type_of_variable_declaration(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast);;
 
 VariableData* create_variable_data(SymbolTable* variable_symbol_table, Type* type, const wchar_t* name, int access_modifier);
 void insert_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name, VariableData* data);
 void remove_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name);
+
+Token* get_token_of_ast(void* attribute);
 
 Type* infer_type(IrGenContext* ir_context, ParserContext* parser_context, void* ast, wchar_t* search_point_class_name);
 void check_function_call_condition(IrGenContext* ir_context, ParserContext* parser_context, FunctionData* function_data, const void** parameters, int parameter_count);

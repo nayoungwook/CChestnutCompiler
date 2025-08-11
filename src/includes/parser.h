@@ -40,7 +40,7 @@ void set_file_string(ParserContext* parser_context, const wchar_t* str);
 void initialize_parser_context(ParserContext* parser_context);
 ParserContext* create_parser_context();
 
-int is_primitive_type(ParserContext* parser_context, Type* type);
+bool is_primitive_type(ParserContext* parser_context, Type* type);
 
 void* parse(ParserContext* parser_context, const wchar_t* str);
 void consume(wchar_t* str, TokenType expected_type);
@@ -51,8 +51,8 @@ void* parse_unary_expression(ParserContext* parser_context, wchar_t* str);
 void* parse_simple_expression(ParserContext* parser_context, wchar_t* str);
 void* parse_term(ParserContext* parser_context, wchar_t* str);
 
-int is_same_type(Type* t1, Type* t2);
-int check_castability(ParserContext* parser_context, Type* from, Type* to);
+bool is_same_type(Type* t1, Type* t2);
+bool check_castability(ParserContext* parser_context, Type* from, Type* to);
 
 typedef struct _ClassNode {
 	wchar_t* type_str;

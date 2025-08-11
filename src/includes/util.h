@@ -8,6 +8,10 @@
 
 #define TABLE_SIZE 1024
 
+#define bool char
+#define true 1
+#define false 0
+
 void* safe_malloc(size_t size);
 void* safe_realloc(void* ptr, size_t size);
 
