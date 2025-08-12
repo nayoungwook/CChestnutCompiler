@@ -76,7 +76,7 @@ void insert_class_symbol(ParserContext* parser_context, ClassData* class_data);
 void remove_class_symbol(ParserContext* parser_context, const wchar_t* name);
 void create_class_constructor_data(ParserContext* parser_context, ClassAST* class_ast);
 
-const wchar_t* get_parent_name(wchar_t* str);
+Token* get_parent_name(wchar_t* str);
 void initialize_constructor_of_class(ClassAST* class_ast);
 
 // AST creating functions
@@ -85,7 +85,7 @@ void* create_paren_group_ast(ParserContext* parser_context, Token* tok, wchar_t*
 void* create_string_literal_ast(ParserContext* parser_context, Token* tok, wchar_t* str);
 void* create_number_literal_ast(ParserContext* parser_context, Token* tok, wchar_t* str);
 void* create_function_call_ast(ParserContext* parser_context, Token* tok, wchar_t* str);
-void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* str, int is_attribute_identifier);
+void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* str, bool is_attribute_identifier);
 void* create_function_declaration_ast(ParserContext* parser_context, Token* tok, wchar_t* str);
 void* create_for_statement_ast(ParserContext* parser_context, Token* tok, wchar_t* str);
 void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok, wchar_t* str);

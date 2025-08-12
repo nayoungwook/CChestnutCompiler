@@ -32,19 +32,18 @@ typedef struct Type;
 
 typedef struct {
 	ASTType TYPE;
-	wchar_t* number_literal;
+	Token* number_literal;
 	const wchar_t* numeric_type;
 } NumberLiteralAST;
 
 typedef struct {
 	ASTType TYPE;
-	wchar_t* string_literal;
+	Token* string_literal;
 } StringLiteralAST;
 
 typedef struct {
 	ASTType TYPE;
-	Token* tok;
-	wchar_t* identifier;
+	Token* identifier;
 	void* attribute;
 } IdentifierAST;
 
@@ -57,7 +56,7 @@ typedef struct {
 typedef struct {
 	ASTType TYPE;
 	Token* tok;
-	wchar_t* variable_name;
+	Token* variable_name;
 	Type* variable_type;
 	void* declaration;
 	int access_modifier;
@@ -96,7 +95,7 @@ typedef struct {
 
 typedef struct {
 	ASTType TYPE;
-	wchar_t* function_name;
+	Token* function_name;
 	Type* return_type;
 	VariableDeclarationBundleAST* parameters;
 	void** body;
@@ -106,23 +105,20 @@ typedef struct {
 
 typedef struct {
 	ASTType TYPE;
-	wchar_t* function_name;
+	Token* function_name;
 	void** parameters;
 	int parameter_count;
 	void* attribute;
-	Token* tok;
 } FunctionCallAST;
 
 typedef struct {
 	ASTType TYPE;
-	wchar_t* identifier;
-	Token* tok;
+	Token* identifier;
 } IdentIncreaseAST;
 
 typedef struct {
 	ASTType TYPE;
-	wchar_t* identifier;
-	Token* tok;
+	Token* identifier;
 } IdentDecreaseAST;
 
 typedef struct {
@@ -159,17 +155,16 @@ typedef struct {
 	unsigned int member_variable_bundle_count;
 	unsigned int member_function_count;
 
-	wchar_t* class_name;
-	wchar_t* parent_class_name;
+	Token* class_name;
+	Token* parent_class_name;
 
 } ClassAST;
 
 typedef struct {
 	ASTType TYPE;
-	wchar_t* class_name;
+	Token* class_name;
 	void** parameters;
 	int parameter_count;
-	Token* tok;
 } NewAST;
 
 typedef struct {

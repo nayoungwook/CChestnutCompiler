@@ -43,6 +43,7 @@ bool is_same_type(Type* t1, Type* t2) {
 }
 
 void check_type_of_variable_declaration(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast) {
+	return;
 	const wchar_t* type_str = variable_declaration_ast->variable_type;
 
 	int result = 0;
@@ -157,7 +158,7 @@ Type* infer_type(IrGenContext* ir_context, ParserContext* parser_context, void* 
 	case AST_Identifier: {
 		IdentifierAST* ident_ast = (IdentifierAST*)ast;
 
-		if (!wcscmp(ident_ast->identifier, L"this")) {
+		if (!wcscmp(ident_ast->identifier->str, L"this")) {
 			Type* result = (Type*)safe_malloc(sizeof(Type));
 			result->type_str = ir_context->current_class;
 			result->is_array = 0;
@@ -166,7 +167,7 @@ Type* infer_type(IrGenContext* ir_context, ParserContext* parser_context, void* 
 			return result;
 		}
 
-		VariableData* data = find_variable_data(parser_context, ident_ast->tok, search_point_class_name, ident_ast->identifier);
+		VariableData* data = find_variable_data(parser_context, ident_ast->identifier, search_point_class_name, ident_ast->identifier->str);
 
 		return clone_type(data->type);
 	}
@@ -201,7 +202,7 @@ Type* infer_type(IrGenContext* ir_context, ParserContext* parser_context, void* 
 	case AST_FunctionCall: {
 		FunctionCallAST* function_call_ast = (FunctionCallAST*)ast;
 
-		FunctionData* function_data = find_function_data(parser_context, function_call_ast->tok, search_point_class_name, function_call_ast->function_name, ast);
+		FunctionData* function_data = find_function_data(parser_context, function_call_ast->function_name, search_point_class_name, function_call_ast->function_name->str, ast);
 
 		return clone_type(function_data->return_type);
 	}
@@ -211,14 +212,14 @@ Type* infer_type(IrGenContext* ir_context, ParserContext* parser_context, void* 
 		if (type == AST_IdentIncrease) {
 			IdentIncreaseAST* ident_increase = (IdentIncreaseAST*)ast;
 
-			VariableData* data = find_variable_data(parser_context, ident_increase->tok, search_point_class_name, ident_increase->identifier);
+			VariableData* data = find_variable_data(parser_context, ident_increase->identifier, search_point_class_name, ident_increase->identifier->str);
 			return clone_type(data->type);
 		}
 
 		if (type == AST_IdentDecrease) {
 			IdentDecreaseAST* ident_decrease = (IdentDecreaseAST*)ast;
 
-			VariableData* data = find_variable_data(parser_context, ident_decrease->tok, search_point_class_name, ident_decrease->identifier);
+			VariableData* data = find_variable_data(parser_context, ident_decrease->identifier, search_point_class_name, ident_decrease->identifier->str);
 
 			return clone_type(data->type);
 		}
@@ -228,7 +229,7 @@ Type* infer_type(IrGenContext* ir_context, ParserContext* parser_context, void* 
 		NewAST* new_ast = (NewAST*)ast;
 
 		Type* result = (Type*)safe_malloc(sizeof(Type));
-		result->type_str = new_ast->class_name;
+		result->type_str = _wcsdup(new_ast->class_name->str);
 		result->is_array = 0;
 		result->array_element_type = NULL;
 

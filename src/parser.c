@@ -241,7 +241,7 @@ void* create_paren_group_ast(ParserContext* parser_context, Token* tok, wchar_t*
 void* create_string_literal_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
 	StringLiteralAST* literal = (StringLiteralAST*)safe_malloc(sizeof(StringLiteralAST));
 	literal->TYPE = AST_StringLiteral;
-	literal->string_literal = tok->str;
+	literal->string_literal = tok;
 
 	return literal;
 }
@@ -249,7 +249,7 @@ void* create_string_literal_ast(ParserContext* parser_context, Token* tok, wchar
 void* create_number_literal_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
 	NumberLiteralAST* literal = (NumberLiteralAST*)safe_malloc(sizeof(NumberLiteralAST));
 	literal->TYPE = AST_NumberLiteral;
-	literal->number_literal = tok->str;
+	literal->number_literal = tok;
 	wchar_t* numeric_type;
 
 	if (is_decimal(tok->str)) {
@@ -328,15 +328,12 @@ void* create_function_call_ast(ParserContext* parser_context, Token* tok, wchar_
 	FunctionCallParameterContext* function_call_parameter = parse_function_call_parameter(parser_context, str);
 
 	wchar_t* function_name = _wcsdup(tok->str);
-	result->function_name = function_name;
+	result->function_name = tok;
 	result->TYPE = AST_FunctionCall;
 	result->parameter_count = function_call_parameter->parameter_count;
 	result->parameters = function_call_parameter->parameters;
-	result->tok = tok;
 
 	free_function_call_parameter(function_call_parameter);
-
-	result->function_name = tok->str;
 
 	return result;
 }
@@ -369,7 +366,7 @@ void* create_array_access_ast(ParserContext* parser_context, void* target_array,
 	return array_access_ast;
 }
 
-void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* str, int is_attribute_identifier) {
+void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* str, bool is_attribute_identifier) {
 	void* result = NULL;
 
 	Token* next_token = peek_token(str);
@@ -380,7 +377,7 @@ void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* 
 
 		if (peek_token(str)->type == TokDot) {
 			consume(str, TokDot);
-			((FunctionCallAST*)result)->attribute = create_identifier_ast(parser_context, pull_token(str), str, 1);
+			((FunctionCallAST*)result)->attribute = create_identifier_ast(parser_context, pull_token(str), str, true);
 		}
 	}
 	else {
@@ -388,41 +385,38 @@ void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* 
 			if (next_token->type == TokIncrease) {
 				consume(str, TokIncrease);
 				result = (IdentIncreaseAST*)safe_malloc(sizeof(IdentIncreaseAST));
-				((IdentIncreaseAST*)result)->identifier = tok->str;
+				((IdentIncreaseAST*)result)->identifier = tok;
 				((IdentIncreaseAST*)result)->TYPE = AST_IdentIncrease;
-				((IdentIncreaseAST*)result)->tok = tok;
 			}
 
 			if (next_token->type == TokDecrease) {
 				consume(str, TokDecrease);
 				result = (IdentDecreaseAST*)safe_malloc(sizeof(IdentDecreaseAST));
-				((IdentDecreaseAST*)result)->identifier = tok->str;
+				((IdentDecreaseAST*)result)->identifier = tok;
 				((IdentDecreaseAST*)result)->TYPE = AST_IdentDecrease;
-				((IdentDecreaseAST*)result)->tok = tok;
 			}
 		}
 		else {
 			result = (IdentifierAST*)safe_malloc(sizeof(IdentifierAST));
 			((IdentifierAST*)result)->TYPE = AST_Identifier;
-			((IdentifierAST*)result)->identifier = tok->str;
+			((IdentifierAST*)result)->identifier = tok;
 
 			((IdentifierAST*)result)->attribute = NULL;
-			((IdentifierAST*)result)->tok = tok;
 
 			if (peek_token(str)->type == TokDot) {
 				consume(str, TokDot);
-				((IdentifierAST*)result)->attribute = create_identifier_ast(parser_context, pull_token(str), str, 1);
+				((IdentifierAST*)result)->attribute = create_identifier_ast(parser_context, pull_token(str), str, true);
 			}
 		}
 	}
 
 	if (peek_token(str)->type == TokLSquareBracket) {
 		result = create_array_access_ast(parser_context, result, tok, str);
-
 		((ArrayAccessAST*)result)->attribute = NULL;
+
 		if (peek_token(str)->type == TokDot) {
 			consume(str, TokDot);
-			((ArrayAccessAST*)result)->attribute = create_identifier_ast(parser_context, pull_token(str), str, 1);
+			((ArrayAccessAST*)result)->attribute = create_identifier_ast(parser_context, pull_token(str), str, true);
 		}
 	}
 
@@ -451,8 +445,9 @@ void* create_function_declaration_ast(ParserContext* parser_context, Token* tok,
 	function_declaration_ast->body_count = 0;
 	function_declaration_ast->access_modifier = AM_DEFAULT;
 
-	wchar_t* function_name = pull_token(str)->str;
-	function_declaration_ast->function_name = function_name;
+	Token* function_name_token = pull_token(str);
+	wchar_t* function_name = function_name_token->str;
+	function_declaration_ast->function_name = function_name_token;
 
 	parser_context->current_function_name = _wcsdup(function_name);
 
@@ -625,25 +620,27 @@ void initialize_constructor_of_class(ClassAST* class_ast) {
 	class_ast->constructor->parameters = empty_parameters;
 }
 
-const wchar_t* get_parent_name(wchar_t* str) {
-	wchar_t* parent_name = L"";
+Token* get_parent_name(wchar_t* str) {
+	Token* parent_name = NULL;
 	if (peek_token(str)->type == TokExtends) {
 		consume(str, TokExtends);
-		parent_name = pull_token(str)->str;
+		parent_name = pull_token(str);
 	}
 	return parent_name;
 }
 
 void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
-	wchar_t* class_name = pull_token(str)->str;
+	Token* class_name_token = pull_token(str);
+	wchar_t* class_name = class_name_token->str;
 
-	wchar_t* parent_name = get_parent_name(str);
+	Token* parent_name_token = get_parent_name(str);
+	wchar_t* parent_name = parent_name_token == NULL ? L"" : _wcsdup(parent_name_token->str);
 
 	ClassAST* class_ast = (ClassAST*)safe_malloc(sizeof(ClassAST));
 
 	class_ast->TYPE = AST_Class;
-	class_ast->class_name = class_name;
-	class_ast->parent_class_name = parent_name;
+	class_ast->class_name = class_name_token;
+	class_ast->parent_class_name = parent_name_token;
 	class_ast->constructor = NULL;
 
 	class_ast->member_function_count = 0;
@@ -654,7 +651,7 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
 	insert_type_symbol(parser_context, wcscmp(parent_name, L"") == 0 ? NULL : parent_name, class_name);
 	insert_class_symbol(parser_context, create_class_data(parser_context, class_ast));
 
-	parser_context->current_class = class_ast->class_name;
+	parser_context->current_class = class_name_token->str;
 
 	consume(str, TokLBracket);
 
@@ -793,8 +790,7 @@ void* create_new_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
 	result->TYPE = AST_New;
 	result->parameter_count = function_call_parameter->parameter_count;
 	result->parameters = function_call_parameter->parameters;
-	result->class_name = class_name;
-	result->tok = class_name_token;
+	result->class_name = class_name_token;
 
 	return result;
 }
@@ -873,7 +869,7 @@ void* parse(ParserContext* parser_context, const wchar_t* str) {
 		return create_return_ast(parser_context, tok, str);
 
 	case TokIdent:
-		return create_identifier_ast(parser_context, tok, str, 0);
+		return create_identifier_ast(parser_context, tok, str, false);
 
 	case TokFunc:
 		return create_function_declaration_ast(parser_context, tok, str);

@@ -27,8 +27,8 @@ ClassData* create_class_data(ParserContext* parser_context, ClassAST* class_ast)
 	ClassData* result = (ClassData*)safe_malloc(sizeof(ClassData));
 	parser_context->class_count++;
 
-	result->name = _wcsdup(class_ast->class_name);
-	result->parent_class_name = _wcsdup(class_ast->parent_class_name);
+	result->name = _wcsdup(class_ast->class_name->str);
+	result->parent_class_name = _wcsdup(class_ast->parent_class_name == NULL ? L"" : class_ast->parent_class_name->str);
 	result->index = parser_context->class_count;
 
 	result->member_variables = create_symbol_table();

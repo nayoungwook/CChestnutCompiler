@@ -57,7 +57,7 @@ Symbol* find_symbol_from_set(Set* target_set, const wchar_t* name);
 typedef struct _VariableData {
 	Type* type;
 	const wchar_t* name;
-	wchar_t* access_modifier;
+	int access_modifier;
 	unsigned int index;
 } VariableData;
 
@@ -67,7 +67,7 @@ typedef struct _FunctionData {
 	unsigned int parameter_count;
 	Type** parameter_types;
 	unsigned int index;
-	wchar_t* access_modifier;
+	int access_modifier;
 	int is_builtin_function;
 } FunctionData;
 
