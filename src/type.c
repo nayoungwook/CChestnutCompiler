@@ -202,7 +202,8 @@ Type* infer_type(IrGenContext* ir_context, ParserContext* parser_context, void* 
 	case AST_FunctionCall: {
 		FunctionCallAST* function_call_ast = (FunctionCallAST*)ast;
 
-		FunctionData* function_data = find_function_data(parser_context, function_call_ast->function_name, search_point_class_name, function_call_ast->function_name->str, ast);
+		FunctionData* function_data =
+			find_function_data(parser_context, function_call_ast->function_name_token, search_point_class_name, function_call_ast->function_name_token->str, ast);
 
 		return clone_type(function_data->return_type);
 	}
@@ -229,7 +230,7 @@ Type* infer_type(IrGenContext* ir_context, ParserContext* parser_context, void* 
 		NewAST* new_ast = (NewAST*)ast;
 
 		Type* result = (Type*)safe_malloc(sizeof(Type));
-		result->type_str = _wcsdup(new_ast->class_name->str);
+		result->type_str = _wcsdup(new_ast->class_name_token->str);
 		result->is_array = 0;
 		result->array_element_type = NULL;
 

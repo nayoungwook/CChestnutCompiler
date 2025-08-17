@@ -241,7 +241,7 @@ void* create_paren_group_ast(ParserContext* parser_context, Token* tok, wchar_t*
 void* create_string_literal_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
 	StringLiteralAST* literal = (StringLiteralAST*)safe_malloc(sizeof(StringLiteralAST));
 	literal->TYPE = AST_StringLiteral;
-	literal->string_literal = tok;
+	literal->string_literal_token = tok;
 
 	return literal;
 }
@@ -249,7 +249,7 @@ void* create_string_literal_ast(ParserContext* parser_context, Token* tok, wchar
 void* create_number_literal_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
 	NumberLiteralAST* literal = (NumberLiteralAST*)safe_malloc(sizeof(NumberLiteralAST));
 	literal->TYPE = AST_NumberLiteral;
-	literal->number_literal = tok;
+	literal->number_literal_token = tok;
 	wchar_t* numeric_type;
 
 	if (is_decimal(tok->str)) {
@@ -328,7 +328,7 @@ void* create_function_call_ast(ParserContext* parser_context, Token* tok, wchar_
 	FunctionCallParameterContext* function_call_parameter = parse_function_call_parameter(parser_context, str);
 
 	wchar_t* function_name = _wcsdup(tok->str);
-	result->function_name = tok;
+	result->function_name_token = tok;
 	result->TYPE = AST_FunctionCall;
 	result->parameter_count = function_call_parameter->parameter_count;
 	result->parameters = function_call_parameter->parameters;
@@ -447,7 +447,7 @@ void* create_function_declaration_ast(ParserContext* parser_context, Token* tok,
 
 	Token* function_name_token = pull_token(str);
 	wchar_t* function_name = function_name_token->str;
-	function_declaration_ast->function_name = function_name_token;
+	function_declaration_ast->function_name_token = function_name_token;
 
 	parser_context->current_function_name = _wcsdup(function_name);
 
@@ -573,8 +573,7 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
 
 		VariableDeclarationAST* variable = (VariableDeclarationAST*)safe_malloc(sizeof(VariableDeclarationAST));
 		variable->TYPE = AST_VariableDeclaration;
-		variable->variable_name = name;
-		variable->tok = name_token;
+		variable->variable_name_token = name;
 		variable->variable_type = type_element;
 
 		variable->declaration = declaration;
@@ -639,8 +638,8 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
 	ClassAST* class_ast = (ClassAST*)safe_malloc(sizeof(ClassAST));
 
 	class_ast->TYPE = AST_Class;
-	class_ast->class_name = class_name_token;
-	class_ast->parent_class_name = parent_name_token;
+	class_ast->class_name_token = class_name_token;
+	class_ast->parent_class_name_token = parent_name_token;
 	class_ast->constructor = NULL;
 
 	class_ast->member_function_count = 0;
@@ -725,7 +724,7 @@ VariableDeclarationBundleAST* create_function_parameters(Token* tok, wchar_t* st
 
 		VariableDeclarationAST* variable = (VariableDeclarationAST*)safe_malloc(sizeof(VariableDeclarationAST));
 		variable->TYPE = AST_VariableDeclaration;
-		variable->variable_name = parameter_name;
+		variable->variable_name_token = parameter_name;
 		variable->variable_type = parameter_type_element;
 		variable->declaration = NULL;
 		variable->access_modifier = AM_DEFAULT;
@@ -790,7 +789,7 @@ void* create_new_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
 	result->TYPE = AST_New;
 	result->parameter_count = function_call_parameter->parameter_count;
 	result->parameters = function_call_parameter->parameters;
-	result->class_name = class_name_token;
+	result->class_name_token = class_name_token;
 
 	return result;
 }

@@ -32,7 +32,7 @@ func main(): void {
   a = "asdf";
 
   foo = new Foo("asdf");
-  add(5, 4);
+  var k: array<int> = add(5, 4);
 
   for(var i:int =0; i<10; i++){
   }
