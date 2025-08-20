@@ -1230,11 +1230,31 @@ wchar_t* create_bool_literal_ir(IrGenContext* ir_context, ParserContext* parser_
 	return result;
 }
 
+wchar_t* create_neg_ir(IrGenContext* ir_context, ParserContext* parser_context, NegAST* negative_ast, int indentation) {
+	wchar_t* result = L"";
+
+	wchar_t neg_buffer[64];
+	swprintf(neg_buffer, 64, L"@neg");
+
+	wchar_t* internal_ast_buffer = create_ir(ir_context, parser_context, negative_ast->ast, indentation);
+	result = join_string(result, internal_ast_buffer);
+
+	new_line(&result, indentation);
+	result = join_string(result, neg_buffer);
+
+	return result;
+}
+
 wchar_t* create_ir(IrGenContext* ir_context, ParserContext* parser_context, void* ast, int indentation) {
 
 	wchar_t* result = L"";
 
 	switch (*((ASTType*)ast)) {
+
+	case AST_Negative: {
+		result = join_string(result, create_neg_ir(ir_context, parser_context, (NegAST*)ast, indentation));
+		break;
+	}
 
 	case AST_BoolLiteral: {
 		result = join_string(result, create_bool_literal_ir(ir_context, parser_context, (BoolLiteralAST*)ast, indentation));

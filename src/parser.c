@@ -841,10 +841,21 @@ void* create_bool_literal_ast(ParserContext* parser_context, Token* tok, const w
 	return literal;
 }
 
+void* create_neg_ast(ParserContext* parser_context, Token* tok, const wchar_t* str) {
+	NegAST* neg = (NegAST*)safe_malloc(sizeof(NegAST));
+	neg->TYPE = AST_Negative;
+	neg->ast = parse_term(parser_context, str);
+	return neg;
+}
+
 void* parse(ParserContext* parser_context, const wchar_t* str) {
 	Token* tok = pull_token(str);
 
 	switch (tok->type) {
+			
+	case TokSub:
+		return create_neg_ast(parser_context, tok, str);
+
 	case TokLBracket:
 		return create_array_declaration_ast(parser_context, tok, str);
 

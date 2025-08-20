@@ -95,5 +95,6 @@ void* create_new_ast(ParserContext* parser_context, Token* tok, wchar_t* str);
 void* create_array_declaration_ast(ParserContext* parser_context, Token* tok, wchar_t* str);
 void* create_array_access_ast(ParserContext* parser_context, void* target_array, Token* tok, wchar_t* str);
 void* create_bool_literal_ast(ParserContext* parser_context, Token* tok, const wchar_t* str);
+void* create_neg_ast(ParserContext* parser_context, Token* tok, const wchar_t* str);
 
 VariableDeclarationBundleAST* create_function_parameters(Token* tok, wchar_t* str);

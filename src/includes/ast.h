@@ -26,6 +26,7 @@ typedef enum {
 	AST_ArrayDeclaration = 18,
 	AST_ArrayAccess = 19,
 	AST_BoolLiteral = 20,
+	AST_Negative = 21,
 }ASTType;
 
 typedef struct Type;
@@ -183,3 +184,8 @@ typedef struct {
 	IdentifierAST* target_array;
 	void* attribute;
 }ArrayAccessAST;
+
+typedef struct {
+	ASTType TYPE;
+	void* ast;
+}NegAST;

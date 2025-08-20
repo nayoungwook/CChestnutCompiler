@@ -131,6 +131,9 @@ Type* infer_type(IrGenContext* ir_context, ParserContext* parser_context, void* 
 	ASTType type = *((ASTType*)(ast));
 
 	switch (type) {
+	case AST_Negative: {
+		return infer_type(ir_context, parser_context, ((NegAST*)ast)->ast, search_point_class_name);
+	}
 
 	case AST_NumberLiteral: {
 		NumberLiteralAST* number_ast = (NumberLiteralAST*)ast;
