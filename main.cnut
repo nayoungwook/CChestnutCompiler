@@ -1,8 +1,12 @@
 
-func add(): int{
-  return 5;
+func fibo(n: int, arr: array<int>): int {
+  if(n == 1 || n == 2){
+    return 1;
+  }
+
+  return fibo(n - 1, arr) + fibo(n - 2, arr);
 }
 
 func main(): void {
-  var k: float = -add();
+  var arr: array<int> = {0};
 }
