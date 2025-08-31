@@ -1,37 +1,7 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(538,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (ChestnutCompiler.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  ir.c
+  main.c
 C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\includes\ast.h(32,20): warning C4091: 'typedef ': ignored on left of 'Type' when no variable is declared
-  (compiling source file 'src/ir.c')
+  (compiling source file 'src/main.c')
   
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(179,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(201,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(220,128): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(221,74): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(277,20): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(277,26): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(394,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(394,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(418,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(418,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(444,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(444,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(451,17): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(640,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(640,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(660,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(660,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(525,12): warning C4101: 'store_str_buffer': unreferenced local variable
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(671,11): warning C4101: 'store_str_buffer': unreferenced local variable
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(692,37): warning C4047: '==': 'Type **' differs in levels of indirection from 'int'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(704,87): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(707,43): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(752,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1069,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1091,126): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1092,80): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1095,135): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1096,89): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1107,4): warning C4033: 'create_variable_declaration_ir' must return a value
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1190,10): warning C4101: 'for_str_buffer': unreferenced local variable
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\ir.c(1127,1): warning C4715: 'create_variable_declaration_ir': not all control paths return a value
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\main.c(41,41): warning C4133: 'function': incompatible types - from 'char [10]' to 'const wchar_t *'
   ChestnutCompiler.vcxproj -> C:\Users\nayou\source\repos\CChestnut\x64\Debug\CChestnutCompiler.exe
