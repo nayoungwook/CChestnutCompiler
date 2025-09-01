@@ -54,6 +54,8 @@ FunctionData* get_member_function_data(ParserContext* parser_context, const wcha
 FunctionData* find_function_data(ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* function_name, FunctionCallAST* function_call_ast);
 VariableData* find_variable_data(ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* identifier);
 
+wchar_t* create_variable_initializer(IrGenContext* ir_context, ParserContext* parser_context, Type* variable_type, int indentation);
+
 wchar_t* create_if_statement_block(IrGenContext* ir_context, ParserContext* parser_context, IfStatementAST* if_statement_ast, int indentation, int end_label_id);
 
 wchar_t* create_array_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, ArrayDeclarationAST* array_declaration_ast, int indentation);

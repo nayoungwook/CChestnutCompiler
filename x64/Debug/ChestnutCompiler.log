@@ -1,7 +1,23 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(538,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (ChestnutCompiler.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   main.c
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\includes\ast.h(32,20): warning C4091: 'typedef ': ignored on left of 'Type' when no variable is declared
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\includes\ast.h(32,20): warning C4091: 'typedef ': ignored on left of 'Type' when no variable is declared
   (compiling source file 'src/main.c')
   
-C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\src\main.c(41,41): warning C4133: 'function': incompatible types - from 'char [10]' to 'const wchar_t *'
-  ChestnutCompiler.vcxproj -> C:\Users\nayou\source\repos\CChestnut\x64\Debug\CChestnutCompiler.exe
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\main.c(40,66): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+  util.c
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(16,11): warning C4133: 'function': incompatible types - from 'char [21]' to 'const wchar_t *const '
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(13,6): warning C4047: 'initializing': 'int' differs in levels of indirection from 'wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(58,32): warning C4133: 'function': incompatible types - from 'char [2]' to 'const wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(61,3): warning C4047: 'return': 'wchar_t *' differs in levels of indirection from 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(73,3): warning C4047: 'return': 'wchar_t *' differs in levels of indirection from 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(93,27): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(116,30): warning C4047: 'function': 'int' differs in levels of indirection from 'void *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(116,30): warning C4024: 'memset': different types for formal and actual parameter 2
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(127,21): warning C4047: 'function': 'int' differs in levels of indirection from 'void *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(127,21): warning C4024: 'memset': different types for formal and actual parameter 2
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(141,27): warning C4013: 'strcmp' undefined; assuming extern returning int
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(153,29): warning C4133: 'function': incompatible types - from 'char [2]' to 'const wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(157,3): warning C4098: 'write_file': 'void' function returning a value
+  Generating Code...
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\util.c(19,1): warning C4172: returning address of local variable or temporary : cwd
+  ChestnutCompiler.vcxproj -> C:\Users\nayou\source\repos\Chestnut\x64\Debug\CChestnutCompiler.exe

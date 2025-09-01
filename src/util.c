@@ -55,7 +55,7 @@ int* line_number_data;
 
 wchar_t* read_file(const wchar_t* file_path) {
 
-	FILE* fp = fopen(file_path, "r, ccs=UTF-8");
+	FILE* fp = _wfopen(file_path, "r");
 	if (!fp) {
 		perror("파일 열기 실패");
 		return 1;
@@ -147,6 +147,19 @@ Symbol* find_symbol_from_set(Set* target_set, const wchar_t* name) {
 	}
 
 	return result;
+}
+
+void write_file(const wchar_t* path, const wchar_t* str) {
+	FILE* file = _wfopen(path, "w");
+
+	if (file == NULL) {
+		printf("파일을 열 수 없습니다.\n");
+		return 1;
+	}
+
+	fwprintf(file, str);
+
+	fclose(file);
 }
 
 Symbol* find_symbol(SymbolTable* cur_symbol_table, const wchar_t* name) {

@@ -1078,6 +1078,28 @@ wchar_t* create_class_ir(IrGenContext* ir_context, ParserContext* parser_context
 	return result;
 }
 
+wchar_t* create_variable_initializer(IrGenContext* ir_context, ParserContext* parser_context, Type* variable_type, int indentation) {
+	wchar_t* result = L"";
+	wchar_t initializer_buffer[256];
+
+	if (is_primitive_type(parser_context, variable_type)) {
+		swprintf(initializer_buffer, 256, L"@push int 0");
+	}
+	else {
+		if (wcscmp(variable_type->type_str, L"array") == 0) {
+			swprintf(initializer_buffer, 256, L"@array 0");
+		}
+		else {
+			swprintf(initializer_buffer, 256, L"@null");
+		}
+	}
+
+	new_line(&result, indentation);
+	result = join_string(result, initializer_buffer);
+
+	return result;
+}
+
 wchar_t* create_variable_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast, int indentation) {
 	wchar_t* result = L"";
 	VariableData* data = NULL;
@@ -1106,6 +1128,9 @@ wchar_t* create_variable_declaration_ir(IrGenContext* ir_context, ParserContext*
 
 			return;
 		}
+	}
+	else {
+		result = join_string(result, create_variable_initializer(ir_context, parser_context, variable_declaration_ast->variable_type, indentation));
 	}
 
 	// indexing for additional parent class member variables.

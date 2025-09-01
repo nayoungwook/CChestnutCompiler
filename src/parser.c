@@ -563,7 +563,6 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
 		void* declaration = NULL;
 
 		if (tok->type == TokSemiColon) {
-			break;
 		}
 		else if (tok->type == TokComma) {
 		}
@@ -590,6 +589,10 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
 		bundles->variable_declarations[bundles->variable_count] = variable;
 		bundles->variable_count++;
 
+		if (tok->type == TokSemiColon) {
+			break;
+		}
+			
 		if (peek_token(str)->type == TokSemiColon) {
 			consume(str, TokSemiColon);
 			break;

@@ -22,12 +22,25 @@ void initialize_primitive_types(ParserContext* parser_context) {
 void parse_file(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* file_name) {
 	wchar_t* file = read_file(file_name);
 
+	wchar_t* result = L"";
+
 	while (peek_token(file)->type != TokEOF) {
 		set_file_string(parser_context, file);
 		void* ast = parse(parser_context, file);
 
-		printf("%S\n", create_ir(ir_context, parser_context, ast, 0));
+		wchar_t* ir = create_ir(ir_context, parser_context, ast, 0);
+		
+		result = join_string(result, ir);
+
+#ifdef DEBUG_VIEW_IR
+		printf("%S\n", ir);
+#endif
 	}
+
+	wchar_t* original_name = substr(file_name, 0, wcslen(file_name) - 6);
+	wchar_t* new_file_name = join_string(original_name, L".ir");
+
+	write_file(new_file_name, result);
 }
 
 int wmain(int arc, char* args[]) {
@@ -38,7 +51,7 @@ int wmain(int arc, char* args[]) {
 	initialize_primitive_types(parser_context);
 	initialize_builtin_functions(parser_context);
 
-	parse_file(ir_context, parser_context, "main.cnut");
+	parse_file(ir_context, parser_context, L"main.cnut");
 
 	return 0;
 }

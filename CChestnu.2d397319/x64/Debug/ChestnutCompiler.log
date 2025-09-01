@@ -1,0 +1,6 @@
+﻿  main.c
+C:\Users\nayou\source\repos\CChestnutCompiler\src\includes\ast.h(32,20): warning C4091: 'typedef ': 변수를 선언하지 않으면 'Type' 왼쪽은 무시됩니다.
+  (소스 파일 'src/main.c'을(를) 컴파일하는 중)
+  
+C:\Users\nayou\source\repos\CChestnutCompiler\src\main.c(41,41): warning C4133: '함수': 'char [10]'과(와) 'const wchar_t *' 사이의 형식이 호환되지 않습니다.
+  ChestnutCompiler.vcxproj -> C:\Users\nayou\source\repos\CChestnutCompiler\x64\Debug\CChestnutCompiler.exe
