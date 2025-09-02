@@ -68,7 +68,7 @@ typedef struct {
 	int variable_count;
 } VariableDeclarationBundleAST;
 
-typedef enum { OpNone, OpADD, OpSUB, OpMUL, OpDIV, OpEQUAL, OpNOTEQUAL, OpGREATER, OpLESSER, OpEQUALGREATER, OpEQUALLESSER, OpASSIGN, OpOR, OpAND } OperatorType;
+typedef enum { OpNone, OpADD, OpSUB, OpMUL, OpDIV, OpEQUAL, OpNOTEQUAL, OpGREATER, OpLESS, OpEQUALGREATER, OpEQUALLESS, OpASSIGN, OpOR, OpAND } OperatorType;
 
 typedef struct {
 	ASTType TYPE;

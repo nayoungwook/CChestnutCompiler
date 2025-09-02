@@ -107,9 +107,9 @@ void* parse_compare_expression(ParserContext* parser_context, wchar_t* str) {
 		case TokEqual: op_type = OpEQUAL; break;
 		case TokNotEqual: op_type = OpNOTEQUAL; break;
 		case TokGreater: op_type = OpGREATER; break;
-		case TokLesser: op_type = OpLESSER; break;
+		case TokLesser: op_type = OpLESS; break;
 		case TokEqualGreater: op_type = OpEQUALGREATER; break;
-		case TokEqualLesser: op_type = OpEQUALLESSER; break;
+		case TokEqualLesser: op_type = OpEQUALLESS; break;
 		}
 
 		BinExprAST* bin_expr = (BinExprAST*)safe_malloc(sizeof(BinExprAST));

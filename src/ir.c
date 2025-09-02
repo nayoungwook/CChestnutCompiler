@@ -806,14 +806,14 @@ wchar_t* create_bin_expr_ir(IrGenContext* ir_context, ParserContext* parser_cont
 	case OpGREATER:
 		swprintf(operator_str_buffer, 128, L"@greater");
 		break;
-	case OpLESSER:
-		swprintf(operator_str_buffer, 128, L"@lesser");
+	case OpLESS:
+		swprintf(operator_str_buffer, 128, L"@less");
 		break;
 	case OpEQUALGREATER:
 		swprintf(operator_str_buffer, 128, L"@eqgreater");
 		break;
-	case OpEQUALLESSER:
-		swprintf(operator_str_buffer, 128, L"@eqlesser");
+	case OpEQUALLESS:
+		swprintf(operator_str_buffer, 128, L"@eqless");
 		break;
 	case OpOR:
 		swprintf(operator_str_buffer, 128, L"@or");
