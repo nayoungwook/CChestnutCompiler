@@ -1,5 +1,7 @@
 #include "includes/main.h"
 
+#define DEBUG_VIEW_IR
+
 void print_tokens(wchar_t* str) {
 	while (1) {
 		Token* tok = pull_token(str);
@@ -29,7 +31,7 @@ void parse_file(IrGenContext* ir_context, ParserContext* parser_context, const w
 		void* ast = parse(parser_context, file);
 
 		wchar_t* ir = create_ir(ir_context, parser_context, ast, 0);
-		
+
 		result = join_string(result, ir);
 
 #ifdef DEBUG_VIEW_IR

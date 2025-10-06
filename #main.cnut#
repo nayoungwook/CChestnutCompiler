@@ -13,6 +13,7 @@ func fibo(n: int, dp: array<int>) : int {
   dp[n] = result;
   
   return result;
+
 }
 
 func main(): void {
