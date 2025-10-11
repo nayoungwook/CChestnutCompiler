@@ -19,6 +19,9 @@ typedef struct _IrGenContext {
 IrGenContext* create_ir_context();
 wchar_t* create_class_initializer(IrGenContext* ir_context, ParserContext* parser_context, int indentation, ClassAST* class_ast);
 
+SymbolTable* ir_byte_table;
+void initialize_byte_table();
+
 void open_scope(ParserContext* parser_context);
 void close_scope(ParserContext* parser_context);
 

@@ -1,1 +1,2 @@
 C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\x64\Debug\CChestnutCompiler.exe
+C:\Users\nayou\source\repos\CChestnut\CChestnutCompiler\x64\Debug\CChestnutCompiler.exe

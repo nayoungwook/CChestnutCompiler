@@ -52,6 +52,7 @@ int wmain(int arc, char* args[]) {
 	IrGenContext* ir_context = create_ir_context();
 	initialize_primitive_types(parser_context);
 	initialize_builtin_functions(parser_context);
+	initialize_byte_table();
 
 	parse_file(ir_context, parser_context, L"main.cnut");
 
