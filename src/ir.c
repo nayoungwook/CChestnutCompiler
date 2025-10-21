@@ -11,7 +11,7 @@ IrGenContext* create_ir_context() {
 
 void initialize_byte_table() {
 	ir_byte_table = (SymbolTable*)malloc(sizeof(SymbolTable));
-
+	
 }
 
 int get_prev_variable_index_size(SymbolTable* variable_symbol_table) {

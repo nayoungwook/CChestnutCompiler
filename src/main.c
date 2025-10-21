@@ -1,6 +1,7 @@
 #include "includes/main.h"
 
 #define DEBUG_VIEW_IR
+#define IR_BYTE
 
 void print_tokens(wchar_t* str) {
 	while (1) {
