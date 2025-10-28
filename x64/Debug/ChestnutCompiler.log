@@ -6,38 +6,175 @@ C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\includes\ast.h(32,20)
 C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(184,16): warning C4018: '<': signed/unsigned mismatch
 C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(206,16): warning C4018: '<': signed/unsigned mismatch
 C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(225,128): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(226,74): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(282,20): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(282,26): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(399,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(399,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(423,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(423,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(449,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(449,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(456,17): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(645,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(645,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(665,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(665,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(530,12): warning C4101: 'store_str_buffer': unreferenced local variable
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(676,11): warning C4101: 'store_str_buffer': unreferenced local variable
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(697,37): warning C4047: '==': 'Type **' differs in levels of indirection from 'int'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(709,87): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(712,43): warning C4090: 'function': different 'const' qualifiers
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(757,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1074,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1118,126): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1119,80): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1122,135): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1123,89): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1134,4): warning C4033: 'create_variable_declaration_ir' must return a value
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1220,10): warning C4101: 'for_str_buffer': unreferenced local variable
-  main.c
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(227,65): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(283,20): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(283,26): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(400,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(400,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(424,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(424,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(450,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(450,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(457,17): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(646,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(646,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(666,11): warning C4477: 'printf' : format string '%S' requires an argument of type 'unsigned short *', but variadic argument 3 has type 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(666,11): warning C4313: 'printf': '%S' in format string conflicts with argument 3 of type 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(531,12): warning C4101: 'store_str_buffer': unreferenced local variable
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(677,11): warning C4101: 'store_str_buffer': unreferenced local variable
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(698,37): warning C4047: '==': 'Type **' differs in levels of indirection from 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(710,87): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(713,43): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(758,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1075,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1119,126): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1120,71): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1123,135): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1124,80): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1135,4): warning C4033: 'create_variable_declaration_ir' must return a value
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1221,10): warning C4101: 'for_str_buffer': unreferenced local variable
+  parser.c
 C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\includes\ast.h(32,20): warning C4091: 'typedef ': ignored on left of 'Type' when no variable is declared
-  (compiling source file 'src/main.c')
+  (compiling source file 'src/parser.c')
   
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\main.c(43,66): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(35,51): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(35,86): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(39,35): warning C5287: operands are different enum types 'TokType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(49,22): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(36,36): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(39,21): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(59,51): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(59,86): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(63,35): warning C5287: operands are different enum types 'TokType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(73,22): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(60,36): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(63,21): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(81,47): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(98,51): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(98,88): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(99,25): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(99,64): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(100,25): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(100,69): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(107,28): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(108,31): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(109,30): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(110,29): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(111,35): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(112,34): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(124,15): warning C5287: operands are different enum types 'OperatorType' and 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(128,22): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(102,35): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(105,31): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(107,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(108,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(109,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(110,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(111,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(112,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(138,51): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(138,85): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(144,25): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(145,26): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(156,22): warning C5286: implicit conversion from enum type 'OperatorType' to enum type 'OperatorType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(139,36): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(144,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(145,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(167,16): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(178,28): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(181,29): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(209,31): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(226,28): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(291,31): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(305,29): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(308,34): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(350,31): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(373,23): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(378,29): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(384,24): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(384,59): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(385,25): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(392,25): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(406,30): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(413,28): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(417,29): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(423,70): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(465,31): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(506,28): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(512,28): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(526,31): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(565,17): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(567,22): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(569,22): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(575,33): warning C4133: '=': incompatible types - from 'wchar_t *' to 'Token *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(576,27): warning C4133: '=': incompatible types - from 'wchar_t *' to 'Type *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(582,35): warning C4047: '=': 'VariableDeclarationAST **' differs in levels of indirection from 'VariableDeclarationAST *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(586,5): warning C4047: '=': 'VariableDeclarationAST **' differs in levels of indirection from 'VariableDeclarationAST *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(592,17): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(596,29): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(559,12): warning C4133: 'initializing': incompatible types - from 'Type *' to 'wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(627,28): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(653,67): warning C4133: 'function': incompatible types - from 'wchar_t *' to 'ClassType *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(656,16): warning C4133: 'function': incompatible types - from 'ParserContext *' to 'SymbolTable *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(662,31): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(671,33): warning C4133: '=': incompatible types - from 'void **' to 'FunctionDeclarationAST **'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(674,33): warning C4133: '=': incompatible types - from 'void **' to 'FunctionDeclarationAST **'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(684,33): warning C4133: '=': incompatible types - from 'void **' to 'VariableDeclarationBundleAST **'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(687,33): warning C4133: '=': incompatible types - from 'void **' to 'VariableDeclarationBundleAST **'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(716,31): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(726,29): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(732,33): warning C4133: '=': incompatible types - from 'wchar_t *' to 'Token *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(738,38): warning C4047: '=': 'VariableDeclarationAST **' differs in levels of indirection from 'VariableDeclarationAST *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(742,5): warning C4047: '=': 'VariableDeclarationAST **' differs in levels of indirection from 'VariableDeclarationAST *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(764,31): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(817,31): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(826,24): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(829,29): warning C5287: operands are different enum types 'TokenType' and 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(852,40): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(857,26): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(865,60): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(868,46): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(871,54): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(878,57): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(881,57): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(884,49): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(887,53): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(890,63): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(893,56): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(896,55): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(899,63): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(902,48): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(913,20): warning C4047: '=': 'wchar_t *' differs in levels of indirection from 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(916,20): warning C4047: '=': 'wchar_t *' differs in levels of indirection from 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(919,20): warning C4047: '=': 'wchar_t *' differs in levels of indirection from 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(925,56): warning C4047: '=': 'int' differs in levels of indirection from 'wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(932,80): warning C4047: '=': 'int' differs in levels of indirection from 'wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(938,46): warning C4047: '=': 'int' differs in levels of indirection from 'wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(947,54): warning C4090: 'function': different 'const' qualifiers
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(861,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(864,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(867,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(870,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(873,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(874,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(877,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(880,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(883,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(886,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(889,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(892,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(895,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(898,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(901,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(904,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(905,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(906,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(908,12): warning C4047: 'initializing': 'wchar_t *' differs in levels of indirection from 'int'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(912,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(915,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(918,8): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(946,7): warning C5286: implicit conversion from enum type 'TokenType' to enum type 'TokenType'; use an explicit cast to silence this warning
   Generating Code...
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1157,1): warning C4715: 'create_variable_declaration_ir': not all control paths return a value
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\parser.c(950,1): warning C4715: 'parse': not all control paths return a value
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1158,1): warning C4715: 'create_variable_declaration_ir': not all control paths return a value
   ChestnutCompiler.vcxproj -> C:\Users\nayou\source\repos\Chestnut\x64\Debug\CChestnutCompiler.exe

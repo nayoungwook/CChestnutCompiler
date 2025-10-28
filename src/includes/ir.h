@@ -32,7 +32,6 @@ bool check_super_class(ParserContext* parser_context, const wchar_t* from, const
 void check_type_of_variable_declaration(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast);;
 
 VariableData* create_variable_data(SymbolTable* variable_symbol_table, Type* type, const wchar_t* name, int access_modifier);
-void insert_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name, VariableData* data);
 void remove_variable_symbol(SymbolTable* variable_symbol_table, const wchar_t* name);
 
 Token* get_token_of_ast(void* attribute);

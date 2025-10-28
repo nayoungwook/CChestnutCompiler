@@ -68,11 +68,9 @@ void remove_type_symbol(ParserContext* parser_context, const wchar_t* type_str);
 void insert_set_symbol(Set* target_set, const wchar_t* str);
 
 FunctionData* create_function_data(SymbolTable* function_symbol_table, const wchar_t* name, Type* return_type, VariableDeclarationBundleAST* parameters);
-void insert_function_symbol(SymbolTable* function_symbol_table, FunctionData* function_data);
 void remove_function_symbol(SymbolTable* function_symbol_table, const wchar_t* name);
 
 ClassData* create_class_data(ParserContext* parser_context, ClassAST* class_ast);
-void insert_class_symbol(ParserContext* parser_context, ClassData* class_data);
 void remove_class_symbol(ParserContext* parser_context, const wchar_t* name);
 void create_class_constructor_data(ParserContext* parser_context, ClassAST* class_ast);
 

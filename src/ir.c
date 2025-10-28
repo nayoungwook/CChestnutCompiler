@@ -11,7 +11,7 @@ IrGenContext* create_ir_context() {
 
 void initialize_byte_table() {
 	ir_byte_table = (SymbolTable*)malloc(sizeof(SymbolTable));
-	
+
 }
 
 int get_prev_variable_index_size(SymbolTable* variable_symbol_table) {
@@ -223,7 +223,8 @@ wchar_t* create_parameter_buffer(ParserContext* parser_context, VariableDeclarat
 		VariableDeclarationAST* parameter = parameters_ast->variable_declarations[i];
 
 		VariableData* variable_data = create_variable_data(parser_context->variable_symbol_table, parameter->variable_type, parameter->variable_name_token, parameter->access_modifier);
-		insert_variable_symbol(parser_context->variable_symbol_table, parameter->variable_name_token, variable_data);
+
+		insert_symbol(parser_context->variable_symbol_table, parameter->variable_name_token, variable_data);
 
 		wchar_t single_parameter_buffer[512];
 		swprintf(single_parameter_buffer, 512, L"%ls ", parameter->variable_type->type_str);
@@ -1116,11 +1117,11 @@ wchar_t* create_variable_declaration_ir(IrGenContext* ir_context, ParserContext*
 		// store variables into member variable area.
 		SymbolTable* member_variable_symbol_table = ((ClassData*)find_symbol(parser_context->class_symbol_table, ir_context->current_class)->data)->member_variables;
 		data = create_variable_data(member_variable_symbol_table, variable_declaration_ast->variable_type, variable_declaration_ast->variable_name_token, variable_declaration_ast->access_modifier);
-		insert_variable_symbol(member_variable_symbol_table, variable_declaration_ast->variable_name_token, data);
+		insert_symbol(member_variable_symbol_table, variable_declaration_ast->variable_name_token, data);
 	}
 	else {
 		data = create_variable_data(parser_context->variable_symbol_table, variable_declaration_ast->variable_type, variable_declaration_ast->variable_name_token, variable_declaration_ast->access_modifier);
-		insert_variable_symbol(parser_context->variable_symbol_table, variable_declaration_ast->variable_name_token, data);
+		insert_symbol(parser_context->variable_symbol_table, variable_declaration_ast->variable_name_token, data);
 	}
 
 	if (variable_declaration_ast->declaration) {

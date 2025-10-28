@@ -48,6 +48,7 @@ typedef struct _SymbolTable {
 } SymbolTable;
 Symbol* find_symbol(SymbolTable* cur_symbol_table, const wchar_t* name);
 unsigned int hash(const wchar_t* str);
+void insert_symbol(SymbolTable* symbol_table, const wchar_t* name, void* data);
 
 typedef struct _Set {
 	Symbol* table[TABLE_SIZE];

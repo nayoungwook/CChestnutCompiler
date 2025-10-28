@@ -481,12 +481,12 @@ void* create_function_declaration_ast(ParserContext* parser_context, Token* tok,
 
 	if (wcscmp(parser_context->current_class, L"") == 0) {
 		FunctionData* data = create_function_data(parser_context->function_symbol_table, function_name, function_declaration_ast->return_type, parameters);
-		insert_function_symbol(parser_context->function_symbol_table, data);
+		insert_symbol(parser_context->function_symbol_table, data->name, data);
 	}
 	else {
 		SymbolTable* member_function_symbol_table = ((ClassData*)find_symbol(parser_context->class_symbol_table, parser_context->current_class)->data)->member_functions;
 		FunctionData* data = create_function_data(parser_context->function_symbol_table, function_name, function_declaration_ast->return_type, parameters);
-		insert_function_symbol(member_function_symbol_table, data);
+		insert_symbol(member_function_symbol_table, data->name, data);
 	}
 	parser_context->current_function_name = L"";
 
@@ -592,7 +592,7 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
 		if (tok->type == TokSemiColon) {
 			break;
 		}
-			
+
 		if (peek_token(str)->type == TokSemiColon) {
 			consume(str, TokSemiColon);
 			break;
@@ -651,7 +651,9 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
 	initialize_constructor_of_class(class_ast);
 
 	insert_type_symbol(parser_context, wcscmp(parent_name, L"") == 0 ? NULL : parent_name, class_name);
-	insert_class_symbol(parser_context, create_class_data(parser_context, class_ast));
+	ClassData* class_data = create_class_data(parser_context, class_ast);
+
+	insert_symbol(parser_context, class_name, class_data);
 
 	parser_context->current_class = class_name_token->str;
 
@@ -855,7 +857,7 @@ void* parse(ParserContext* parser_context, const wchar_t* str) {
 	Token* tok = pull_token(str);
 
 	switch (tok->type) {
-			
+
 	case TokSub:
 		return create_neg_ast(parser_context, tok, str);
 
