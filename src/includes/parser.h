@@ -62,7 +62,8 @@ typedef struct _ClassNode {
 
 Type* get_type(Token* tok, wchar_t* str);
 
-void insert_type_symbol(ParserContext* parser_context, ClassType* target_type, const wchar_t* type_str);
+void insert_inherited_type_symbol(ParserContext* parser_context, ClassType* target_type, ClassType* child_type);
+void insert_type_symbol(ParserContext* parser_context, const wchar_t* type_str);
 void remove_type_symbol(ParserContext* parser_context, const wchar_t* type_str);
 
 void insert_set_symbol(Set* target_set, const wchar_t* str);

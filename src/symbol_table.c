@@ -60,26 +60,29 @@ Symbol* create_type_symbol(const wchar_t* type_str, ClassType* type) {
 	return symbol;
 }
 
-void insert_type_symbol(ParserContext* parser_context, ClassType* target_type, const wchar_t* type_str) {
+void insert_inherited_type_symbol(ParserContext* parser_context, ClassType* target_type, ClassType* child_type) {
+	if (!target_type->child_types) {
+		target_type->child_types = create_symbol_table();
+	}
+
+	Symbol* child_symbol = create_type_symbol(child_type->type_str, child_type);
+	child_symbol->next = target_type->child_types->table[child_symbol->hash];
+	target_type->child_types->table[child_symbol->hash] = child_symbol;
+	target_type->child_types->size++;
+
+	child_type->parent_type = target_type;
+}
+
+void insert_type_symbol(ParserContext* parser_context, const wchar_t* type_str) {
 	ClassType* child = (ClassType*)safe_malloc(sizeof(ClassType));
 	child->type_str = type_str;
-	child->parent_type = target_type;
+	child->parent_type = NULL;
 	child->child_types = NULL;
 
+	// upload to class hierarchy
 	Symbol* child_symbol = create_type_symbol(type_str, child);
 	child_symbol->next = parser_context->class_hierarchy->table[child_symbol->hash];
 	parser_context->class_hierarchy->table[child_symbol->hash] = child_symbol;
-
-	if (target_type) {
-		if (!target_type->child_types) {
-			target_type->child_types = create_symbol_table();
-		}
-
-		Symbol* child_symbol = create_type_symbol(type_str, child);
-		child_symbol->next = target_type->child_types->table[child_symbol->hash];
-		target_type->child_types->table[child_symbol->hash] = child_symbol;
-		target_type->child_types->size++;
-	}
 }
 
 void remove_type_symbol(ParserContext* parser_context, const wchar_t* type_str) {

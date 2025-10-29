@@ -49,7 +49,7 @@ void check_function_call_condition(IrGenContext* ir_context, ParserContext* pars
 void new_line(wchar_t** result);
 Type* get_type_of_last_element(IrGenContext* ir_context, ParserContext* parser_context, void* ast, const wchar_t* search_point_class_name);
 
-void create_parameter_buffer(ParserContext* parser_context, VariableDeclarationBundleAST* parameters_ast);
+void create_parameter_buffer(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationBundleAST* parameters_ast);
 
 void create_ir(IrGenContext* ir_context, ParserContext* parser_context, void* ast);
 void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, void* attribute);

@@ -25,16 +25,32 @@ void initialize_primitive_types(ParserContext* parser_context) {
 void parse_file(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* file_name) {
 	wchar_t* file = read_file(file_name);
 
+	int ast_count = 0;
+	void** asts = NULL;
+
 	while (peek_token(file)->type != TokEOF) {
 		set_file_string(parser_context, file);
 		void* ast = parse(parser_context, file);
 
-		create_ir(ir_context, parser_context, ast);
+		if (ast_count == 0) {
+			asts = (void**)malloc(sizeof(void*));
+			asts[ast_count] = ast;
+			ast_count++;
+		}
+		else {
+			asts = (void**)realloc(asts, sizeof(void*) * (ast_count + 1));
+			asts[ast_count] = ast;
+			ast_count++;
+		}
+	}
 
+	int i = 0;
+	for (i = 0; i < ast_count; i++) {
+		create_ir(ir_context, parser_context, asts[i]);
 	}
 
 #ifdef DEBUG_VIEW_IR
-	printf("%S\n", ir_context->string_builder->str);
+	printf(" %S\n", ir_context->string_builder->str);
 #endif
 
 	wchar_t* original_name = substr(file_name, 0, wcslen(file_name) - 6);

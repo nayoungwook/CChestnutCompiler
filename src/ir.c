@@ -88,7 +88,10 @@ void close_scope(ParserContext* parser_context) {
 	free(current_symbol_table);
 }
 
-void create_parameter_buffer(ParserContext* parser_context, VariableDeclarationBundleAST* parameters_ast) {
+void create_parameter_buffer(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationBundleAST* parameters_ast) {
+
+	append_integer(ir_context->string_builder, parameters_ast->variable_count);
+
 	int i;
 	for (i = 0; i < parameters_ast->variable_count; i++) {
 		VariableDeclarationAST* parameter = parameters_ast->variable_declarations[i];
@@ -225,16 +228,17 @@ void new_line(StringBuilder* string_builder) {
 void create_class_initializer(IrGenContext* ir_context, ParserContext* parser_context, ClassAST* class_ast) {
 	append_string(ir_context->string_builder, L"$initializer");
 	append_string(ir_context->string_builder, L"{");
+	new_line(ir_context->string_builder);
 
-	ir_context->is_class_initializer = 1;
+	ir_context->is_class_initializer = true;
 
 	int i;
 	for (i = 0; i < class_ast->member_variable_bundle_count; i++) {
 		create_ir(ir_context, parser_context, class_ast->member_variables[i]);
 	}
 
-	ir_context->is_class_initializer = 0;
-	append_string(ir_context->string_builder, L"{");
+	ir_context->is_class_initializer = false;
+	append_string(ir_context->string_builder, L"}");
 	new_line(ir_context->string_builder);
 }
 
@@ -508,8 +512,8 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
 }
 
 void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, void* left_ast, void* right_ast) {
-	Type* from_type = get_type_of_last_element(ir_context, parser_context, left_ast, ir_context->current_class);
-	Type* to_type = get_type_of_last_element(ir_context, parser_context, right_ast, ir_context->current_class);
+	Type* to_type = get_type_of_last_element(ir_context, parser_context, left_ast, ir_context->current_class);
+	Type* from_type = get_type_of_last_element(ir_context, parser_context, right_ast, ir_context->current_class);
 
 	if (!check_castability(parser_context, from_type, to_type)) {
 		handle_error(ER_TypeUnmatch, get_token_of_ast(right_ast), parser_context->current_file_name, parser_context->file_str);
@@ -731,7 +735,7 @@ void check_function_call_condition(IrGenContext* ir_context, ParserContext* pars
 		Type* infered_type = get_type_of_last_element(ir_context, parser_context, parameters[i], ir_context->current_class);
 
 		if (!check_castability(parser_context, infered_type, function_data->parameter_types[i])) {
-			handle_error(ER_TypeUnmatch, parameters[i], parser_context->current_file_name, parser_context->file_str);
+			handle_error(ER_TypeUnmatch, get_token_of_ast(parameters[i]), parser_context->current_file_name, parser_context->file_str);
 		}
 	}
 
@@ -977,11 +981,12 @@ void create_number_literal_ir(IrGenContext* ir_context, ParserContext* parser_co
 void create_constructor_ir(IrGenContext* ir_context, ParserContext* parser_context, ConstructorAST* constructor_ast) {
 	wchar_t* parameter_buffer = L"";
 
+	append_string(ir_context->string_builder, L"$constructor");
+
 	if (constructor_ast->parameters) {
-		create_parameter_buffer(parser_context, constructor_ast->parameters);
+		create_parameter_buffer(ir_context, parser_context, constructor_ast->parameters);
 	}
 
-	append_string(ir_context->string_builder, L"$constructor");
 	append_string(ir_context->string_builder, L"{");
 	new_line(ir_context->string_builder);
 
@@ -1005,7 +1010,6 @@ void create_function_declaration_ir(IrGenContext* ir_context, ParserContext* par
 
 	open_scope(parser_context);
 
-	create_parameter_buffer(parser_context, ((VariableDeclarationBundleAST*)function_declaration_ast->parameters));
 
 	FunctionData* function_data = function_symbol->data;
 
@@ -1013,6 +1017,9 @@ void create_function_declaration_ir(IrGenContext* ir_context, ParserContext* par
 
 	append_string(ir_context->string_builder, L"func");
 	append_integer(ir_context->string_builder, function_data->index);
+
+	create_parameter_buffer(ir_context, parser_context, ((VariableDeclarationBundleAST*)function_declaration_ast->parameters));
+
 	append_string(ir_context->string_builder, L"{");
 	new_line(ir_context->string_builder);
 
@@ -1036,7 +1043,9 @@ void create_class_ir(IrGenContext* ir_context, ParserContext* parser_context, Cl
 		parent_name = class_ast->parent_class_name_token->str;
 	}
 
-	ClassData* class_data = find_symbol(parser_context->class_symbol_table, class_ast->class_name_token->str)->data;
+	wchar_t* class_name = class_ast->class_name_token->str;
+	ClassData* class_data = find_symbol(parser_context->class_symbol_table, class_name)->data;
+
 	Symbol* parent_symbol = find_symbol(parser_context->class_symbol_table, parent_name);
 	ClassData* parent_data = NULL;
 
@@ -1046,6 +1055,10 @@ void create_class_ir(IrGenContext* ir_context, ParserContext* parser_context, Cl
 
 	if (parent_symbol != NULL) {
 		parent_data = parent_symbol->data;
+
+		insert_inherited_type_symbol(parser_context,
+			find_symbol(parser_context->class_hierarchy, parent_name)->data,
+			find_symbol(parser_context->class_hierarchy, class_name)->data);
 	}
 
 	append_string(ir_context->string_builder, L"class");
@@ -1063,6 +1076,7 @@ void create_class_ir(IrGenContext* ir_context, ParserContext* parser_context, Cl
 	}
 
 	append_string(ir_context->string_builder, L"}");
+	new_line(ir_context->string_builder);
 	new_line(ir_context->string_builder);
 
 	free(ir_context->current_class);
@@ -1110,10 +1124,10 @@ void create_variable_declaration_ir(IrGenContext* ir_context, ParserContext* par
 	if (variable_declaration_ast->declaration) {
 		create_ir(ir_context, parser_context, variable_declaration_ast->declaration);
 
-		Type* from_type = get_type_of_last_element(ir_context, parser_context, variable_declaration_ast, ir_context->current_class);
-		Type* to_type = get_type_of_last_element(ir_context, parser_context, variable_declaration_ast->declaration, ir_context->current_class);
+		Type* to_type = get_type_of_last_element(ir_context, parser_context, variable_declaration_ast, ir_context->current_class);
+		Type* from_type = get_type_of_last_element(ir_context, parser_context, variable_declaration_ast->declaration, ir_context->current_class);
 		if (!check_castability(parser_context, from_type, to_type)) {
-			handle_error(ER_TypeUnmatch, get_token_of_ast(variable_declaration_ast), parser_context->current_file_name, parser_context->file_str);
+			handle_error(ER_TypeUnmatch, get_token_of_ast(variable_declaration_ast->declaration), parser_context->current_file_name, parser_context->file_str);
 
 			return;
 		}

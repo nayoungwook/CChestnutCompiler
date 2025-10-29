@@ -35,9 +35,6 @@ bool is_same_type(Type* t1, Type* t2) {
 		return true;
 	}
 	else {
-		// handle error
-		printf("[Temporary error] Error at parser.c you can\'t cast between %S and %S.\n", t1->type_str, t2->type_str);
-
 		return false;
 	}
 }
@@ -86,7 +83,7 @@ class_type_check:
 	while (1) {
 		// to -> next search find from.
 		// up casting.
-		if (is_same_type(from, to)) {
+		if (wcscmp(from_type->type_str, to_type->type_str) == 0) {
 			return true;
 		}
 
@@ -99,7 +96,7 @@ class_type_check:
 	return true;
 
 default_type_check:
-	if (!wcscmp(from->type_str, L"null")) { // null to class
+	if (!wcscmp(from->type_str, L"null")) { // null to class convert, it is okay.
 		if (to_symbol) {
 			return true;
 		}

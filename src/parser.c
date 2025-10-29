@@ -648,14 +648,13 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
 	class_ast->member_function_count = 0;
 	class_ast->member_variable_bundle_count = 0;
 
-	initialize_constructor_of_class(class_ast);
-
-	insert_type_symbol(parser_context, wcscmp(parent_name, L"") == 0 ? NULL : parent_name, class_name);
 	ClassData* class_data = create_class_data(parser_context, class_ast);
 
-	insert_symbol(parser_context, class_name, class_data);
+	insert_type_symbol(parser_context, class_name);
+	insert_symbol(parser_context->class_symbol_table, class_name, class_data);
 
 	parser_context->current_class = class_name_token->str;
+	initialize_constructor_of_class(class_ast);
 
 	consume(str, TokLBracket);
 
