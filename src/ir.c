@@ -1023,6 +1023,7 @@ void create_function_declaration_ir(IrGenContext* ir_context, ParserContext* par
 
 	append_string(ir_context->string_builder, L"}");
 	new_line(ir_context->string_builder);
+	new_line(ir_context->string_builder);
 
 	close_scope(parser_context);
 }
@@ -1182,8 +1183,6 @@ void create_for_statement_ir(IrGenContext* ir_context, ParserContext* parser_con
 	int end_label_id = ir_context->label_id;
 	ir_context->label_id++;
 	int begin_label_id = ir_context->label_id;
-
-	new_line(ir_context->string_builder);
 
 	append_string(ir_context->string_builder, L"@goto");
 	append_integer(ir_context->string_builder, end_label_id);

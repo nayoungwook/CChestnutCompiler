@@ -32,9 +32,9 @@ C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(734,43): warning
 C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(741,10): warning C4101: 'if_statement_buffer': unreferenced local variable
 C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(776,16): warning C4018: '<': signed/unsigned mismatch
 C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(880,10): warning C4101: 'push_str_buffer': unreferenced local variable
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1060,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1101,126): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1102,71): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1105,135): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
-C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1106,80): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1061,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1102,126): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1103,71): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1106,135): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
+C:\Users\nayou\source\repos\Chestnut\CChestnutCompiler\src\ir.c(1107,80): warning C4133: 'function': incompatible types - from 'Token *' to 'const wchar_t *'
   ChestnutCompiler.vcxproj -> C:\Users\nayou\source\repos\Chestnut\x64\Debug\CChestnutCompiler.exe
