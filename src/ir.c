@@ -298,29 +298,6 @@ FunctionData* find_function_data(ParserContext* parser_context, Token* tok, cons
 	return result;
 }
 
-bool check_super_class(ParserContext* parser_context, const wchar_t* from, const wchar_t* to) {
-	Symbol* from_symbol = find_symbol(parser_context->class_hierarchy, from);
-	Symbol* to_symbol = find_symbol(parser_context->class_hierarchy, to);
-
-	ClassType* from_type = ((ClassType*)from_symbol->data);
-	ClassType* to_type = ((ClassType*)to_symbol->data);
-	while (1) {
-		// to -> next search find from.
-		// up casting.
-		if (is_same_type(from, to)) {
-			return true;
-		}
-
-		if (!from_type->parent_type) {
-			return false;
-		}
-
-		from_type = from_type->parent_type;
-	}
-
-	return true;
-}
-
 bool check_accessibility(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, int access_modifier) {
 	if (access_modifier == AM_PUBLIC)return true;
 
@@ -334,7 +311,7 @@ bool check_accessibility(IrGenContext* ir_context, ParserContext* parser_context
 			return false;
 		}
 		else {
-			int is_parent = check_super_class(parser_context, target_class_name, ir_context->current_class);
+			int is_parent = check_castability(parser_context, target_class_name, ir_context->current_class);
 
 			return access_modifier == AM_PROTECTED && is_parent;
 		}
@@ -847,8 +824,6 @@ void create_bin_expr_ir(IrGenContext* ir_context, ParserContext* parser_context,
 }
 
 void create_identifier_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentifierAST* identifier_ast) {
-
-
 	int is_special_identifier = !wcscmp(identifier_ast->identifier->str, L"this");
 
 	if (is_special_identifier) {
@@ -1056,9 +1031,6 @@ void create_class_ir(IrGenContext* ir_context, ParserContext* parser_context, Cl
 	if (parent_symbol != NULL) {
 		parent_data = parent_symbol->data;
 
-		insert_inherited_type_symbol(parser_context,
-			find_symbol(parser_context->class_hierarchy, parent_name)->data,
-			find_symbol(parser_context->class_hierarchy, class_name)->data);
 	}
 
 	append_string(ir_context->string_builder, L"class");
@@ -1105,10 +1077,10 @@ void create_variable_initializer(IrGenContext* ir_context, ParserContext* parser
 }
 
 void create_variable_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast) {
-	VariableData* data = NULL;
 
 	check_type_of_variable_declaration(ir_context, parser_context, variable_declaration_ast);
 
+	VariableData* data = NULL;
 	int is_member_variable = ir_context->is_class_initializer;
 	if (is_member_variable) {
 		// store variables into member variable area.

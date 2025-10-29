@@ -27,6 +27,7 @@ int is_decimal(wchar_t* str);
 typedef struct _Type {
 	wchar_t* type_str;
 	struct _Type* array_element_type;
+	struct _Type* parent_type;
 	int is_array;
 } Type;
 Type* clone_type(Type* type);

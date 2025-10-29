@@ -67,8 +67,8 @@ bool check_castability(ParserContext* parser_context, Type* from, Type* to) {
 	}
 
 	// check for the castability between non primitives.
-	Symbol* from_symbol = find_symbol(parser_context->class_hierarchy, from->type_str);
-	Symbol* to_symbol = find_symbol(parser_context->class_hierarchy, to->type_str);
+	Symbol* from_symbol = find_symbol(parser_context->class_symbol_table, from->type_str);
+	Symbol* to_symbol = find_symbol(parser_context->class_symbol_table, to->type_str);
 
 	if (from_symbol) { // are they classes?
 		goto class_type_check;
@@ -78,20 +78,22 @@ bool check_castability(ParserContext* parser_context, Type* from, Type* to) {
 	}
 
 class_type_check:
-	ClassType* from_type = ((ClassType*)from_symbol->data);
-	ClassType* to_type = ((ClassType*)to_symbol->data);
+	ClassData* from_type = ((ClassData*)from_symbol->data);
+	ClassData* to_type = ((ClassData*)to_symbol->data);
 	while (1) {
 		// to -> next search find from.
 		// up casting.
-		if (wcscmp(from_type->type_str, to_type->type_str) == 0) {
+		if (wcscmp(from_type->name, to_type->name) == 0) {
 			return true;
 		}
 
-		if (!from_type->parent_type) {
+		if (wcscmp(from_type->parent_class_name, L"") == 0) {
 			return false;
 		}
 
-		from_type = from_type->parent_type;
+		Symbol* parent_symbol = find_symbol(parser_context->class_symbol_table, from_type->parent_class_name);
+
+		from_type = ((ClassData*)parent_symbol->data);
 	}
 	return true;
 

@@ -23,7 +23,6 @@ void initialize_parser_context(ParserContext* parser_context) {
 
 	parser_context->variable_symbol_table = create_symbol_table();
 	parser_context->function_symbol_table = create_symbol_table();
-	parser_context->class_hierarchy = create_symbol_table();
 	parser_context->class_symbol_table = create_symbol_table();
 
 	parser_context->primitive_types = create_set();
@@ -650,7 +649,6 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
 
 	ClassData* class_data = create_class_data(parser_context, class_ast);
 
-	insert_type_symbol(parser_context, class_name);
 	insert_symbol(parser_context->class_symbol_table, class_name, class_data);
 
 	parser_context->current_class = class_name_token->str;

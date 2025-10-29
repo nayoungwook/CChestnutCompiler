@@ -47,52 +47,6 @@ void remove_class_symbol(ParserContext* parser_context, const wchar_t* name) {
 	free(target_symbol);
 }
 
-// type symbol table management
-Symbol* create_type_symbol(const wchar_t* type_str, ClassType* type) {
-	Symbol* symbol = (Symbol*)safe_malloc(sizeof(Symbol));
-
-	unsigned int _hash = hash(type_str);
-
-	symbol->data = type;
-	symbol->symbol = type_str;
-	symbol->hash = _hash;
-
-	return symbol;
-}
-
-void insert_inherited_type_symbol(ParserContext* parser_context, ClassType* target_type, ClassType* child_type) {
-	if (!target_type->child_types) {
-		target_type->child_types = create_symbol_table();
-	}
-
-	Symbol* child_symbol = create_type_symbol(child_type->type_str, child_type);
-	child_symbol->next = target_type->child_types->table[child_symbol->hash];
-	target_type->child_types->table[child_symbol->hash] = child_symbol;
-	target_type->child_types->size++;
-
-	child_type->parent_type = target_type;
-}
-
-void insert_type_symbol(ParserContext* parser_context, const wchar_t* type_str) {
-	ClassType* child = (ClassType*)safe_malloc(sizeof(ClassType));
-	child->type_str = type_str;
-	child->parent_type = NULL;
-	child->child_types = NULL;
-
-	// upload to class hierarchy
-	Symbol* child_symbol = create_type_symbol(type_str, child);
-	child_symbol->next = parser_context->class_hierarchy->table[child_symbol->hash];
-	parser_context->class_hierarchy->table[child_symbol->hash] = child_symbol;
-}
-
-void remove_type_symbol(ParserContext* parser_context, const wchar_t* type_str) {
-	unsigned int _hash = hash(type_str);
-	parser_context->class_hierarchy->size--;
-
-	Symbol* target_symbol = parser_context->class_hierarchy->table[_hash];
-	parser_context->class_hierarchy->table[_hash] = parser_context->class_hierarchy->table[_hash]->next;
-}
-
 // function symbol table management
 void insert_function_symbol(SymbolTable* function_symbol_table, FunctionData* function_data) {
 	unsigned int _hash = hash(function_data->name);

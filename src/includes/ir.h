@@ -35,7 +35,6 @@ void close_scope(ParserContext* parser_context);
 
 int get_prev_variable_index_size(SymbolTable* variable_symbol_table);
 bool check_accessibility(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, int access_modifier);
-bool check_super_class(ParserContext* parser_context, const wchar_t* from, const wchar_t* to);
 
 void check_type_of_variable_declaration(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast);;
 

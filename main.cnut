@@ -1,18 +1,20 @@
 
 class Bar extends Foo {
   constructor(){
-
+    pt = 4;
   }
 }
 
 class Foo {
+  protected var pt: int = 0;
   private var a: int = 0;
 }
 
-func test(bar: Bar): void {
+func test(foo: Foo): void {
+
 }
 
 func main(): void {
-  var foo: Foo = new Foo();
-  test(foo);
+  var bar: Bar = new Bar();
+  test(bar);
 }

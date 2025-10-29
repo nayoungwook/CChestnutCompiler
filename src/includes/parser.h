@@ -22,7 +22,6 @@ typedef struct _ParserContext {
 
 	SymbolTable* function_symbol_table;
 	SymbolTable* class_symbol_table;
-	SymbolTable* class_hierarchy;
 	SymbolTable* variable_symbol_table;
 
 	Set* primitive_types;
@@ -54,17 +53,7 @@ void* parse_term(ParserContext* parser_context, wchar_t* str);
 bool is_same_type(Type* t1, Type* t2);
 bool check_castability(ParserContext* parser_context, Type* from, Type* to);
 
-typedef struct _ClassNode {
-	wchar_t* type_str;
-	SymbolTable* child_types;
-	struct _ClassNode* parent_type;
-} ClassType;
-
 Type* get_type(Token* tok, wchar_t* str);
-
-void insert_inherited_type_symbol(ParserContext* parser_context, ClassType* target_type, ClassType* child_type);
-void insert_type_symbol(ParserContext* parser_context, const wchar_t* type_str);
-void remove_type_symbol(ParserContext* parser_context, const wchar_t* type_str);
 
 void insert_set_symbol(Set* target_set, const wchar_t* str);
 
