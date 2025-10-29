@@ -5,8 +5,53 @@ IrGenContext* create_ir_context() {
 	ir_context->current_class = L"";
 	ir_context->is_class_initializer = 0;
 	ir_context->label_id = 0;
+	ir_context->string_builder = create_string_builder();
 
 	return ir_context;
+}
+
+StringBuilder* create_string_builder() {
+	StringBuilder* string_builder = (StringBuilder*)malloc(sizeof(StringBuilder));
+	string_builder->str = NULL;
+
+	return string_builder;
+}
+
+void append_integer(StringBuilder* string_builder, int integer) {
+	wchar_t* conv_str = (wchar_t*)malloc(sizeof(wchar_t) * 64);
+
+	swprintf(conv_str, 64, L"%d", integer);
+
+	append_string(string_builder, conv_str);
+
+	free(conv_str);
+}
+
+void append_string(StringBuilder* string_builder, const wchar_t* ctx) {
+	if (!ctx) ctx = L"";
+
+	size_t original_length = string_builder->str ? wcslen(string_builder->str) : 0;
+	size_t append_length = wcslen(ctx);
+
+	rsize_t new_length = original_length + append_length + 2;
+
+	wchar_t* result = (wchar_t*)safe_malloc(new_length * sizeof(wchar_t));
+
+	if (string_builder->str) {
+		wcscpy_s(result, new_length, string_builder->str);
+		free(string_builder->str);
+	}
+	else {
+		result[0] = L'\0';
+	}
+
+	wcscat_s(result, new_length, ctx);
+
+	result[original_length + append_length] = L' ';
+
+	result[original_length + append_length + 1] = L'\0';
+
+	string_builder->str = result;
 }
 
 void initialize_byte_table() {
@@ -41,6 +86,17 @@ void close_scope(ParserContext* parser_context) {
 	SymbolTable* current_symbol_table = parser_context->variable_symbol_table;
 	parser_context->variable_symbol_table = parser_context->variable_symbol_table->prev;
 	free(current_symbol_table);
+}
+
+void create_parameter_buffer(ParserContext* parser_context, VariableDeclarationBundleAST* parameters_ast) {
+	int i;
+	for (i = 0; i < parameters_ast->variable_count; i++) {
+		VariableDeclarationAST* parameter = parameters_ast->variable_declarations[i];
+
+		VariableData* variable_data = create_variable_data(parser_context->variable_symbol_table, parameter->variable_type, parameter->variable_name_token, parameter->access_modifier);
+
+		insert_symbol(parser_context->variable_symbol_table, parameter->variable_name_token, variable_data);
+	}
 }
 
 FunctionData* get_member_function_data(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* function_name) {
@@ -162,77 +218,44 @@ int get_parent_member_function_count(ParserContext* parser_context, const wchar_
 	return result;
 }
 
-void new_line(wchar_t** result, int indentation) {
-	int i;
-	*result = join_string(*result, L"\n");
-	for (i = 0; i < indentation; i++) {
-		*result = join_string(*result, L"  ");
-	}
+void new_line(StringBuilder* string_builder) {
+	append_string(string_builder, L"\n");
 }
 
-wchar_t* create_class_initializer(IrGenContext* ir_context, ParserContext* parser_context, int indentation, ClassAST* class_ast) {
-	wchar_t* result = L"";
-	wchar_t buffer[128];
-
-	new_line(&result, indentation + 1);
-	swprintf(buffer, 128, L"$initializer {");
-	result = join_string(result, buffer);
+void create_class_initializer(IrGenContext* ir_context, ParserContext* parser_context, ClassAST* class_ast) {
+	append_string(ir_context->string_builder, L"$initializer");
+	append_string(ir_context->string_builder, L"{");
 
 	ir_context->is_class_initializer = 1;
 
 	int i;
 	for (i = 0; i < class_ast->member_variable_bundle_count; i++) {
-		result = join_string(result, create_ir(ir_context, parser_context, class_ast->member_variables[i], indentation + 2));
+		create_ir(ir_context, parser_context, class_ast->member_variables[i]);
 	}
 
 	ir_context->is_class_initializer = 0;
-	new_line(&result, indentation + 1);
-	result = join_string(result, L"}");
-
-	return result;
+	append_string(ir_context->string_builder, L"{");
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_class_constructor_ir(IrGenContext* ir_context, ParserContext* parser_context, int indentation, ClassAST* class_ast) {
-	wchar_t* result = L"";
-	wchar_t buffer[128];
+void create_class_constructor_ir(IrGenContext* ir_context, ParserContext* parser_context, ClassAST* class_ast) {
 
-	new_line(&result, indentation + 1);
-	swprintf(buffer, 128, L"$constructor {");
+	append_string(ir_context->string_builder, L"$constructor");
+	append_string(ir_context->string_builder, L"{");
+	new_line(ir_context->string_builder);
+
 	open_scope(parser_context);
-	result = join_string(result, buffer);
 	ir_context->is_class_initializer = 1;
 
 	int i;
 	for (i = 0; i < class_ast->member_variable_bundle_count; i++) {
-		result = join_string(result, create_ir(ir_context, parser_context, class_ast->member_variables[i], indentation + 2));
+		create_ir(ir_context, parser_context, class_ast->member_variables[i]);
 	}
 
 	ir_context->is_class_initializer = 0;
-	new_line(&result, indentation + 1);
-	result = join_string(result, L"}");
+	append_string(ir_context->string_builder, L"{");
+	new_line(ir_context->string_builder);
 	close_scope(parser_context);
-
-	return result;
-}
-
-wchar_t* create_parameter_buffer(ParserContext* parser_context, VariableDeclarationBundleAST* parameters_ast) {
-	wchar_t* parameter_buffer = L"";
-
-	int i;
-	for (i = 0; i < parameters_ast->variable_count; i++) {
-		VariableDeclarationAST* parameter = parameters_ast->variable_declarations[i];
-
-		VariableData* variable_data = create_variable_data(parser_context->variable_symbol_table, parameter->variable_type, parameter->variable_name_token, parameter->access_modifier);
-
-		insert_symbol(parser_context->variable_symbol_table, parameter->variable_name_token, variable_data);
-
-		wchar_t single_parameter_buffer[512];
-		swprintf(single_parameter_buffer, 512, L"%ls ", parameter->variable_type->type_str);
-
-		parameter_buffer = join_string(parameter_buffer, single_parameter_buffer);
-	}
-
-	return parameter_buffer;
 }
 
 VariableData* find_variable_data(ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* identifier) {
@@ -348,7 +371,7 @@ Token* get_token_of_ast(void* attribute) {
 	return wrong_token;
 }
 
-void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, void* attribute, wchar_t** result, int indentation) {
+void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, void* attribute) {
 	Symbol* target_class_symbol = find_symbol(parser_context->class_symbol_table, target_class_name);
 
 	if (target_class_symbol == NULL) {
@@ -373,13 +396,12 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
 			exit(1);
 		}
 
-		new_line(result, indentation);
-		wchar_t attr_str_buffer[128];
-		swprintf(attr_str_buffer, 128, L"@attr %d", member_variable_index);
-		*result = join_string(*result, attr_str_buffer);
+		append_string(ir_context->string_builder, L"@attr");
+		append_integer(ir_context->string_builder, member_variable_index);
+		new_line(ir_context->string_builder);
 
 		if (((IdentifierAST*)attribute)->attribute != NULL) {
-			create_attribute_ir(ir_context, parser_context, member_variable_data->type->type_str, ((IdentifierAST*)attribute)->attribute, result, indentation);
+			create_attribute_ir(ir_context, parser_context, member_variable_data->type->type_str, ((IdentifierAST*)attribute)->attribute);
 		}
 
 		break;
@@ -401,10 +423,9 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
 			exit(1);
 		}
 
-		new_line(result, indentation);
-		wchar_t ident_increase_str_buffer[128];
-		swprintf(ident_increase_str_buffer, 128, L"@attr_inc %d", member_variable_data->index);
-		*result = join_string(*result, ident_increase_str_buffer);
+		append_string(ir_context->string_builder, L"@attr_inc");
+		append_integer(ir_context->string_builder, member_variable_data->index);
+		new_line(ir_context->string_builder);
 
 		break;
 	}
@@ -425,10 +446,9 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
 			exit(1);
 		}
 
-		new_line(result, indentation);
-		wchar_t ident_decrease_str_buffer[128];
-		swprintf(ident_decrease_str_buffer, 128, L"@attr_dec %d", member_variable_data->index);
-		*result = join_string(*result, ident_decrease_str_buffer);
+		append_string(ir_context->string_builder, L"@attr_dec");
+		append_integer(ir_context->string_builder, member_variable_data->index);
+		new_line(ir_context->string_builder);
 
 		break;
 	}
@@ -442,8 +462,9 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
 			handle_error(ER_FailedToFindMemberFunction, get_token_of_ast(attribute), parser_context->current_file_name, parser_context->file_str);
 		}
 
-		wchar_t function_call_buffer[128];
-		swprintf(function_call_buffer, 128, L"@attr_call %d %d", member_function_index, function_call_ast->parameter_count);
+		append_string(ir_context->string_builder, L"@attr_call");
+		append_integer(ir_context->string_builder, member_function_index);
+		append_integer(ir_context->string_builder, function_call_ast->parameter_count);
 
 		if (!check_accessibility(ir_context, parser_context, target_class_name, member_function_data->access_modifier)) {
 			// handle error
@@ -455,14 +476,13 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
 
 		int i;
 		for (i = 0; i < member_function_data->parameter_count; i++) {
-			*result = join_string(*result, create_ir(ir_context, parser_context, function_call_ast->parameters[i], indentation));
+			create_ir(ir_context, parser_context, function_call_ast->parameters[i]);
 		}
 
-		new_line(result, indentation);
-		*result = join_string(*result, function_call_buffer);
+		new_line(ir_context->string_builder);
 
 		if (function_call_ast->attribute != NULL) {
-			create_attribute_ir(ir_context, parser_context, member_function_data->return_type->type_str, function_call_ast->attribute, result, indentation);
+			create_attribute_ir(ir_context, parser_context, member_function_data->return_type->type_str, function_call_ast->attribute);
 		}
 		break;
 	}
@@ -473,21 +493,21 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
 		// In this case, doesn't need to check accessibility.
 		// because it creates its target_array AST.
 		// and it will automatically check the accessibility
-		create_attribute_ir(ir_context, parser_context, target_class_name, ((ArrayAccessAST*)attribute)->target_array, result, indentation);
+		create_attribute_ir(ir_context, parser_context, target_class_name, ((ArrayAccessAST*)attribute)->target_array);
 
 		int i;
 		for (i = 0; i < array_access_ast->access_count; i++) {
-			*result = join_string(*result, create_ir(ir_context, parser_context, array_access_ast->indexes[i], indentation));
+			create_ir(ir_context, parser_context, array_access_ast->indexes[i]);
 
-			new_line(result, indentation);
-			*result = join_string(*result, L"@array_load");
+			append_string(ir_context->string_builder, L"@array_load");
+			new_line(ir_context->string_builder);
 		}
 		break;
 	}
 	}
 }
 
-void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, void* left_ast, void* right_ast, wchar_t** result, int indentation) {
+void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, void* left_ast, void* right_ast) {
 	Type* from_type = get_type_of_last_element(ir_context, parser_context, left_ast, ir_context->current_class);
 	Type* to_type = get_type_of_last_element(ir_context, parser_context, right_ast, ir_context->current_class);
 
@@ -496,27 +516,29 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
 		return;
 	}
 
-	*result = join_string(*result, create_ir(ir_context, parser_context, right_ast, indentation));
+	create_ir(ir_context, parser_context, right_ast);
 
 	// for non-attribute, direct assign
 	// a = 5; a[3] = 5
 	switch (*((ASTType*)left_ast)) {
 	case AST_Identifier: {
 		if (((IdentifierAST*)left_ast)->attribute == NULL) {
-			new_line(result, indentation);
 			IdentifierAST* identifier_ast = (IdentifierAST*)left_ast;
 			wchar_t store_str_buffer[128];
 
 			Symbol* local_symbol = find_symbol(parser_context->variable_symbol_table, identifier_ast->identifier->str);
 
 			if (local_symbol == NULL) {
-				swprintf(store_str_buffer, 128, L"@mstore %d", get_member_variable_index(parser_context, ir_context->current_class, identifier_ast->identifier->str));
-				*result = join_string(*result, store_str_buffer);
+				int id = get_member_variable_index(parser_context, ir_context->current_class, identifier_ast->identifier->str);
+				append_string(ir_context->string_builder, L"@mstore");
+				append_integer(ir_context->string_builder, id);
 			}
 			else {
-				swprintf(store_str_buffer, 128, L"@store %d", ((VariableData*)local_symbol->data)->index);
-				*result = join_string(*result, store_str_buffer);
+				append_string(ir_context->string_builder, L"@store");
+				append_integer(ir_context->string_builder, ((VariableData*)local_symbol->data)->index);
 			}
+			new_line(ir_context->string_builder);
+
 			return;
 		}
 		break;
@@ -526,22 +548,22 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
 		if (((ArrayAccessAST*)left_ast)->attribute == NULL) {
 			IdentifierAST* identifier_ast = ((ArrayAccessAST*)left_ast)->target_array;
 
-			*result = join_string(*result, create_ir(ir_context, parser_context, identifier_ast, indentation));
+			create_ir(ir_context, parser_context, identifier_ast);
 
 			wchar_t store_str_buffer[128];
 
 			int i;
 			int access_count = ((ArrayAccessAST*)left_ast)->access_count;
 			for (i = 0; i < access_count; i++) {
-				*result = join_string(*result, create_ir(ir_context, parser_context, ((ArrayAccessAST*)left_ast)->indexes[i], indentation));
+				create_ir(ir_context, parser_context, ((ArrayAccessAST*)left_ast)->indexes[i]);
 
-				new_line(result, indentation);
 				if (i == access_count - 1) {
-					*result = join_string(*result, L"@array_store");
+					append_string(ir_context->string_builder, L"@array_store");
 				}
 				else {
-					*result = join_string(*result, L"@array_load");
+					append_string(ir_context->string_builder, L"@array_load");
 				}
+				new_line(ir_context->string_builder);
 			}
 			return;
 		}
@@ -627,7 +649,7 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
 		exit(1);
 	}
 
-	*result = join_string(*result, create_ir(ir_context, parser_context, temp_left_ast, indentation));
+	create_ir(ir_context, parser_context, temp_left_ast);
 	// process the last ast for store.
 	switch (*((ASTType*)last_ast)) {
 	case AST_Identifier: {
@@ -647,10 +669,10 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
 			exit(1);
 		}
 
-		new_line(result, indentation);
-		wchar_t attr_str_buffer[128];
-		swprintf(attr_str_buffer, 128, L"@attr_store %d", member_variable_index);
-		*result = join_string(*result, attr_str_buffer);
+		append_string(ir_context->string_builder, L"@attr_store");
+		append_integer(ir_context->string_builder, member_variable_index);
+		new_line(ir_context->string_builder);
+
 		break;
 	}
 	case AST_ArrayAccess: {
@@ -669,25 +691,24 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
 
 		ArrayAccessAST* array_access_last_ast = (ArrayAccessAST*)last_ast;
 
-		new_line(result, indentation);
-		wchar_t attr_str_buffer[128];
-		swprintf(attr_str_buffer, 128, L"@attr %d", member_variable_index);
-		*result = join_string(*result, attr_str_buffer);
+		append_string(ir_context->string_builder, L"@attr");
+		append_integer(ir_context->string_builder, member_variable_data);
+		new_line(ir_context->string_builder);
 
 		wchar_t store_str_buffer[128];
 
 		int i;
 		int access_count = array_access_last_ast->access_count;
 		for (i = 0; i < access_count; i++) {
-			*result = join_string(*result, create_ir(ir_context, parser_context, array_access_last_ast->indexes[i], indentation));
+			create_ir(ir_context, parser_context, array_access_last_ast->indexes[i]);
 
-			new_line(result, indentation);
 			if (i == access_count - 1) {
-				*result = join_string(*result, L"@array_store");
+				append_string(ir_context->string_builder, L"@array_store");
 			}
 			else {
-				*result = join_string(*result, L"@array_load");
+				append_string(ir_context->string_builder, L"@array_load");
 			}
+			new_line(ir_context->string_builder);
 		}
 		break;
 	}
@@ -716,135 +737,118 @@ void check_function_call_condition(IrGenContext* ir_context, ParserContext* pars
 
 }
 
-wchar_t* create_if_statement_block(IrGenContext* ir_context, ParserContext* parser_context, IfStatementAST* if_statement_ast, int indentation, int end_label_id) {
+void create_if_statement_block(IrGenContext* ir_context, ParserContext* parser_context, IfStatementAST* if_statement_ast, int end_label_id) {
 	wchar_t if_statement_buffer[128];
-	wchar_t* result = L"";
 
 	ir_context->label_id++;
 	int block_id = ir_context->label_id;
 
 	if (if_statement_ast->if_type != StmtElse) {
-		new_line(&result, indentation);
-		swprintf(if_statement_buffer, 128, L"@jne %d", block_id);
-		result = join_string(result, if_statement_buffer);
+		append_string(ir_context->string_builder, L"@jne");
+		append_integer(ir_context->string_builder, block_id);
+		new_line(ir_context->string_builder);
 	}
 
 	open_scope(parser_context);
 
 	int i;
 	for (i = 0; i < if_statement_ast->body_count; i++) {
-		result = join_string(result, create_ir(ir_context, parser_context, if_statement_ast->body[i], indentation));
+		create_ir(ir_context, parser_context, if_statement_ast->body[i]);
 	}
 
 	close_scope(parser_context);
 
 	// as the statement ended. jump for the terminate the statement
-	new_line(&result, indentation);
-	swprintf(if_statement_buffer, 128, L"@goto %d", end_label_id);
-	result = join_string(result, if_statement_buffer);
+	append_string(ir_context->string_builder, L"@goto");
+	append_integer(ir_context->string_builder, end_label_id);
+	new_line(ir_context->string_builder);
 
 	if (if_statement_ast->if_type != StmtElse) {
-		new_line(&result, indentation);
-		swprintf(if_statement_buffer, 128, L"@label %d", block_id);
-		result = join_string(result, if_statement_buffer);
+		append_string(ir_context->string_builder, L"@label");
+		append_integer(ir_context->string_builder, block_id);
+		new_line(ir_context->string_builder);
 	}
-
-	return result;
 }
 
-wchar_t* create_array_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, ArrayDeclarationAST* array_declaration_ast, int indentation) {
+void create_array_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, ArrayDeclarationAST* array_declaration_ast) {
 	wchar_t* result = L"";
 	int i;
 	for (i = 0; i < array_declaration_ast->element_count; i++) {
-		result = join_string(result, create_ir(ir_context, parser_context, array_declaration_ast->elements[i], indentation + 1));
+		create_ir(ir_context, parser_context, array_declaration_ast->elements[i]);
 	}
 
-	new_line(&result, indentation + 1);
-	wchar_t array_str_buffer[128];
-	swprintf(array_str_buffer, 128, L"@array %d", array_declaration_ast->element_count);
-	result = join_string(result, array_str_buffer);
-	return result;
+	append_string(ir_context->string_builder, L"@array");
+	append_integer(ir_context->string_builder, array_declaration_ast->element_count);
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_return_ir(IrGenContext* ir_context, ParserContext* parser_context, ReturnAST* return_ast, int indentation) {
-	wchar_t* result = L"";
+void create_return_ir(IrGenContext* ir_context, ParserContext* parser_context, ReturnAST* return_ast) {
 
-	result = join_string(result, create_ir(ir_context, parser_context, return_ast->expression, indentation));
+	create_ir(ir_context, parser_context, return_ast->expression);
 
-	new_line(&result, indentation);
-	wchar_t ret_str_buffer[128];
-	swprintf(ret_str_buffer, 128, L"@ret");
-	result = join_string(result, ret_str_buffer);
-	return result;
+	append_string(ir_context->string_builder, L"@ret");
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_bin_expr_ir(IrGenContext* ir_context, ParserContext* parser_context, BinExprAST* bin_expr_ast, int indentation) {
-	wchar_t* result = L"";
+void create_bin_expr_ir(IrGenContext* ir_context, ParserContext* parser_context, BinExprAST* bin_expr_ast) {
 
 	if (bin_expr_ast->opType == OpASSIGN) {
-		create_assign_ir(ir_context, parser_context, bin_expr_ast->left, bin_expr_ast->right, &result, indentation);
-		return result;
+		create_assign_ir(ir_context, parser_context, bin_expr_ast->left, bin_expr_ast->right);
+		return;
 	}
 
-	result = join_string(result, create_ir(ir_context, parser_context, bin_expr_ast->left, indentation));
-	result = join_string(result, create_ir(ir_context, parser_context, bin_expr_ast->right, indentation));
+	create_ir(ir_context, parser_context, bin_expr_ast->left);
+	create_ir(ir_context, parser_context, bin_expr_ast->right);
 
-	wchar_t operator_str_buffer[128];
 	switch (bin_expr_ast->opType) {
 	case OpADD:
-		swprintf(operator_str_buffer, 128, L"@add");
+		append_string(ir_context->string_builder, L"@add");
 		break;
 	case OpSUB:
-		swprintf(operator_str_buffer, 128, L"@sub");
+		append_string(ir_context->string_builder, L"@sub");
 		break;
 	case OpMUL:
-		swprintf(operator_str_buffer, 128, L"@mul");
+		append_string(ir_context->string_builder, L"@mul");
 		break;
 	case OpDIV:
-		swprintf(operator_str_buffer, 128, L"@div");
+		append_string(ir_context->string_builder, L"@div");
 		break;
 	case OpEQUAL:
-		swprintf(operator_str_buffer, 128, L"@equal");
+		append_string(ir_context->string_builder, L"@equal");
 		break;
 	case OpNOTEQUAL:
-		swprintf(operator_str_buffer, 128, L"@notequal");
+		append_string(ir_context->string_builder, L"@notequal");
 		break;
 	case OpGREATER:
-		swprintf(operator_str_buffer, 128, L"@greater");
+		append_string(ir_context->string_builder, L"@greater");
 		break;
 	case OpLESS:
-		swprintf(operator_str_buffer, 128, L"@less");
+		append_string(ir_context->string_builder, L"@less");
 		break;
 	case OpEQUALGREATER:
-		swprintf(operator_str_buffer, 128, L"@eqgreater");
+		append_string(ir_context->string_builder, L"@eqgreater");
 		break;
 	case OpEQUALLESS:
-		swprintf(operator_str_buffer, 128, L"@eqless");
+		append_string(ir_context->string_builder, L"@eqless");
 		break;
 	case OpOR:
-		swprintf(operator_str_buffer, 128, L"@or");
+		append_string(ir_context->string_builder, L"@or");
 		break;
 	case OpAND:
-		swprintf(operator_str_buffer, 128, L"@and");
+		append_string(ir_context->string_builder, L"@and");
 		break;
 	}
 
-	new_line(&result, indentation);
-	result = join_string(result, operator_str_buffer);
-	return result;
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_identifier_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentifierAST* identifier_ast, int indentation) {
-	wchar_t* result = L"";
+void create_identifier_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentifierAST* identifier_ast) {
 
-	new_line(&result, indentation);
-	wchar_t identifier_str_buffer[128];
 
 	int is_special_identifier = !wcscmp(identifier_ast->identifier->str, L"this");
 
 	if (is_special_identifier) {
-		swprintf(identifier_str_buffer, 128, L"@this");
-		result = join_string(result, identifier_str_buffer);
+		append_string(ir_context->string_builder, L"@this");
 	}
 	else {
 		Symbol* local_symbol = find_symbol(parser_context->variable_symbol_table, identifier_ast->identifier->str);
@@ -852,40 +856,36 @@ wchar_t* create_identifier_ir(IrGenContext* ir_context, ParserContext* parser_co
 		int variable_exist_in_local_area = local_symbol != NULL;
 
 		if (variable_exist_in_local_area) {
-			swprintf(identifier_str_buffer, 128, L"@load %d", ((VariableData*)local_symbol->data)->index);
-			result = join_string(result, identifier_str_buffer);
+			append_string(ir_context->string_builder, L"@load");
+			append_integer(ir_context->string_builder, ((VariableData*)local_symbol->data)->index);
 		}
 		else {
 			int member_id = get_member_variable_index(parser_context, ir_context->current_class, identifier_ast->identifier->str);
-			swprintf(identifier_str_buffer, 128, L"@mload %d", member_id);
-			result = join_string(result, identifier_str_buffer);
+			append_string(ir_context->string_builder, L"@mload");
+			append_integer(ir_context->string_builder, member_id);
 		}
 	}
+	new_line(ir_context->string_builder);
 
 	if (identifier_ast->attribute != NULL) {
 		Type* target_class_type = infer_type(ir_context, parser_context, identifier_ast, ir_context->current_class);
 		wchar_t* target_class_name = target_class_type->type_str;
 		free(target_class_type);
-		create_attribute_ir(ir_context, parser_context, target_class_name, identifier_ast->attribute, &result, indentation);
+		create_attribute_ir(ir_context, parser_context, target_class_name, identifier_ast->attribute);
 	}
-	return result;
 }
 
-wchar_t* create_string_literal_ir(IrGenContext* ir_context, ParserContext* parser_context, StringLiteralAST* string_literal_ast, int indentation) {
-	wchar_t* result = L"";
+void create_string_literal_ir(IrGenContext* ir_context, ParserContext* parser_context, StringLiteralAST* string_literal_ast) {
 	wchar_t* string_literal = string_literal_ast->string_literal_token->str;
 	wchar_t push_str_buffer[128];
 
-	new_line(&result, indentation);
 
-	swprintf(push_str_buffer, 128, L"@push string %s", string_literal);
-
-	result = join_string(result, push_str_buffer);
-	return result;
+	// TOOD !!
+	//swprintf(push_str_buffer, 128, L"@push string %s", string_literal);
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_new_ir(IrGenContext* ir_context, ParserContext* parser_context, NewAST* new_ast, int indentation) {
-	wchar_t* result = L"";
+void create_new_ir(IrGenContext* ir_context, ParserContext* parser_context, NewAST* new_ast) {
 
 	Symbol* class_symbol = find_symbol(parser_context->class_symbol_table, new_ast->class_name_token->str);
 	if (class_symbol == NULL) {
@@ -900,42 +900,33 @@ wchar_t* create_new_ir(IrGenContext* ir_context, ParserContext* parser_context, 
 
 	int i;
 	for (i = 0; i < new_ast->parameter_count; i++) {
-		result = join_string(result, create_ir(ir_context, parser_context, new_ast->parameters[i], indentation));
+		create_ir(ir_context, parser_context, new_ast->parameters[i]);
 	}
 
-	new_line(&result, indentation);
-
-	wchar_t new_buffer[512];
-	swprintf(new_buffer, 128, L"@new %d %d", class_data->index, constructor_data->parameter_count);
-	result = join_string(result, new_buffer);
-
-	return result;
+	append_string(ir_context->string_builder, L"@new");
+	append_integer(ir_context->string_builder, class_data->index);
+	append_integer(ir_context->string_builder, constructor_data->parameter_count);
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_array_access_ir(IrGenContext* ir_context, ParserContext* parser_context, ArrayAccessAST* array_access_ast, int indentation) {
-	wchar_t* result = L"";
-
-	result = join_string(result, create_ir(ir_context, parser_context, array_access_ast->target_array, indentation));
+void create_array_access_ir(IrGenContext* ir_context, ParserContext* parser_context, ArrayAccessAST* array_access_ast) {
+	create_ir(ir_context, parser_context, array_access_ast->target_array);
 
 	int i;
 	for (i = 0; i < array_access_ast->access_count; i++) {
-		result = join_string(result, create_ir(ir_context, parser_context, array_access_ast->indexes[i], indentation));
+		create_ir(ir_context, parser_context, array_access_ast->indexes[i]);
 
-		new_line(&result, indentation);
-		result = join_string(result, L"@array_load");
+		append_string(ir_context->string_builder, L"@array_load");
+		new_line(ir_context->string_builder);
 	}
-	return result;
 }
 
-wchar_t* create_function_call_ir(IrGenContext* ir_context, ParserContext* parser_context, FunctionCallAST* function_call_ast, int indentation) {
-	wchar_t* result = L"";
+void create_function_call_ir(IrGenContext* ir_context, ParserContext* parser_context, FunctionCallAST* function_call_ast) {
 	wchar_t* function_name = _wcsdup(function_call_ast->function_name_token->str);
 
 	FunctionData* function_data =
 		find_function_data(parser_context, function_call_ast->function_name_token, ir_context->current_class,
 			function_name, function_call_ast);
-
-	wchar_t function_call_buffer[512];
 
 	Symbol* local_symbol = find_symbol(parser_context->function_symbol_table, function_call_ast->function_name_token->str);
 
@@ -943,72 +934,67 @@ wchar_t* create_function_call_ir(IrGenContext* ir_context, ParserContext* parser
 	int local_call = (local_symbol != NULL) && !((FunctionData*)local_symbol->data)->is_builtin_function;
 	int builtin_call = (local_symbol != NULL) && ((FunctionData*)local_symbol->data)->is_builtin_function;
 
+
 	if (member_call) {
 		int index = get_member_function_index(parser_context, ir_context->current_class, function_call_ast->function_name_token->str);
-		swprintf(function_call_buffer, 128, L"@mcall %d %d", index, function_call_ast->parameter_count);
+		append_string(ir_context->string_builder, L"@mcall");
+		append_integer(ir_context->string_builder, index);
+		append_integer(ir_context->string_builder, function_call_ast->parameter_count);
 	}
 
 	if (local_call) {
-		swprintf(function_call_buffer, 128, L"@call %d %d", ((FunctionData*)local_symbol->data)->index, function_call_ast->parameter_count);
+		append_string(ir_context->string_builder, L"@call");
+		append_integer(ir_context->string_builder, ((FunctionData*)local_symbol->data)->index);
+		append_integer(ir_context->string_builder, function_call_ast->parameter_count);
 	}
 
 	if (builtin_call) {
-		swprintf(function_call_buffer, 128, L"@bcall %d %d", ((FunctionData*)local_symbol->data)->index, function_call_ast->parameter_count);
+		append_string(ir_context->string_builder, L"@bcall");
+		append_integer(ir_context->string_builder, ((FunctionData*)local_symbol->data)->index);
+		append_integer(ir_context->string_builder, function_call_ast->parameter_count);
 	}
+	new_line(ir_context->string_builder);
 
 	check_function_call_condition(ir_context, parser_context, function_data, function_call_ast->parameters, function_call_ast->parameter_count);
 
 	int i;
 	for (i = 0; i < function_call_ast->parameter_count; i++) {
-		result = join_string(result, create_ir(ir_context, parser_context, function_call_ast->parameters[i], indentation));
+		create_ir(ir_context, parser_context, function_call_ast->parameters[i]);
 	}
-
-	new_line(&result, indentation);
-	result = join_string(result, function_call_buffer);
 
 	free(function_name);
-
-	return result;
 }
 
-wchar_t* create_number_literal_ir(IrGenContext* ir_context, ParserContext* parser_context, NumberLiteralAST* number_literal_ast, int indentation) {
-	wchar_t* result = L"";
+void create_number_literal_ir(IrGenContext* ir_context, ParserContext* parser_context, NumberLiteralAST* number_literal_ast) {
 	wchar_t* number_literal = number_literal_ast->number_literal_token->str;
-	wchar_t push_str_buffer[128];
 
-	new_line(&result, indentation);
-	swprintf(push_str_buffer, 128, L"@push %s %s", number_literal_ast->numeric_type, number_literal);
-
-	result = join_string(result, push_str_buffer);
-	return result;
+	append_string(ir_context->string_builder, L"@push");
+	append_string(ir_context->string_builder, number_literal_ast->numeric_type);
+	append_string(ir_context->string_builder, number_literal);
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_constructor_ir(IrGenContext* ir_context, ParserContext* parser_context, ConstructorAST* constructor_ast, int indentation) {
-	wchar_t* result = L"";
+void create_constructor_ir(IrGenContext* ir_context, ParserContext* parser_context, ConstructorAST* constructor_ast) {
 	wchar_t* parameter_buffer = L"";
 
-	if (constructor_ast->parameters != NULL) {
-		parameter_buffer = create_parameter_buffer(parser_context, constructor_ast->parameters);
+	if (constructor_ast->parameters) {
+		create_parameter_buffer(parser_context, constructor_ast->parameters);
 	}
 
-	new_line(&result, indentation + 1);
-	wchar_t buffer[256];
-	swprintf(buffer, 256, L"$constructor %ls {", parameter_buffer);
-	result = join_string(result, buffer);
+	append_string(ir_context->string_builder, L"$constructor");
+	append_string(ir_context->string_builder, L"{");
+	new_line(ir_context->string_builder);
 
 	int i;
 	for (i = 0; i < constructor_ast->body_count; i++) {
-		result = join_string(result, create_ir(ir_context, parser_context, constructor_ast->body[i], indentation + 2));
+		create_ir(ir_context, parser_context, constructor_ast->body[i]);
 	}
 
-	new_line(&result, indentation + 1);
-	result = join_string(result, L"}");
-	return result;
+	append_string(ir_context->string_builder, L"}");
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_function_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, FunctionDeclarationAST* function_declaration_ast, int indentation) {
-	wchar_t* result = L"";
-
+void create_function_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, FunctionDeclarationAST* function_declaration_ast) {
 	Symbol* function_symbol = find_symbol(parser_context->function_symbol_table, function_declaration_ast->function_name_token->str);
 
 	int should_find_member_function = function_symbol == NULL && wcscmp(ir_context->current_class, L"");
@@ -1019,31 +1005,29 @@ wchar_t* create_function_declaration_ir(IrGenContext* ir_context, ParserContext*
 
 	open_scope(parser_context);
 
-	wchar_t* parameter_buffer = create_parameter_buffer(parser_context, ((VariableDeclarationBundleAST*)function_declaration_ast->parameters));
+	create_parameter_buffer(parser_context, ((VariableDeclarationBundleAST*)function_declaration_ast->parameters));
+
 	FunctionData* function_data = function_symbol->data;
 
 	function_data->access_modifier = function_declaration_ast->access_modifier;
 
-	new_line(&result, indentation);
-	wchar_t buffer[256];
-	swprintf(buffer, 256, L".%d %ls{", (function_data->index), parameter_buffer);
-	result = join_string(result, buffer);
+	append_string(ir_context->string_builder, L"func");
+	append_integer(ir_context->string_builder, function_data->index);
+	append_string(ir_context->string_builder, L"{");
+	new_line(ir_context->string_builder);
 
 	int i;
 	for (i = 0; i < function_declaration_ast->body_count; i++) {
-		result = join_string(result, create_ir(ir_context, parser_context, function_declaration_ast->body[i], indentation + 1));
+		create_ir(ir_context, parser_context, function_declaration_ast->body[i]);
 	}
 
-	new_line(&result, indentation);
-	result = join_string(result, L"}");
+	append_string(ir_context->string_builder, L"}");
+	new_line(ir_context->string_builder);
 
 	close_scope(parser_context);
-
-	return result;
 }
 
-wchar_t* create_class_ir(IrGenContext* ir_context, ParserContext* parser_context, ClassAST* ast, int indentation) {
-	wchar_t* result = L"";
+void create_class_ir(IrGenContext* ir_context, ParserContext* parser_context, ClassAST* ast) {
 	ClassAST* class_ast = (ClassAST*)ast;
 	wchar_t* parent_name = L"";
 
@@ -1063,51 +1047,49 @@ wchar_t* create_class_ir(IrGenContext* ir_context, ParserContext* parser_context
 		parent_data = parent_symbol->data;
 	}
 
-	wchar_t buffer[128];
-	new_line(&result, indentation);
-	swprintf(buffer, 128, L"class %d %d {", class_data->index, parent_data ? parent_data->index : 0);
-	result = join_string(result, buffer);
+	append_string(ir_context->string_builder, L"class");
+	append_integer(ir_context->string_builder, class_data->index);
+	append_integer(ir_context->string_builder, parent_data ? parent_data->index : 0);
+	append_string(ir_context->string_builder, L"{");
+	new_line(ir_context->string_builder);
 
-	result = join_string(result, create_class_initializer(ir_context, parser_context, indentation, class_ast));
-	result = join_string(result, create_ir(ir_context, parser_context, class_ast->constructor, indentation));
+	create_class_initializer(ir_context, parser_context, class_ast);
+	create_ir(ir_context, parser_context, class_ast->constructor);
 
 	int i;
 	for (i = 0; i < class_ast->member_function_count; i++) {
-		result = join_string(result, create_ir(ir_context, parser_context, class_ast->member_functions[i], indentation + 1));
+		create_ir(ir_context, parser_context, class_ast->member_functions[i]);
 	}
 
-	new_line(&result, indentation);
-	result = join_string(result, L"}\n");
+	append_string(ir_context->string_builder, L"}");
+	new_line(ir_context->string_builder);
 
+	free(ir_context->current_class);
 	ir_context->current_class = L"";
 	close_scope(parser_context);
-	return result;
 }
 
-wchar_t* create_variable_initializer(IrGenContext* ir_context, ParserContext* parser_context, Type* variable_type, int indentation) {
-	wchar_t* result = L"";
-	wchar_t initializer_buffer[256];
+void create_variable_initializer(IrGenContext* ir_context, ParserContext* parser_context, Type* variable_type) {
 
 	if (is_primitive_type(parser_context, variable_type)) {
-		swprintf(initializer_buffer, 256, L"@push int 0");
+		append_string(ir_context->string_builder, L"@push");
+		append_string(ir_context->string_builder, L"int");
+		append_integer(ir_context->string_builder, 0);
 	}
 	else {
 		if (wcscmp(variable_type->type_str, L"array") == 0) {
-			swprintf(initializer_buffer, 256, L"@array 0");
+			append_string(ir_context->string_builder, L"@array");
+			append_integer(ir_context->string_builder, 0);
 		}
 		else {
-			swprintf(initializer_buffer, 256, L"@null");
+			append_string(ir_context->string_builder, L"@null");
 		}
 	}
 
-	new_line(&result, indentation);
-	result = join_string(result, initializer_buffer);
-
-	return result;
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_variable_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast, int indentation) {
-	wchar_t* result = L"";
+void create_variable_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast) {
 	VariableData* data = NULL;
 
 	check_type_of_variable_declaration(ir_context, parser_context, variable_declaration_ast);
@@ -1125,7 +1107,7 @@ wchar_t* create_variable_declaration_ir(IrGenContext* ir_context, ParserContext*
 	}
 
 	if (variable_declaration_ast->declaration) {
-		result = join_string(result, create_ir(ir_context, parser_context, variable_declaration_ast->declaration, indentation));
+		create_ir(ir_context, parser_context, variable_declaration_ast->declaration);
 
 		Type* from_type = get_type_of_last_element(ir_context, parser_context, variable_declaration_ast, ir_context->current_class);
 		Type* to_type = get_type_of_last_element(ir_context, parser_context, variable_declaration_ast->declaration, ir_context->current_class);
@@ -1136,219 +1118,185 @@ wchar_t* create_variable_declaration_ir(IrGenContext* ir_context, ParserContext*
 		}
 	}
 	else {
-		result = join_string(result, create_variable_initializer(ir_context, parser_context, variable_declaration_ast->variable_type, indentation));
+		create_variable_initializer(ir_context, parser_context, variable_declaration_ast->variable_type);
 	}
 
 	// indexing for additional parent class member variables.
 	int parent_variable_count = get_parent_member_variable_count(parser_context, ir_context->current_class);
 
-	wchar_t store_str_buffer[128];
-
-	new_line(&result, indentation);
-
 	if (ir_context->is_class_initializer) {
-		swprintf(store_str_buffer, 128, L"%s %d", L"@mstore", data->index + parent_variable_count);
+
+		append_string(ir_context->string_builder, L"@mstore");
+		append_integer(ir_context->string_builder, data->index + parent_variable_count);
 	}
 	else {
-		swprintf(store_str_buffer, 128, L"%s %d", L"@store", data->index);
+		append_string(ir_context->string_builder, L"@store");
+		append_integer(ir_context->string_builder, data->index);
 	}
 
-	result = join_string(result, store_str_buffer);
-	return result;
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_ident_increase_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentIncreaseAST* ident_increase_ast, int indentation) {
-	wchar_t* result = L"";
+void create_ident_increase_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentIncreaseAST* ident_increase_ast) {
 	VariableData* variable_data = find_variable_data(parser_context, ident_increase_ast->identifier, ir_context->current_class, ident_increase_ast->identifier->str);
 
-	new_line(&result, indentation);
-	wchar_t ident_increase_str_buffer[128];
-	swprintf(ident_increase_str_buffer, 128, L"@inc %d", variable_data->index);
-	result = join_string(result, ident_increase_str_buffer);
-	return result;
+	append_string(ir_context->string_builder, L"@inc");
+	append_integer(ir_context->string_builder, variable_data->index);
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_ident_decrease_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentDecreaseAST* ident_decrease_ast, int indentation) {
-	wchar_t* result = L"";
-
+void create_ident_decrease_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentDecreaseAST* ident_decrease_ast) {
 	VariableData* variable_data = find_variable_data(parser_context, ident_decrease_ast->identifier, ir_context->current_class, ident_decrease_ast->identifier->str);
 
-	new_line(&result, indentation);
-	wchar_t ident_decrease_str_buffer[128];
-	swprintf(ident_decrease_str_buffer, 128, L"@dec %d", variable_data->index);
-	result = join_string(result, ident_decrease_str_buffer);
-
-	return result;
+	append_string(ir_context->string_builder, L"@dec");
+	append_integer(ir_context->string_builder, variable_data->index);
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_if_statement_ir(IrGenContext* ir_context, ParserContext* parser_context, IfStatementAST* if_statement_ast, int indentation) {
-	wchar_t* result = L"";
-
+void create_if_statement_ir(IrGenContext* ir_context, ParserContext* parser_context, IfStatementAST* if_statement_ast) {
 	if (if_statement_ast->if_type != StmtElse) {
-		result = join_string(result, create_ir(ir_context, parser_context, if_statement_ast->condition, indentation));
+		create_ir(ir_context, parser_context, if_statement_ast->condition);
 	}
 
 	ir_context->label_id++;
 	int end_label_id = ir_context->label_id;
 
-	wchar_t* block_buffer = create_if_statement_block(ir_context, parser_context, if_statement_ast, indentation, end_label_id);
-	result = join_string(result, block_buffer);
+	create_if_statement_block(ir_context, parser_context, if_statement_ast, end_label_id);
 
-	wchar_t if_statement_buffer[128];
 	if (if_statement_ast->next_statement != NULL) {
-		result = join_string(result, create_ir(ir_context, parser_context, if_statement_ast->next_statement, indentation));
+		create_ir(ir_context, parser_context, if_statement_ast->next_statement);
 	}
 
-	new_line(&result, indentation);
-	swprintf(if_statement_buffer, 128, L"@label %d", end_label_id);
-	result = join_string(result, if_statement_buffer);
-	return result;
+	append_string(ir_context->string_builder, L"@label");
+	append_integer(ir_context->string_builder, end_label_id);
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_for_statement_ir(IrGenContext* ir_context, ParserContext* parser_context, ForStatementAST* for_statement_ast, int indentation) {
+void create_for_statement_ir(IrGenContext* ir_context, ParserContext* parser_context, ForStatementAST* for_statement_ast) {
 	wchar_t* result = L"";
 	open_scope(parser_context);
 
-	result = join_string(result, create_ir(ir_context, parser_context, for_statement_ast->init, indentation));
+	create_ir(ir_context, parser_context, for_statement_ast->init);
 
 	ir_context->label_id++;
 	int end_label_id = ir_context->label_id;
 	ir_context->label_id++;
 	int begin_label_id = ir_context->label_id;
 
-	wchar_t goto_str_buffer[64];
-	wchar_t label_str_buffer[64];
-	wchar_t for_str_buffer[64];
+	new_line(ir_context->string_builder);
 
-	swprintf(goto_str_buffer, 64, L"@goto %x", end_label_id);
-	new_line(&result, indentation);
-	result = join_string(result, goto_str_buffer);
+	append_string(ir_context->string_builder, L"@goto");
+	append_integer(ir_context->string_builder, end_label_id);
+	new_line(ir_context->string_builder);
 
-	swprintf(label_str_buffer, 64, L"@label %x", begin_label_id);
-	new_line(&result, indentation);
-	result = join_string(result, label_str_buffer);
+	append_string(ir_context->string_builder, L"@label");
+	append_integer(ir_context->string_builder, begin_label_id);
+	new_line(ir_context->string_builder);
 
 	int i;
 	for (i = 0; i < for_statement_ast->body_count; i++) {
-		result = join_string(result, create_ir(ir_context, parser_context, for_statement_ast->body[i], indentation));
+		create_ir(ir_context, parser_context, for_statement_ast->body[i]);
 	}
 
-	result = join_string(result, create_ir(ir_context, parser_context, for_statement_ast->step, indentation));
+	create_ir(ir_context, parser_context, for_statement_ast->step);
 
-	swprintf(label_str_buffer, 64, L"@label %x", end_label_id);
-	new_line(&result, indentation);
-	result = join_string(result, label_str_buffer);
+	append_string(ir_context->string_builder, L"@label");
+	append_integer(ir_context->string_builder, end_label_id);
+	new_line(ir_context->string_builder);
 
-	result = join_string(result, create_ir(ir_context, parser_context, for_statement_ast->condition, indentation));
+	create_ir(ir_context, parser_context, for_statement_ast->condition);
 
-	swprintf(label_str_buffer, 64, L"@je %x", begin_label_id);
-	new_line(&result, indentation);
-	result = join_string(result, label_str_buffer);
+	append_string(ir_context->string_builder, L"@je");
+	append_integer(ir_context->string_builder, begin_label_id);
+	new_line(ir_context->string_builder);
 
 	close_scope(parser_context);
-	return result;
 }
 
-wchar_t* create_bool_literal_ir(IrGenContext* ir_context, ParserContext* parser_context, BoolLiteralAST* bool_literal_ast, int indentation) {
-	wchar_t* result = L"";
-
-	wchar_t bool_literal_buffer[128];
-	swprintf(bool_literal_buffer, 128, L"@push bool %s", bool_literal_ast->bool_type ? L"true" : L"false");
-
-	new_line(&result, indentation);
-	result = join_string(result, bool_literal_buffer);
-
-	return result;
+void create_bool_literal_ir(IrGenContext* ir_context, ParserContext* parser_context, BoolLiteralAST* bool_literal_ast) {
+	append_string(ir_context->string_builder, L"@push");
+	append_string(ir_context->string_builder, L"bool");
+	append_string(ir_context->string_builder, bool_literal_ast->bool_type ? L"true" : L"false");
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_neg_ir(IrGenContext* ir_context, ParserContext* parser_context, NegAST* negative_ast, int indentation) {
-	wchar_t* result = L"";
-
-	wchar_t neg_buffer[64];
-	swprintf(neg_buffer, 64, L"@neg");
-
-	wchar_t* internal_ast_buffer = create_ir(ir_context, parser_context, negative_ast->ast, indentation);
-	result = join_string(result, internal_ast_buffer);
-
-	new_line(&result, indentation);
-	result = join_string(result, neg_buffer);
-
-	return result;
+void create_neg_ir(IrGenContext* ir_context, ParserContext* parser_context, NegAST* negative_ast) {
+	create_ir(ir_context, parser_context, negative_ast->ast);
+	append_string(ir_context->string_builder, L"@neg");
+	new_line(ir_context->string_builder);
 }
 
-wchar_t* create_ir(IrGenContext* ir_context, ParserContext* parser_context, void* ast, int indentation) {
-
-	wchar_t* result = L"";
+void create_ir(IrGenContext* ir_context, ParserContext* parser_context, void* ast) {
 
 	switch (*((ASTType*)ast)) {
 
 	case AST_Negative: {
-		result = join_string(result, create_neg_ir(ir_context, parser_context, (NegAST*)ast, indentation));
+		create_neg_ir(ir_context, parser_context, (NegAST*)ast);
 		break;
 	}
 
 	case AST_BoolLiteral: {
-		result = join_string(result, create_bool_literal_ir(ir_context, parser_context, (BoolLiteralAST*)ast, indentation));
+		create_bool_literal_ir(ir_context, parser_context, (BoolLiteralAST*)ast);
 		break;
 	}
 
 	case AST_ArrayDeclaration: {
-		result = join_string(result, create_array_declaration_ir(ir_context, parser_context, (ArrayDeclarationAST*)ast, indentation));
+		create_array_declaration_ir(ir_context, parser_context, (ArrayDeclarationAST*)ast);
 		break;
 	}
 
 	case AST_Return: {
-		result = join_string(result, create_return_ir(ir_context, parser_context, (ReturnAST*)ast, indentation));
+		create_return_ir(ir_context, parser_context, (ReturnAST*)ast);
 		break;
 	}
 
 	case AST_BinExpr: {
-		result = join_string(result, create_bin_expr_ir(ir_context, parser_context, (BinExprAST*)ast, indentation));
+		create_bin_expr_ir(ir_context, parser_context, (BinExprAST*)ast);
 		break;
 	}
 
 	case AST_Identifier: {
-		result = join_string(result, create_identifier_ir(ir_context, parser_context, (IdentifierAST*)ast, indentation));
+		create_identifier_ir(ir_context, parser_context, (IdentifierAST*)ast);
 		break;
 	}
 
 	case AST_StringLiteral: {
-		result = join_string(result, create_string_literal_ir(ir_context, parser_context, (StringLiteralAST*)ast, indentation));
+		create_string_literal_ir(ir_context, parser_context, (StringLiteralAST*)ast);
 		break;
 	}
 
 	case AST_New: {
-		result = join_string(result, create_new_ir(ir_context, parser_context, (NewAST*)ast, indentation));
+		create_new_ir(ir_context, parser_context, (NewAST*)ast);
 		break;
 	}
 
 	case AST_ArrayAccess: {
-		result = join_string(result, create_array_access_ir(ir_context, parser_context, (ArrayAccessAST*)ast, indentation));
+		create_array_access_ir(ir_context, parser_context, (ArrayAccessAST*)ast);
 		break;
 	}
 
 	case AST_FunctionCall: {
-		result = join_string(result, create_function_call_ir(ir_context, parser_context, (FunctionCallAST*)ast, indentation));
+		create_function_call_ir(ir_context, parser_context, (FunctionCallAST*)ast);
 		break;
 	}
 
 	case AST_NumberLiteral: {
-		result = join_string(result, create_number_literal_ir(ir_context, parser_context, (NumberLiteralAST*)ast, indentation));
+		create_number_literal_ir(ir_context, parser_context, (NumberLiteralAST*)ast);
 		break;
 	}
 
 	case AST_Constructor: {
-		result = join_string(result, create_constructor_ir(ir_context, parser_context, (ConstructorAST*)ast, indentation));
+		create_constructor_ir(ir_context, parser_context, (ConstructorAST*)ast);
 		break;
 	}
 
 	case AST_FunctionDeclaration: {
-		result = join_string(result, create_function_declaration_ir(ir_context, parser_context, (FunctionDeclarationAST*)ast, indentation));
+		create_function_declaration_ir(ir_context, parser_context, (FunctionDeclarationAST*)ast);
 		break;
 	}
 
 	case AST_Class: {
-		result = join_string(result, create_class_ir(ir_context, parser_context, (ClassAST*)ast, indentation));
+		create_class_ir(ir_context, parser_context, (ClassAST*)ast);
 		break;
 	}
 
@@ -1357,37 +1305,36 @@ wchar_t* create_ir(IrGenContext* ir_context, ParserContext* parser_context, void
 
 		int i;
 		for (i = 0; i < variable_declaration_bundle_ast->variable_count; i++) {
-			result = join_string(result, create_variable_declaration_ir(ir_context, parser_context, variable_declaration_bundle_ast->variable_declarations[i], indentation));
+			create_variable_declaration_ir(ir_context, parser_context, variable_declaration_bundle_ast->variable_declarations[i]);
 		}
 
 		break;
 	}
 
 	case AST_VariableDeclaration: {
-		result = join_string(result, create_variable_declaration_ir(ir_context, parser_context, (VariableDeclarationAST*)ast, indentation));
+		create_variable_declaration_ir(ir_context, parser_context, (VariableDeclarationAST*)ast);
 		break;
 	}
 
 	case AST_IdentIncrease: {
-		result = join_string(result, create_ident_increase_ir(ir_context, parser_context, (IdentIncreaseAST*)ast, indentation));
+		create_ident_increase_ir(ir_context, parser_context, (IdentIncreaseAST*)ast);
 		break;
 	}
 
 	case AST_IdentDecrease: {
-		result = join_string(result, create_ident_decrease_ir(ir_context, parser_context, (IdentDecreaseAST*)ast, indentation));
+		create_ident_decrease_ir(ir_context, parser_context, (IdentDecreaseAST*)ast);
 		break;
 	}
 
 	case AST_IfStatement: {
-		result = join_string(result, create_if_statement_ir(ir_context, parser_context, (IfStatementAST*)ast, indentation));
+		create_if_statement_ir(ir_context, parser_context, (IfStatementAST*)ast);
 		break;
 	}
 
 	case AST_ForStatement: {
-		result = join_string(result, create_for_statement_ir(ir_context, parser_context, (ForStatementAST*)ast, indentation));
+		create_for_statement_ir(ir_context, parser_context, (ForStatementAST*)ast);
 		break;
 	}
 	}
 
-	return result;
 }

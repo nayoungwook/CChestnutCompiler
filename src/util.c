@@ -9,7 +9,7 @@ Type* clone_type(Type* type) {
 }
 
 wchar_t* get_working_directory() {
-	wchar_t cwd[1024];
+	wchar_t* cwd = (wchar_t*)malloc(sizeof(wchar_t) * 1024);
 	int result = _wgetcwd(cwd, sizeof(cwd) / sizeof(wchar_t));
 
 	if (!result) {
@@ -66,17 +66,12 @@ wchar_t* read_file(const wchar_t* file_path) {
 	rewind(fp);
 
 	size_t wchar_estimate = byte_len + 1;
-	wchar_t* str = (wchar_t*)malloc(sizeof(wchar_t) * wchar_estimate);
-	if (str == NULL) {
-		perror("메모리 할당 실패");
-		fclose(fp);
-		return 1;
-	}
+	wchar_t* str = (wchar_t*)safe_malloc(sizeof(wchar_t) * wchar_estimate);
 
 	int capacity = 1;
 	int size = 0;
-	line_index_data = (int*)malloc(sizeof(int));
-	line_number_data = (int*)malloc(sizeof(int));
+	line_index_data = (int*)safe_malloc(sizeof(int));
+	line_number_data = (int*)safe_malloc(sizeof(int));
 	int line_number = 0;
 
 	size_t i = 0;
@@ -108,7 +103,7 @@ unsigned int hash(const wchar_t* str) {
 }
 
 SymbolTable* create_symbol_table() {
-	SymbolTable* symbol_table = (SymbolTable*)malloc(sizeof(SymbolTable));
+	SymbolTable* symbol_table = (SymbolTable*)safe_malloc(sizeof(SymbolTable));
 	if (symbol_table) {
 		symbol_table->size = 0;
 		symbol_table->prev = NULL;

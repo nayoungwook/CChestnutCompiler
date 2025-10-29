@@ -10,14 +10,22 @@
 
 #define IDENTIFIER_NOT_FOUND -1
 
+typedef struct _StringBuilder {
+	wchar_t* str;
+} StringBuilder;
+
+StringBuilder* create_string_builder();
+void append_string(StringBuilder* string_builder, const wchar_t* ctx);
+
 typedef struct _IrGenContext {
 	int label_id;
 	bool is_class_initializer;
 	wchar_t* current_class;
+	StringBuilder* string_builder;
 } IrGenContext;
 
 IrGenContext* create_ir_context();
-wchar_t* create_class_initializer(IrGenContext* ir_context, ParserContext* parser_context, int indentation, ClassAST* class_ast);
+void create_class_initializer(IrGenContext* ir_context, ParserContext* parser_context, ClassAST* class_ast);
 
 SymbolTable* ir_byte_table;
 void initialize_byte_table();
@@ -38,13 +46,14 @@ Token* get_token_of_ast(void* attribute);
 
 Type* infer_type(IrGenContext* ir_context, ParserContext* parser_context, void* ast, wchar_t* search_point_class_name);
 void check_function_call_condition(IrGenContext* ir_context, ParserContext* parser_context, FunctionData* function_data, const void** parameters, int parameter_count);
-void new_line(wchar_t** result, int indentation);
+void new_line(wchar_t** result);
 Type* get_type_of_last_element(IrGenContext* ir_context, ParserContext* parser_context, void* ast, const wchar_t* search_point_class_name);
 
-wchar_t* create_ir(IrGenContext* ir_context, ParserContext* parser_context, void* ast, int indentation);
-wchar_t* create_parameter_buffer(ParserContext* parser_context, VariableDeclarationBundleAST* parameters_ast);
-void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, void* attribute, wchar_t** result, int indentation);
-void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, void* left_ast, void* right_ast, wchar_t** result, int indentation);
+void create_parameter_buffer(ParserContext* parser_context, VariableDeclarationBundleAST* parameters_ast);
+
+void create_ir(IrGenContext* ir_context, ParserContext* parser_context, void* ast);
+void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, void* attribute);
+void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, void* left_ast, void* right_ast);
 
 int get_member_variable_index(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* ident);
 int get_parent_member_variable_count(ParserContext* parser_context, const wchar_t* class_name);
@@ -56,26 +65,26 @@ FunctionData* get_member_function_data(ParserContext* parser_context, const wcha
 FunctionData* find_function_data(ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* function_name, FunctionCallAST* function_call_ast);
 VariableData* find_variable_data(ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* identifier);
 
-wchar_t* create_variable_initializer(IrGenContext* ir_context, ParserContext* parser_context, Type* variable_type, int indentation);
+void create_variable_initializer(IrGenContext* ir_context, ParserContext* parser_context, Type* variable_type);
 
-wchar_t* create_if_statement_block(IrGenContext* ir_context, ParserContext* parser_context, IfStatementAST* if_statement_ast, int indentation, int end_label_id);
+void create_if_statement_block(IrGenContext* ir_context, ParserContext* parser_context, IfStatementAST* if_statement_ast, int end_label_id);
 
-wchar_t* create_array_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, ArrayDeclarationAST* array_declaration_ast, int indentation);
-wchar_t* create_return_ir(IrGenContext* ir_context, ParserContext* parser_context, ReturnAST* return_ast, int indentation);
-wchar_t* create_bin_expr_ir(IrGenContext* ir_context, ParserContext* parser_context, BinExprAST* bin_expr_ast, int indentation);
-wchar_t* create_identifier_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentifierAST* identifier_ast, int indentation);
-wchar_t* create_string_literal_ir(IrGenContext* ir_context, ParserContext* parser_context, StringLiteralAST* string_literal_ast, int indentation);
-wchar_t* create_new_ir(IrGenContext* ir_context, ParserContext* parser_context, NewAST* new_ast, int indentation);
-wchar_t* create_array_access_ir(IrGenContext* ir_context, ParserContext* parser_context, ArrayAccessAST* ast, int indentation);
-wchar_t* create_function_call_ir(IrGenContext* ir_context, ParserContext* parser_context, FunctionCallAST* function_call_ast, int indentation);
-wchar_t* create_number_literal_ir(IrGenContext* ir_context, ParserContext* parser_context, NumberLiteralAST* number_literal_ast, int indentation);
-wchar_t* create_constructor_ir(IrGenContext* ir_context, ParserContext* parser_context, ConstructorAST* constructor_ast, int indentation);
-wchar_t* create_function_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, FunctionDeclarationAST* function_declaration_ast, int indentation);
-wchar_t* create_class_ir(IrGenContext* ir_context, ParserContext* parser_context, ClassAST* ast, int indentation);
-wchar_t* create_variable_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast, int indentation);
-wchar_t* create_ident_increase_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentIncreaseAST* ident_increase_ast, int indentation);
-wchar_t* create_ident_decrease_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentDecreaseAST* ident_decrease_ast, int indentation);
-wchar_t* create_if_statement_ir(IrGenContext* ir_context, ParserContext* parser_context, IfStatementAST* if_statement_ast, int indentation);
-wchar_t* create_for_statement_ir(IrGenContext* ir_context, ParserContext* parser_context, ForStatementAST* for_statement_ast, int indentation);
-wchar_t* create_bool_literal_ir(IrGenContext* ir_context, ParserContext* parser_context, BoolLiteralAST* bool_literal_ast, int indentation);
-wchar_t* create_neg_ir(IrGenContext* ir_context, ParserContext* parser_context, NegAST* negative_ast, int indentation);
+void create_array_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, ArrayDeclarationAST* array_declaration_ast);
+void create_return_ir(IrGenContext* ir_context, ParserContext* parser_context, ReturnAST* return_ast);
+void create_bin_expr_ir(IrGenContext* ir_context, ParserContext* parser_context, BinExprAST* bin_expr_ast);
+void create_identifier_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentifierAST* identifier_ast);
+void create_string_literal_ir(IrGenContext* ir_context, ParserContext* parser_context, StringLiteralAST* string_literal_ast);
+void create_new_ir(IrGenContext* ir_context, ParserContext* parser_context, NewAST* new_ast);
+void create_array_access_ir(IrGenContext* ir_context, ParserContext* parser_context, ArrayAccessAST* ast);
+void create_function_call_ir(IrGenContext* ir_context, ParserContext* parser_context, FunctionCallAST* function_call_ast);
+void create_number_literal_ir(IrGenContext* ir_context, ParserContext* parser_context, NumberLiteralAST* number_literal_ast);
+void create_constructor_ir(IrGenContext* ir_context, ParserContext* parser_context, ConstructorAST* constructor_ast);
+void create_function_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, FunctionDeclarationAST* function_declaration_ast);
+void create_class_ir(IrGenContext* ir_context, ParserContext* parser_context, ClassAST* ast);
+void create_variable_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast);
+void create_ident_increase_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentIncreaseAST* ident_increase_ast);
+void create_ident_decrease_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentDecreaseAST* ident_decrease_ast);
+void create_if_statement_ir(IrGenContext* ir_context, ParserContext* parser_context, IfStatementAST* if_statement_ast);
+void create_for_statement_ir(IrGenContext* ir_context, ParserContext* parser_context, ForStatementAST* for_statement_ast);
+void create_bool_literal_ir(IrGenContext* ir_context, ParserContext* parser_context, BoolLiteralAST* bool_literal_ast);
+void create_neg_ir(IrGenContext* ir_context, ParserContext* parser_context, NegAST* negative_ast);

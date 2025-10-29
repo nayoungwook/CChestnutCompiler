@@ -31,12 +31,10 @@ void parse_file(IrGenContext* ir_context, ParserContext* parser_context, const w
 		set_file_string(parser_context, file);
 		void* ast = parse(parser_context, file);
 
-		wchar_t* ir = create_ir(ir_context, parser_context, ast, 0);
-
-		result = join_string(result, ir);
+		create_ir(ir_context, parser_context, ast);
 
 #ifdef DEBUG_VIEW_IR
-		printf("%S\n", ir);
+		printf("%S\n", ir_context->string_builder->str);
 #endif
 	}
 

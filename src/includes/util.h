@@ -22,7 +22,6 @@ void write_file(const wchar_t* path, const wchar_t* str);
 wchar_t* substr(const wchar_t* str, int s, int e);
 
 // For strings.
-wchar_t* join_string(const wchar_t* str1, const wchar_t* str2);
 int is_decimal(wchar_t* str);
 
 typedef struct _Type {
@@ -85,3 +84,4 @@ typedef struct _ClassData {
 SymbolTable* create_symbol_table();
 Set* create_set();
 
+wchar_t* join_string(const wchar_t* str1, const wchar_t* str2);
