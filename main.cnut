@@ -1,20 +1,30 @@
 
-class Bar extends Foo {
-  constructor(){
-    pt = 4;
+func fibo(n: int, dp: array<int>) : int {
+  if(n == 1 || n == 2){
+    return 1;
   }
-}
 
-class Foo {
-  protected var pt: int = 0;
-  private var a: int = 0;
-}
+  if(dp[n] != -1){
+    return dp[n];
+  }
 
-func test(foo: Foo): void {
+  var result: int = fibo(n - 1, dp) + fibo(n - 2, dp); 
 
+  dp[n] = result;
+  
+  return result;
 }
 
 func main(): void {
-  var bar: Bar = new Bar();
-  test(bar);
+  var dp: array<int>;
+
+  for(var i:int =0; i<100; i++){
+    dp[i] = -1;
+  }
+  
+  for(var i:int =0; i<10; i++){
+    print(i, " ");
+  }
+  
+  fibo(100, dp);
 }
