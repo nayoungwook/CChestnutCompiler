@@ -571,7 +571,7 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
 
 		VariableDeclarationAST* variable = (VariableDeclarationAST*)safe_malloc(sizeof(VariableDeclarationAST));
 		variable->TYPE = AST_VariableDeclaration;
-		variable->variable_name_token = name;
+		variable->variable_name_token = name_token;
 		variable->variable_type = type_element;
 
 		variable->declaration = declaration;
@@ -709,6 +709,7 @@ VariableDeclarationBundleAST* create_function_parameters(Token* tok, wchar_t* st
 	VariableDeclarationBundleAST* parameters = (VariableDeclarationBundleAST*)safe_malloc(sizeof(VariableDeclarationBundleAST));
 	parameters->variable_count = 0;
 	parameters->variable_declarations = NULL;
+	parameters->TYPE = AST_VariableDeclarationBundle;
 
 	while (peek_token(str)->type != TokRParen) {
 		Token* parameter_name_token = pull_token(str);
@@ -726,7 +727,7 @@ VariableDeclarationBundleAST* create_function_parameters(Token* tok, wchar_t* st
 
 		VariableDeclarationAST* variable = (VariableDeclarationAST*)safe_malloc(sizeof(VariableDeclarationAST));
 		variable->TYPE = AST_VariableDeclaration;
-		variable->variable_name_token = parameter_name;
+		variable->variable_name_token = parameter_name_token;
 		variable->variable_type = parameter_type_element;
 		variable->declaration = NULL;
 		variable->access_modifier = AM_DEFAULT;
@@ -853,7 +854,7 @@ void* create_neg_ast(ParserContext* parser_context, Token* tok, const wchar_t* s
 void* parse(ParserContext* parser_context, const wchar_t* str) {
 	Token* tok = pull_token(str);
 
-	switch (tok->type) {
+	switch ((TokenType)tok->type) {
 
 	case TokSub:
 		return create_neg_ast(parser_context, tok, str);

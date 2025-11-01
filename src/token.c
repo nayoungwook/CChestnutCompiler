@@ -31,10 +31,10 @@ KeywordEntry keyword_table[] = {
 	{NULL, TokEOF},
 };
 
-enum TokenType
-	get_token_type_of_special_character(wchar_t* str, int* str_len, int* read_index, wchar_t* c) {
+TokenType
+get_token_type_of_special_character(wchar_t* str, int* str_len, int* read_index, wchar_t* c) {
 
-	enum TokenType type = TokEOF;
+	TokenType type = TokEOF;
 
 	switch (*c) {
 

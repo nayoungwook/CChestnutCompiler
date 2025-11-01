@@ -11,7 +11,7 @@ IrGenContext* create_ir_context() {
 }
 
 StringBuilder* create_string_builder() {
-	StringBuilder* string_builder = (StringBuilder*)malloc(sizeof(StringBuilder));
+	StringBuilder* string_builder = (StringBuilder*)safe_malloc(sizeof(StringBuilder));
 	string_builder->str = NULL;
 
 	return string_builder;
@@ -55,8 +55,11 @@ void append_string(StringBuilder* string_builder, const wchar_t* ctx) {
 }
 
 void initialize_byte_table() {
-	ir_byte_table = (SymbolTable*)malloc(sizeof(SymbolTable));
+	ir_byte_table = create_symbol_table();
 
+	insert_ir_symbol(ir_byte_table, create_ir_data(L"{", (int)ir_byte_table->size));
+	insert_ir_symbol(ir_byte_table, create_ir_data(L"}", (int)ir_byte_table->size));
+	insert_ir_symbol(ir_byte_table, create_ir_data(L".", (int)ir_byte_table->size));
 }
 
 int get_prev_variable_index_size(SymbolTable* variable_symbol_table) {
@@ -96,9 +99,9 @@ void create_parameter_buffer(IrGenContext* ir_context, ParserContext* parser_con
 	for (i = 0; i < parameters_ast->variable_count; i++) {
 		VariableDeclarationAST* parameter = parameters_ast->variable_declarations[i];
 
-		VariableData* variable_data = create_variable_data(parser_context->variable_symbol_table, parameter->variable_type, parameter->variable_name_token, parameter->access_modifier);
+		VariableData* variable_data = create_variable_data(parser_context->variable_symbol_table, parameter->variable_type, parameter->variable_name_token->str, parameter->access_modifier);
 
-		insert_symbol(parser_context->variable_symbol_table, parameter->variable_name_token, variable_data);
+		insert_symbol(parser_context->variable_symbol_table, parameter->variable_name_token->str, variable_data);
 	}
 }
 
@@ -993,7 +996,7 @@ void create_function_declaration_ir(IrGenContext* ir_context, ParserContext* par
 	append_string(ir_context->string_builder, L"func");
 	append_integer(ir_context->string_builder, function_data->index);
 
-	create_parameter_buffer(ir_context, parser_context, ((VariableDeclarationBundleAST*)function_declaration_ast->parameters));
+	create_parameter_buffer(ir_context, parser_context, function_declaration_ast->parameters);
 
 	append_string(ir_context->string_builder, L"{");
 	new_line(ir_context->string_builder);
@@ -1030,7 +1033,6 @@ void create_class_ir(IrGenContext* ir_context, ParserContext* parser_context, Cl
 
 	if (parent_symbol != NULL) {
 		parent_data = parent_symbol->data;
-
 	}
 
 	append_string(ir_context->string_builder, L"class");
@@ -1076,21 +1078,38 @@ void create_variable_initializer(IrGenContext* ir_context, ParserContext* parser
 	new_line(ir_context->string_builder);
 }
 
+void initialize_class_data(IrGenContext* ir_context, ParserContext* parser_context, ClassAST* class_ast) {
+	int i = 0;
+	for (i = 0; i < class_ast->member_variable_bundle_count; i++) {
+		int j = 0;
+		VariableDeclarationBundleAST* bundle = class_ast->member_variables[i];
+
+		for (j = 0; j < bundle->variable_count; j++) {
+			VariableDeclarationAST* var_decl = bundle->variable_declarations[j];
+
+			VariableData* data = NULL;
+
+			// store variables into member variable area.
+			SymbolTable* member_variable_symbol_table = ((ClassData*)find_symbol(parser_context->class_symbol_table, class_ast->class_name_token->str)->data)->member_variables;
+			data = create_variable_data(member_variable_symbol_table, var_decl->variable_type, var_decl->variable_name_token->str, var_decl->access_modifier);
+			insert_symbol(member_variable_symbol_table, var_decl->variable_name_token->str, data);
+		}
+	}
+}
+
 void create_variable_declaration_ir(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast) {
 
 	check_type_of_variable_declaration(ir_context, parser_context, variable_declaration_ast);
 
 	VariableData* data = NULL;
 	int is_member_variable = ir_context->is_class_initializer;
+
 	if (is_member_variable) {
-		// store variables into member variable area.
-		SymbolTable* member_variable_symbol_table = ((ClassData*)find_symbol(parser_context->class_symbol_table, ir_context->current_class)->data)->member_variables;
-		data = create_variable_data(member_variable_symbol_table, variable_declaration_ast->variable_type, variable_declaration_ast->variable_name_token, variable_declaration_ast->access_modifier);
-		insert_symbol(member_variable_symbol_table, variable_declaration_ast->variable_name_token, data);
+		data = get_member_variable_data(parser_context, ir_context->current_class, variable_declaration_ast->variable_name_token->str);
 	}
 	else {
-		data = create_variable_data(parser_context->variable_symbol_table, variable_declaration_ast->variable_type, variable_declaration_ast->variable_name_token, variable_declaration_ast->access_modifier);
-		insert_symbol(parser_context->variable_symbol_table, variable_declaration_ast->variable_name_token, data);
+		data = create_variable_data(parser_context->variable_symbol_table, variable_declaration_ast->variable_type, variable_declaration_ast->variable_name_token->str, variable_declaration_ast->access_modifier);
+		insert_symbol(parser_context->variable_symbol_table, variable_declaration_ast->variable_name_token->str, data);
 	}
 
 	if (variable_declaration_ast->declaration) {
@@ -1112,7 +1131,6 @@ void create_variable_declaration_ir(IrGenContext* ir_context, ParserContext* par
 	int parent_variable_count = get_parent_member_variable_count(parser_context, ir_context->current_class);
 
 	if (ir_context->is_class_initializer) {
-
 		append_string(ir_context->string_builder, L"@mstore");
 		append_integer(ir_context->string_builder, data->index + parent_variable_count);
 	}

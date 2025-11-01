@@ -83,3 +83,45 @@ void remove_function_symbol(SymbolTable* function_symbol_table, const wchar_t* n
 		current = current->next;
 	}
 }
+
+// ir symbol table management
+void insert_ir_symbol(SymbolTable* ir_symbol_table, IrData* ir_data) {
+	unsigned int _hash = hash(ir_data->name);
+
+	Symbol* symbol = (Symbol*)safe_malloc(sizeof(Symbol));
+	symbol->data = ir_data;
+	symbol->symbol = _wcsdup(ir_data->name);
+	symbol->hash = _hash;
+	symbol->next = ir_symbol_table->table[_hash];
+
+	ir_symbol_table->size++;
+	ir_symbol_table->table[_hash] = symbol;
+}
+
+void remove_ir_symbol(SymbolTable* ir_symbol_table, const wchar_t* name) {
+	unsigned int _hash = hash(name);
+	Symbol* current = ir_symbol_table->table[_hash];
+	Symbol* prev = NULL;
+
+	while (current != NULL) {
+		if (wcscmp(current->symbol, name) == 0) {
+			if (prev == NULL) {
+				ir_symbol_table->table[_hash] = current->next;
+			}
+			else {
+				prev->next = current->next;
+			}
+
+			free(current);
+			ir_symbol_table->size--;
+			return;
+		}
+		prev = current;
+		current = current->next;
+	}
+}
+
+int get_ir_word(const wchar_t* name) {
+	IrData* ir_data = (IrData*)(find_symbol(ir_byte_table, name)->data);
+	return (ir_data)->data;
+}

@@ -25,7 +25,9 @@ typedef struct _IrGenContext {
 } IrGenContext;
 
 IrGenContext* create_ir_context();
+
 void create_class_initializer(IrGenContext* ir_context, ParserContext* parser_context, ClassAST* class_ast);
+void initialize_class_data(IrGenContext* ir_context, ParserContext* parser_context, ClassAST* class_ast);
 
 SymbolTable* ir_byte_table;
 void initialize_byte_table();
@@ -53,6 +55,8 @@ void create_parameter_buffer(IrGenContext* ir_context, ParserContext* parser_con
 void create_ir(IrGenContext* ir_context, ParserContext* parser_context, void* ast);
 void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, void* attribute);
 void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, void* left_ast, void* right_ast);
+
+IrData* create_ir_data(const wchar_t* name, int data);
 
 int get_member_variable_index(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* ident);
 int get_parent_member_variable_count(ParserContext* parser_context, const wchar_t* class_name);

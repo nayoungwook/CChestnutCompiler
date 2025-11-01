@@ -151,8 +151,8 @@ typedef struct {
 	VariableDeclarationBundleAST** member_variables;
 	FunctionDeclarationAST** member_functions;
 
-	unsigned int member_variable_bundle_count;
-	unsigned int member_function_count;
+	int member_variable_bundle_count;
+	int member_function_count;
 
 	Token* class_name_token;
 	Token* parent_class_name_token;
@@ -172,7 +172,7 @@ typedef struct {
 
 typedef struct {
 	ASTType TYPE;
-	unsigned int element_count;
+	int element_count;
 	void** elements;
 	Type* element_type;
 } ArrayDeclarationAST;

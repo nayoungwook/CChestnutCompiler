@@ -46,3 +46,12 @@ VariableData* create_variable_data(SymbolTable* variable_symbol_table, Type* typ
 
 	return result;
 }
+
+IrData* create_ir_data(const wchar_t* name, int data) {
+	IrData* result = (IrData*)safe_malloc(sizeof(IrData));
+
+	result->name = _wcsdup(name);
+	result->data = data;
+
+	return result;
+}

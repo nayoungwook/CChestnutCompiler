@@ -82,6 +82,11 @@ typedef struct _ClassData {
 	FunctionData* constructor_data;
 } ClassData;
 
+typedef struct _IrData {
+	const wchar_t* name;
+	int data;
+} IrData;
+
 SymbolTable* create_symbol_table();
 Set* create_set();
 

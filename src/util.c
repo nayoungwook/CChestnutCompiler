@@ -198,10 +198,74 @@ wchar_t* join_string(const wchar_t* str1, const wchar_t* str2) {
 	return result;
 }
 
+wchar_t* join_byte(const wchar_t* str, int data) {
+	if (!str) return NULL;
+
+	size_t len = wcslen(str);
+	size_t str_byte_size = (len + 1) * sizeof(wchar_t);
+	size_t total_size = str_byte_size + 4;
+
+	void* mem = malloc(total_size);
+	if (!mem) return NULL;
+
+	memcpy(mem, str, str_byte_size);
+
+	unsigned u = (unsigned)data;
+	unsigned char be[4];
+	be[0] = (unsigned char)((u >> 24) & 0xFF);
+	be[1] = (unsigned char)((u >> 16) & 0xFF);
+	be[2] = (unsigned char)((u >> 8) & 0xFF);
+	be[3] = (unsigned char)(u & 0xFF);
+
+	memcpy((unsigned char*)mem + str_byte_size, be, 4);
+
+	return (wchar_t*)mem;
+}
+
 int is_decimal(wchar_t* str) {
 	while (*str != L'\0') {
 		if (*str == L'.' || *str == L'f') return 1;
 		str++;
 	}
 	return 0;
+}
+
+void format_int_big_endian(int value, size_t size, wchar_t* out) {
+	swprintf(out, size, L"%02X %02X %02X %02X ",
+		(value >> 24) & 0xFF,
+		(value >> 16) & 0xFF,
+		(value >> 8) & 0xFF,
+		value & 0xFF);
+}
+
+void format_wchar_big_endian(const wchar_t* value, size_t out_size, wchar_t* out) {
+	if (!value || !out) return;
+
+	size_t len = wcslen(value);
+	wchar_t* ptr = out;
+	size_t remaining = out_size;
+	size_t i = 0;
+
+	for (i = 0; i < len; ++i) {
+		unsigned ch = (unsigned)value[i];
+
+		unsigned char high = (ch >> 8) & 0xFF;
+		unsigned char low = ch & 0xFF;
+
+		if (remaining < 4) {
+			*ptr = L'\0';
+			return;
+		}
+
+		swprintf(ptr, remaining, L"%02X %02X ", high, low);
+		ptr += 5;
+		remaining -= 5;
+
+		if (i != len - 1) {
+			*(ptr - 1) = L' ';
+		}
+		else {
+			*(ptr - 1) = L'\0';
+		}
+	}
 }
