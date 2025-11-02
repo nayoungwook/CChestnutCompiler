@@ -1,0 +1,30 @@
+
+func fibo(n: int, dp: array<int>) : int {
+  if(n == 1 || n == 2){
+    return 1;
+  }
+
+  if(dp[n] != -1){
+    return dp[n];
+  }
+
+  var result: int = fibo(n - 1, dp) + fibo(n - 2, dp); 
+
+  dp[n] = result;
+  
+  return result;
+}
+
+func main(): void {
+  var dp: array<int>;
+
+  for(var i:int =0; i<100; i++){
+    dp[i] = -1;
+  }
+  
+  for(var i:int =0; i<10; i++){
+    print(i, " ");
+  }
+  
+  fibo(100, dp);
+}

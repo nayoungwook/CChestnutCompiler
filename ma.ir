@@ -1,0 +1,85 @@
+func 1 2 { 
+ @load 1 
+ @push int 1 
+ @equal 
+ @load 1 
+ @push int 2 
+ @equal 
+ @or 
+ @jne 2 
+ @push int 1 
+ @ret 
+ @goto 1 
+ @label 2 
+ @label 1 
+ @load 2 
+ @load 1 
+ @array_load 
+ @push int 1 
+ @neg 
+ @notequal 
+ @jne 4 
+ @load 2 
+ @load 1 
+ @array_load 
+ @ret 
+ @goto 3 
+ @label 4 
+ @label 3 
+ @call 1 2 
+ @load 1 
+ @push int 1 
+ @sub 
+ @load 2 
+ @call 1 2 
+ @load 1 
+ @push int 2 
+ @sub 
+ @load 2 
+ @add 
+ @store 3 
+ @load 3 
+ @load 2 
+ @load 1 
+ @array_store 
+ @load 3 
+ @ret 
+ } 
+ 
+ func 2 0 { 
+ @array 0 
+ @store 1 
+ @push int 0 
+ @store 2 
+ @goto 5 
+ @label 6 
+ @push int 1 
+ @neg 
+ @load 1 
+ @load 2 
+ @array_store 
+ @inc 2 
+ @label 5 
+ @load 2 
+ @push int 100 
+ @less 
+ @je 6 
+ @push int 0 
+ @store 2 
+ @goto 7 
+ @label 8 
+ @bcall 1 2 
+ @load 2 
+ 
+ @inc 2 
+ @label 7 
+ @load 2 
+ @push int 10 
+ @less 
+ @je 8 
+ @call 1 2 
+ @push int 100 
+ @load 1 
+ } 
+ 
+ 

@@ -1,0 +1,33 @@
+class 1 2 { 
+ $initializer { 
+ @push int 0 
+ @mstore 3 
+ } 
+ $constructor 0 { 
+ @push int 4 
+ @mstore 1 
+ } 
+ } 
+ 
+ class 2 0 { 
+ $initializer { 
+ @push int 0 
+ @mstore 1 
+ @push int 0 
+ @mstore 2 
+ } 
+ $constructor 0 { 
+ } 
+ } 
+ 
+ func 1 1 { 
+ } 
+ 
+ func 2 0 { 
+ @new 1 0 
+ @store 1 
+ @call 1 1 
+ @load 1 
+ } 
+ 
+ 

@@ -1,0 +1,21 @@
+
+class Bar extends Foo {
+  private var k: float = 0;
+  constructor(){
+    pt = 4;
+  }
+}
+
+class Foo {
+  protected var pt: int = 0;
+  private var a: int = 0;
+}
+
+func test(foo: Foo): void {
+
+}
+
+func main(): void {
+  var bar: Bar = new Bar();
+  test(bar);
+}
