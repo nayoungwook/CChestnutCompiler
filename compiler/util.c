@@ -50,50 +50,6 @@ void* safe_realloc(void* ptr, size_t size) {
   return re_ptr;
 }
 
-int* line_index_data;
-int* line_number_data;
-
-wchar_t* read_file(const wchar_t* file_path) {
-  
-  FILE* fp = _wfopen(file_path, L"r");
-  if (!fp) {
-    perror("Failed to open file");
-    return 1;
-  }
-
-  fseek(fp, 0, SEEK_END);
-  long byte_len = ftell(fp);
-  rewind(fp);
-
-  size_t wchar_estimate = byte_len + 1;
-  wchar_t* str = (wchar_t*)safe_malloc(sizeof(wchar_t) * wchar_estimate);
-
-  int capacity = 1;
-  int size = 0;
-  line_index_data = (int*)safe_malloc(sizeof(int));
-  line_number_data = (int*)safe_malloc(sizeof(int));
-  int line_number = 0;
-
-  size_t i = 0;
-  while (fgetws(str + i, (int)(wchar_estimate - i), fp)) {
-    i = wcslen(str);
-
-    if (size >= capacity) {
-      capacity *= 2;
-      line_index_data = (int*)safe_realloc(line_index_data, sizeof(int) * capacity);
-      line_number_data = (int*)safe_realloc(line_number_data, sizeof(int) * capacity);
-    }
-
-    line_number++;
-    line_index_data[size] = i;
-    line_number_data[size] = line_number;
-
-    size++;
-  }
-
-  return str;
-}
-
 unsigned int hash(const wchar_t* str) {
   unsigned int hash = 0;
   while (*str) {

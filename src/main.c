@@ -13,9 +13,9 @@
 #define DEBUG_VIEW_IR
 #define IR_BYTE 1
 
-void print_tokens(wchar_t* str) {
+void print_tokens(TokenizerContext* tokenizer_context, wchar_t* str) {
   while (1) {
-    Token* tok = pull_token(str);
+    Token* tok = pull_token(tokenizer_context, str);
 
     printf("%S %d %d\n", tok->str, tok->type, tok->line_number);
 
@@ -32,8 +32,8 @@ void initialize_primitive_types(ParserContext* parser_context) {
   insert_set_symbol(parser_context->primitive_types, L"char");
 }
 
-void parse_file(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* file_name) {
-  wchar_t* file = read_file(file_name);
+void parse_file(IrGenContext* ir_context, ParserContext* parser_context, TokenizerContext* tokenizer_context, const wchar_t* file_name) {
+  wchar_t* file = read_file(tokenizer_context, file_name);
 
   int ast_count = 0;
   int class_ast_count = 0;
@@ -43,9 +43,11 @@ void parse_file(IrGenContext* ir_context, ParserContext* parser_context, const w
 
   setlocale(LC_ALL, "");
 
-  while (peek_token(file)->type != TokEOF) {
+  print_tokens(tokenizer_context, file);
+  
+  while (peek_token(tokenizer_context, file)->type != TokEOF) {
     set_file_string(parser_context, file);
-    void* ast = parse(parser_context, file);
+    void* ast = parse(tokenizer_context, parser_context, file);
 
     if (*((ASTType*)ast) == AST_Class) {
       if (class_ast_count == 0) {
@@ -71,7 +73,7 @@ void parse_file(IrGenContext* ir_context, ParserContext* parser_context, const w
       ast_count++;
     }
   }
-
+  
   int i = 0;
   
   for (i = 0; i < class_ast_count; i++) {
@@ -96,13 +98,15 @@ void parse_file(IrGenContext* ir_context, ParserContext* parser_context, const w
 int main(int arc, char* args[]) {
   setlocale(LC_ALL, "");
 
+  TokenizerContext* tokenizer_context = create_tokenizer_context();
   ParserContext* parser_context = create_parser_context();
   IrGenContext* ir_context = create_ir_context();
+  
   initialize_primitive_types(parser_context);
   initialize_builtin_functions(parser_context);
   initialize_byte_table();
 
-  parse_file(ir_context, parser_context, L"main.cn");
+  parse_file(ir_context, parser_context, tokenizer_context, L"main.cn");
 
   return 0;
 }

@@ -19,11 +19,9 @@ void* safe_malloc(size_t size);
 void* safe_realloc(void* ptr, size_t size);
 
 wchar_t* get_working_directory();
-wchar_t* read_file(const wchar_t* path);
 void write_file(const wchar_t* path, const wchar_t* str);
 
 wchar_t* substr(const wchar_t* str, int s, int e);
-
 // For strings.
 int is_decimal(wchar_t* str);
 

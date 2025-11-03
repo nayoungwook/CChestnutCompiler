@@ -28,12 +28,12 @@ void initialize_parser_context(ParserContext* parser_context) {
   parser_context->primitive_types = create_set();
 }
 
-void* parse_term(ParserContext* parser_context, wchar_t* str) {
-  void* node = parse(parser_context, str);
+void* parse_term(TokenizerContext* tokenizer_context, ParserContext* parser_context, wchar_t* str) {
+  void* node = parse(tokenizer_context, parser_context, str);
 
-  while (peek_token(str) && (peek_token(str)->type == TokMul || peek_token(str)->type == TokDiv)) {
-    TokenType op = pull_token(str)->type;
-    void* right = parse(parser_context, str);
+  while (peek_token(tokenizer_context, str) && (peek_token(tokenizer_context, str)->type == TokMul || peek_token(tokenizer_context, str)->type == TokDiv)) {
+    TokenType op = pull_token(tokenizer_context, str)->type;
+    void* right = parse(tokenizer_context, parser_context, str);
 
     OperatorType op_type = (op == TokMul) ? OpMUL : OpDIV;
 
@@ -52,12 +52,12 @@ void* parse_term(ParserContext* parser_context, wchar_t* str) {
   return node;
 }
 
-void* parse_simple_expression(ParserContext* parser_context, wchar_t* str) {
-  void* node = parse_term(parser_context, str);
+void* parse_simple_expression(TokenizerContext* tokenizer_context, ParserContext* parser_context, wchar_t* str) {
+  void* node = parse_term(tokenizer_context, parser_context, str);
 
-  while (peek_token(str) && (peek_token(str)->type == TokAdd || peek_token(str)->type == TokSub)) {
-    TokenType op = pull_token(str)->type;
-    void* right = parse_term(parser_context, str);
+  while (peek_token(tokenizer_context, str) && (peek_token(tokenizer_context, str)->type == TokAdd || peek_token(tokenizer_context, str)->type == TokSub)) {
+    TokenType op = pull_token(tokenizer_context, str)->type;
+    void* right = parse_term(tokenizer_context, parser_context, str);
 
     OperatorType op_type = (op == TokAdd) ? OpADD : OpSUB;
 
@@ -76,30 +76,30 @@ void* parse_simple_expression(ParserContext* parser_context, wchar_t* str) {
   return node;
 }
 
-void* parse_unary_expression(ParserContext* parser_context, wchar_t* str) {
-  if (peek_token(str) && peek_token(str)->type == TokNot) {
-    pull_token(str); // Consume '!'
+void* parse_unary_expression(TokenizerContext* tokenizer_context, ParserContext* parser_context, wchar_t* str) {
+  if (peek_token(tokenizer_context, str) && peek_token(tokenizer_context, str)->type == TokNot) {
+    pull_token(tokenizer_context, str); // Consume '!'
     UnaryExprAST* unary_expr = (UnaryExprAST*)safe_malloc(sizeof(UnaryExprAST));
     if (!unary_expr) {
       fprintf(stderr, "Memory allocation failed\n");
       exit(1);
     }
     unary_expr->TYPE = AST_UnaryExpr;
-    unary_expr->expr = parse_unary_expression(parser_context, str);
+    unary_expr->expr = parse_unary_expression(tokenizer_context, parser_context, str);
     return unary_expr;
   }
-  return parse_simple_expression(parser_context, str);
+  return parse_simple_expression(tokenizer_context, parser_context, str);
 }
 
-void* parse_compare_expression(ParserContext* parser_context, wchar_t* str) {
-  void* node = parse_unary_expression(parser_context, str);
+void* parse_compare_expression(TokenizerContext* tokenizer_context, ParserContext* parser_context, wchar_t* str) {
+  void* node = parse_unary_expression(tokenizer_context, parser_context, str);
 
-  while (peek_token(str) && (peek_token(str)->type == TokEqual || peek_token(str)->type == TokNotEqual ||
-			     peek_token(str)->type == TokGreater || peek_token(str)->type == TokLesser ||
-			     peek_token(str)->type == TokEqualGreater || peek_token(str)->type == TokEqualLesser)) {
-    Token* operator_token = pull_token(str);
+  while (peek_token(tokenizer_context, str) && (peek_token(tokenizer_context, str)->type == TokEqual || peek_token(tokenizer_context, str)->type == TokNotEqual ||
+			     peek_token(tokenizer_context, str)->type == TokGreater || peek_token(tokenizer_context, str)->type == TokLesser ||
+			     peek_token(tokenizer_context, str)->type == TokEqualGreater || peek_token(tokenizer_context, str)->type == TokEqualLesser)) {
+    Token* operator_token = pull_token(tokenizer_context, str);
     TokenType op = operator_token->type;
-    void* right = parse_unary_expression(parser_context, str);
+    void* right = parse_unary_expression(tokenizer_context, parser_context, str);
 
     OperatorType op_type = OpNone;
     switch (op) {
@@ -131,12 +131,12 @@ void* parse_compare_expression(ParserContext* parser_context, wchar_t* str) {
   return node;
 }
 
-void* parse_expression(ParserContext* parser_context, wchar_t* str) {
-  void* node = parse_compare_expression(parser_context, str);
+void* parse_expression(TokenizerContext* tokenizer_context, ParserContext* parser_context, wchar_t* str) {
+  void* node = parse_compare_expression(tokenizer_context, parser_context, str);
 
-  while (peek_token(str) && (peek_token(str)->type == TokOr || peek_token(str)->type == TokAnd)) {
-    TokenType op = pull_token(str)->type;
-    void* right = parse_compare_expression(parser_context, str);
+  while (peek_token(tokenizer_context, str) && (peek_token(tokenizer_context, str)->type == TokOr || peek_token(tokenizer_context, str)->type == TokAnd)) {
+    TokenType op = pull_token(tokenizer_context, str)->type;
+    void* right = parse_compare_expression(tokenizer_context, parser_context, str);
 
     OperatorType op_type;
     switch (op) {
@@ -160,8 +160,8 @@ void* parse_expression(ParserContext* parser_context, wchar_t* str) {
   return node;
 }
 
-void consume(wchar_t* str, TokenType expected_type) {
-  Token* tok = pull_token(str);
+void consume(TokenizerContext* tokenizer_context, wchar_t* str, TokenType expected_type) {
+  Token* tok = pull_token(tokenizer_context, str);
 
   if (tok->type != expected_type) {
     printf("%d ", expected_type);
@@ -169,18 +169,18 @@ void consume(wchar_t* str, TokenType expected_type) {
   }
 }
 
-void* create_if_statement_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
+void* create_if_statement_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, wchar_t* str) {
   IfStatementAST* if_statement = (IfStatementAST*)safe_malloc(sizeof(IfStatementAST));
 
   IfStatementType if_type = StmtIf;
 
-  if (peek_token(str)->type == TokElse) {
-    consume(str, TokElse);
+  if (peek_token(tokenizer_context, str)->type == TokElse) {
+    consume(tokenizer_context, str, TokElse);
 
-    if (peek_token(str)->type == TokIf) {
+    if (peek_token(tokenizer_context, str)->type == TokIf) {
       if_type = StmtElseIf;
 
-      consume(str, TokIf);
+      consume(tokenizer_context, str, TokIf);
     }
     else {
       if_type = StmtElse;
@@ -194,19 +194,19 @@ void* create_if_statement_ast(ParserContext* parser_context, Token* tok, wchar_t
   if_statement->condition = NULL;
 
   if (if_type != StmtElse) {
-    consume(str, TokLParen); // consume (
+    consume(tokenizer_context, str, TokLParen); // consume (
 
-    void* condition = parse_expression(parser_context, str);
+    void* condition = parse_expression(tokenizer_context, parser_context, str);
 
-    consume(str, TokRParen); // consume )
+    consume(tokenizer_context, str, TokRParen); // consume )
 
     if_statement->condition = condition;
   }
 
-  consume(str, TokLBracket); // consume {
+  consume(tokenizer_context, str, TokLBracket); // consume {
 
-  while (peek_token(str)->type != TokRBracket) {
-    void* body_element = parse_expression(parser_context, str);
+  while (peek_token(tokenizer_context, str)->type != TokRBracket) {
+    void* body_element = parse_expression(tokenizer_context, parser_context, str);
 
     if (if_statement->body_count == 0) {
       if_statement->body = (void**)safe_malloc(sizeof(void*));
@@ -220,19 +220,19 @@ void* create_if_statement_ast(ParserContext* parser_context, Token* tok, wchar_t
     if_statement->body_count++;
   }
 
-  consume(str, TokRBracket); // consume }
+  consume(tokenizer_context, str, TokRBracket); // consume }
 
-  if (peek_token(str)->type == TokElse) {
-    if_statement->next_statement = create_if_statement_ast(parser_context, tok, str);
+  if (peek_token(tokenizer_context,str)->type == TokElse) {
+    if_statement->next_statement = create_if_statement_ast(tokenizer_context,parser_context, tok, str);
   }
 
   return if_statement;
 }
 
-void* create_paren_group_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
-  void* node = parse_expression(parser_context, str);
+void* create_paren_group_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, wchar_t* str) {
+  void* node = parse_expression(tokenizer_context, parser_context, str);
 
-  consume(str, TokRParen); // consume )
+  consume(tokenizer_context, str, TokRParen); // consume )
 
   return node;
 }
@@ -268,9 +268,9 @@ void* create_number_literal_ast(ParserContext* parser_context, Token* tok, wchar
   return literal;
 }
 
-void* create_return_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
+void* create_return_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, wchar_t* str) {
   void* result = NULL;
-  void* expression = parse_expression(parser_context, str);
+  void* expression = parse_expression(tokenizer_context, parser_context, str);
 
   result = (ReturnAST*)safe_malloc(sizeof(ReturnAST));
   ((ReturnAST*)result)->expression = expression;
@@ -279,16 +279,16 @@ void* create_return_ast(ParserContext* parser_context, Token* tok, wchar_t* str)
   return result;
 }
 
-FunctionCallParameterContext* parse_function_call_parameter(ParserContext* parser_context, wchar_t* str) {
+FunctionCallParameterContext* parse_function_call_parameter(TokenizerContext* tokenizer_context, ParserContext* parser_context, wchar_t* str) {
   FunctionCallParameterContext* result = (FunctionCallParameterContext*)safe_malloc(sizeof(FunctionCallParameterContext));
 
   result->parameters = NULL;
   result->parameter_count = 0;
 
-  consume(str, TokLParen);
+  consume(tokenizer_context, str, TokLParen);
 
-  while (peek_token(str)->type != TokRParen) {
-    void* parameter = parse_expression(parser_context, str);
+  while (peek_token(tokenizer_context, str)->type != TokRParen) {
+    void* parameter = parse_expression(tokenizer_context, parser_context, str);
 
     if (result->parameter_count == 0) {
       result->parameters = (void**)safe_malloc(sizeof(void*));
@@ -301,30 +301,35 @@ FunctionCallParameterContext* parse_function_call_parameter(ParserContext* parse
     result->parameters[index] = parameter;
     result->parameter_count++;
 
-    if (peek_token(str)->type == TokComma) {
-      consume(str, TokComma);
+    if (peek_token(tokenizer_context, str)->type == TokComma) {
+      consume(tokenizer_context, str, TokComma);
     }
-    else if (peek_token(str)->type == TokRParen) {
+    else if (peek_token(tokenizer_context, str)->type == TokRParen) {
       break;
     }
     else {
-      handle_error(ER_UnexpectedToken, peek_token(str), parser_context->current_file_name, parser_context->file_str);
+      handle_error(ER_UnexpectedToken, peek_token(tokenizer_context, str), parser_context->current_file_name, parser_context->file_str);
     }
   }
 
-  consume(str, TokRParen);
+  consume(tokenizer_context, str, TokRParen);
 
   return result;
 }
 
 void free_function_call_parameter(FunctionCallParameterContext* function_call_parameter) {
+  int i;
+  for(i=0; i<function_call_parameter->parameter_count; i++){
+    free(function_call_parameter->parameters[i]);
+  }
+      
   free(function_call_parameter);
 }
 
-void* create_function_call_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
+void* create_function_call_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, wchar_t* str) {
   FunctionCallAST* result = (FunctionCallAST*)safe_malloc(sizeof(FunctionCallAST));
 
-  FunctionCallParameterContext* function_call_parameter = parse_function_call_parameter(parser_context, str);
+  FunctionCallParameterContext* function_call_parameter = parse_function_call_parameter(tokenizer_context, parser_context, str);
 
   wchar_t* function_name = _wcsdup(tok->str);
   result->function_name_token = tok;
@@ -337,7 +342,7 @@ void* create_function_call_ast(ParserContext* parser_context, Token* tok, wchar_
   return result;
 }
 
-void* create_array_access_ast(ParserContext* parser_context, void* target_array, Token* tok, wchar_t* str) {
+void* create_array_access_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, void* target_array, Token* tok, wchar_t* str) {
   ArrayAccessAST* array_access_ast = (ArrayAccessAST*)safe_malloc(sizeof(ArrayAccessAST));
   array_access_ast->TYPE = AST_ArrayAccess;
   array_access_ast->access_count = 0;
@@ -346,10 +351,10 @@ void* create_array_access_ast(ParserContext* parser_context, void* target_array,
   int access_count = 0;
   void** indexes = NULL;
 
-  while (peek_token(str)->type == TokLSquareBracket) {
-    consume(str, TokLSquareBracket);
-    void* index = parse_expression(parser_context, str);
-    consume(str, TokRSquareBracket);
+  while (peek_token(tokenizer_context, str)->type == TokLSquareBracket) {
+    consume(tokenizer_context, str, TokLSquareBracket);
+    void* index = parse_expression(tokenizer_context, parser_context, str);
+    consume(tokenizer_context,str, TokRSquareBracket);
 
     indexes = (void**)safe_realloc(indexes, (access_count + 1) * sizeof(void*));
     indexes[access_count] = index;
@@ -365,31 +370,31 @@ void* create_array_access_ast(ParserContext* parser_context, void* target_array,
   return array_access_ast;
 }
 
-void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* str, bool is_attribute_identifier) {
+void* create_identifier_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, wchar_t* str, bool is_attribute_identifier) {
   void* result = NULL;
 
-  Token* next_token = peek_token(str);
+  Token* next_token = peek_token(tokenizer_context,str);
   if (next_token->type == TokLParen) { // identifier ( 
-    result = create_function_call_ast(parser_context, tok, str);
+    result = create_function_call_ast(tokenizer_context, parser_context, tok, str);
 
     ((FunctionCallAST*)result)->attribute = NULL;
 
-    if (peek_token(str)->type == TokDot) {
-      consume(str, TokDot);
-      ((FunctionCallAST*)result)->attribute = create_identifier_ast(parser_context, pull_token(str), str, true);
+    if (peek_token(tokenizer_context,str)->type == TokDot) {
+      consume(tokenizer_context,str, TokDot);
+      ((FunctionCallAST*)result)->attribute = create_identifier_ast(tokenizer_context,parser_context, pull_token(tokenizer_context, str), str, true);
     }
   }
   else {
     if (next_token->type == TokIncrease || next_token->type == TokDecrease) {
       if (next_token->type == TokIncrease) {
-	consume(str, TokIncrease);
+	consume(tokenizer_context,str, TokIncrease);
 	result = (IdentIncreaseAST*)safe_malloc(sizeof(IdentIncreaseAST));
 	((IdentIncreaseAST*)result)->identifier = tok;
 	((IdentIncreaseAST*)result)->TYPE = AST_IdentIncrease;
       }
 
       if (next_token->type == TokDecrease) {
-	consume(str, TokDecrease);
+	consume(tokenizer_context,str, TokDecrease);
 	result = (IdentDecreaseAST*)safe_malloc(sizeof(IdentDecreaseAST));
 	((IdentDecreaseAST*)result)->identifier = tok;
 	((IdentDecreaseAST*)result)->TYPE = AST_IdentDecrease;
@@ -402,28 +407,28 @@ void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* 
 
       ((IdentifierAST*)result)->attribute = NULL;
 
-      if (peek_token(str)->type == TokDot) {
-	consume(str, TokDot);
-	((IdentifierAST*)result)->attribute = create_identifier_ast(parser_context, pull_token(str), str, true);
+      if (peek_token(tokenizer_context,str)->type == TokDot) {
+	consume(tokenizer_context,str, TokDot);
+	((IdentifierAST*)result)->attribute = create_identifier_ast(tokenizer_context,parser_context, pull_token(tokenizer_context, str), str, true);
       }
     }
   }
 
-  if (peek_token(str)->type == TokLSquareBracket) {
-    result = create_array_access_ast(parser_context, result, tok, str);
+  if (peek_token(tokenizer_context,str)->type == TokLSquareBracket) {
+    result = create_array_access_ast(tokenizer_context,parser_context, result, tok, str);
     ((ArrayAccessAST*)result)->attribute = NULL;
 
-    if (peek_token(str)->type == TokDot) {
-      consume(str, TokDot);
-      ((ArrayAccessAST*)result)->attribute = create_identifier_ast(parser_context, pull_token(str), str, true);
+    if (peek_token(tokenizer_context,str)->type == TokDot) {
+      consume(tokenizer_context,str, TokDot);
+      ((ArrayAccessAST*)result)->attribute = create_identifier_ast(tokenizer_context,parser_context, pull_token(tokenizer_context, str), str, true);
     }
   }
 
-  int is_assigned = !is_attribute_identifier && peek_token(str)->type == TokAssign;
+  int is_assigned = !is_attribute_identifier && peek_token(tokenizer_context, str)->type == TokAssign;
   if (is_assigned) {
-    consume(str, TokAssign);
+    consume(tokenizer_context,str, TokAssign);
 
-    void* right_term = parse_expression(parser_context, str);
+    void* right_term = parse_expression(tokenizer_context, parser_context, str);
 
     BinExprAST* bin_expr_ast = (BinExprAST*)safe_malloc(sizeof(BinExprAST));
     bin_expr_ast->TYPE = AST_BinExpr;
@@ -437,32 +442,32 @@ void* create_identifier_ast(ParserContext* parser_context, Token* tok, wchar_t* 
   return result;
 }
 
-void* create_function_declaration_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
+void* create_function_declaration_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, wchar_t* str) {
   // func add(a: int, b: int): int {}
   FunctionDeclarationAST* function_declaration_ast = (FunctionDeclarationAST*)safe_malloc(sizeof(FunctionDeclarationAST));
   function_declaration_ast->TYPE = AST_FunctionDeclaration;
   function_declaration_ast->body_count = 0;
   function_declaration_ast->access_modifier = AM_DEFAULT;
 
-  Token* function_name_token = pull_token(str);
+  Token* function_name_token = pull_token(tokenizer_context, str);
   wchar_t* function_name = function_name_token->str;
   function_declaration_ast->function_name_token = function_name_token;
 
   parser_context->current_function_name = _wcsdup(function_name);
 
-  VariableDeclarationBundleAST* parameters = create_function_parameters(tok, str);
+  VariableDeclarationBundleAST* parameters = create_function_parameters(tokenizer_context, tok, str);
   function_declaration_ast->parameters = parameters;
 
-  consume(str, TokColon); // consume :
+  consume(tokenizer_context, str, TokColon); // consume :
 
   Type* return_type_element = get_type(tok, str);
 
   function_declaration_ast->return_type = return_type_element;
 
-  consume(str, TokLBracket); // consume {
+  consume(tokenizer_context, str, TokLBracket); // consume {
 
-  while (peek_token(str)->type != TokRBracket) {
-    void* body_element = parse(parser_context, str);
+  while (peek_token(tokenizer_context, str)->type != TokRBracket) {
+    void* body_element = parse(tokenizer_context, parser_context, str);
 
     if (function_declaration_ast->body_count == 0) {
       function_declaration_ast->body = (void**)safe_malloc(sizeof(void*));
@@ -476,7 +481,7 @@ void* create_function_declaration_ast(ParserContext* parser_context, Token* tok,
     function_declaration_ast->body_count++;
   }
 
-  consume(str, TokRBracket); // consume }
+  consume(tokenizer_context, str, TokRBracket); // consume }
 
   if (wcscmp(parser_context->current_class, L"") == 0) {
     FunctionData* data = create_function_data(parser_context->function_symbol_table, function_name, function_declaration_ast->return_type, parameters);
@@ -492,38 +497,38 @@ void* create_function_declaration_ast(ParserContext* parser_context, Token* tok,
   return function_declaration_ast;
 }
 
-void* create_for_statement_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
+void* create_for_statement_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, wchar_t* str) {
   ForStatementAST* for_statement = (ForStatementAST*)safe_malloc(sizeof(ForStatementAST));
 
   for_statement->TYPE = AST_ForStatement;
   for_statement->body_count = 0;
 
-  consume(str, TokLParen); // consume (
+  consume(tokenizer_context, str, TokLParen); // consume (
 
-  void* init = parse_expression(parser_context, str);
+  void* init = parse_expression(tokenizer_context, parser_context, str);
 
-  if (peek_token(str)->type == TokSemiColon) {
-    consume(str, TokSemiColon);
+  if (peek_token(tokenizer_context, str)->type == TokSemiColon) {
+    consume(tokenizer_context, str, TokSemiColon);
   }
 
-  void* condition = parse_expression(parser_context, str);
+  void* condition = parse_expression(tokenizer_context, parser_context, str);
 
-  if (peek_token(str)->type == TokSemiColon) {
-    consume(str, TokSemiColon);
+  if (peek_token(tokenizer_context, str)->type == TokSemiColon) {
+    consume(tokenizer_context, str, TokSemiColon);
   }
 
-  void* step = parse_expression(parser_context, str);
+  void* step = parse_expression(tokenizer_context, parser_context, str);
 
-  consume(str, TokRParen); // consume )
+  consume(tokenizer_context, str, TokRParen); // consume )
 
   for_statement->init = init;
   for_statement->condition = condition;
   for_statement->step = step;
 
-  consume(str, TokLBracket); // consume {
+  consume(tokenizer_context, str, TokLBracket); // consume {
 
-  while (peek_token(str)->type != TokRBracket) {
-    void* body_element = parse(parser_context, str);
+  while (peek_token(tokenizer_context, str)->type != TokRBracket) {
+    void* body_element = parse(tokenizer_context, parser_context, str);
 
     if (for_statement->body_count == 0) {
       for_statement->body = (void**)safe_malloc(sizeof(void*));
@@ -537,12 +542,12 @@ void* create_for_statement_ast(ParserContext* parser_context, Token* tok, wchar_
     for_statement->body_count++;
   }
 
-  consume(str, TokRBracket); // consume }
+  consume(tokenizer_context, str, TokRBracket); // consume }
 
   return for_statement;
 }
 
-void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
+void* create_variable_declaration_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, wchar_t* str) {
   // var i: int;
   VariableDeclarationBundleAST* bundles = (VariableDeclarationBundleAST*)safe_malloc(sizeof(VariableDeclarationBundleAST));
   bundles->TYPE = AST_VariableDeclarationBundle;
@@ -550,14 +555,14 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
   bundles->variable_declarations = NULL;
 
   while (1) {
-    Token* name_token = pull_token(str);
+    Token* name_token = pull_token(tokenizer_context, str);
     wchar_t* name = name_token->str;
 
-    consume(str, TokColon);
+    consume(tokenizer_context, str, TokColon);
 
     wchar_t* type_element = get_type(tok, str);
 
-    tok = pull_token(str);
+    tok = pull_token(tokenizer_context, str);
 
     void* declaration = NULL;
 
@@ -566,7 +571,7 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
     else if (tok->type == TokComma) {
     }
     else if (tok->type == TokAssign) {
-      declaration = parse_expression(parser_context, str);
+      declaration = parse_expression(tokenizer_context, parser_context, str);
     }
 
     VariableDeclarationAST* variable = (VariableDeclarationAST*)safe_malloc(sizeof(VariableDeclarationAST));
@@ -592,8 +597,8 @@ void* create_variable_declaration_ast(ParserContext* parser_context, Token* tok,
       break;
     }
 
-    if (peek_token(str)->type == TokSemiColon) {
-      consume(str, TokSemiColon);
+    if (peek_token(tokenizer_context, str)->type == TokSemiColon) {
+      consume(tokenizer_context, str, TokSemiColon);
       break;
     }
   }
@@ -621,20 +626,20 @@ void initialize_constructor_of_class(ClassAST* class_ast) {
   class_ast->constructor->parameters = empty_parameters;
 }
 
-Token* get_parent_name(wchar_t* str) {
+Token* get_parent_name(TokenizerContext* tokenizer_context, wchar_t* str) {
   Token* parent_name = NULL;
-  if (peek_token(str)->type == TokExtends) {
-    consume(str, TokExtends);
-    parent_name = pull_token(str);
+  if (peek_token(tokenizer_context, str)->type == TokExtends) {
+    consume(tokenizer_context, str, TokExtends);
+    parent_name = pull_token(tokenizer_context, str);
   }
   return parent_name;
 }
 
-void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
-  Token* class_name_token = pull_token(str);
+void* create_class_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, wchar_t* str) {
+  Token* class_name_token = pull_token(tokenizer_context, str);
   wchar_t* class_name = class_name_token->str;
 
-  Token* parent_name_token = get_parent_name(str);
+  Token* parent_name_token = get_parent_name(tokenizer_context, str);
   wchar_t* parent_name = parent_name_token == NULL ? L"" : _wcsdup(parent_name_token->str);
 
   ClassAST* class_ast = (ClassAST*)safe_malloc(sizeof(ClassAST));
@@ -654,10 +659,10 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
   parser_context->current_class = class_name_token->str;
   initialize_constructor_of_class(class_ast);
 
-  consume(str, TokLBracket);
+  consume(tokenizer_context, str, TokLBracket);
 
-  while (peek_token(str)->type != TokRBracket) {
-    void* body_element = parse(parser_context, str);
+  while (peek_token(tokenizer_context, str)->type != TokRBracket) {
+    void* body_element = parse(tokenizer_context, parser_context, str);
     ASTType body_type = *((ASTType*)body_element);
 
     switch (body_type) {
@@ -698,31 +703,31 @@ void* create_class_ast(ParserContext* parser_context, Token* tok, wchar_t* str) 
 
   parser_context->current_class = L"";
 
-  consume(str, TokRBracket);
+  consume(tokenizer_context, str, TokRBracket);
 
   return class_ast;
 }
 
-VariableDeclarationBundleAST* create_function_parameters(Token* tok, wchar_t* str) {
-  consume(str, TokLParen); // consume (
+VariableDeclarationBundleAST* create_function_parameters(TokenizerContext* tokenizer_context, Token* tok, wchar_t* str) {
+  consume(tokenizer_context, str, TokLParen); // consume (
 
   VariableDeclarationBundleAST* parameters = (VariableDeclarationBundleAST*)safe_malloc(sizeof(VariableDeclarationBundleAST));
   parameters->variable_count = 0;
   parameters->variable_declarations = NULL;
   parameters->TYPE = AST_VariableDeclarationBundle;
 
-  while (peek_token(str)->type != TokRParen) {
-    Token* parameter_name_token = pull_token(str);
+  while (peek_token(tokenizer_context, str)->type != TokRParen) {
+    Token* parameter_name_token = pull_token(tokenizer_context, str);
     wchar_t* parameter_name = parameter_name_token->str;
     // assert parameter_name_token is type identifier
 
-    consume(str, TokColon); // consume :
+    consume(tokenizer_context, str, TokColon); // consume :
 
-    Type* parameter_type_element = get_type(peek_token(str), str);
+    Type* parameter_type_element = get_type(peek_token(tokenizer_context,str), str);
     // assert parameter_name_token is type string for type.
 
-    if (peek_token(str)->type == TokComma) {
-      consume(str, TokComma); // consume ,
+    if (peek_token(tokenizer_context, str)->type == TokComma) {
+      consume(tokenizer_context, str, TokComma); // consume ,
     }
 
     VariableDeclarationAST* variable = (VariableDeclarationAST*)safe_malloc(sizeof(VariableDeclarationAST));
@@ -744,23 +749,23 @@ VariableDeclarationBundleAST* create_function_parameters(Token* tok, wchar_t* st
     parameters->variable_count++;
   }
 
-  consume(str, TokRParen); // consume )
+  consume(tokenizer_context, str, TokRParen); // consume )
 
   return parameters;
 }
 
-void* create_constructor_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
+void* create_constructor_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, wchar_t* str) {
   ConstructorAST* constructor_ast = (ConstructorAST*)safe_malloc(sizeof(ConstructorAST));
 
   constructor_ast->TYPE = AST_Constructor;
   parser_context->current_function_name = L"constructor";
   constructor_ast->body_count = 0;
-  constructor_ast->parameters = create_function_parameters(tok, str);
+  constructor_ast->parameters = create_function_parameters(tokenizer_context, tok, str);
 
-  consume(str, TokLBracket); // consume {
+  consume(tokenizer_context, str, TokLBracket); // consume {
 
-  while (peek_token(str)->type != TokRBracket) {
-    void* body_element = parse(parser_context, str);
+  while (peek_token(tokenizer_context, str)->type != TokRBracket) {
+    void* body_element = parse(tokenizer_context, parser_context, str);
 
     if (constructor_ast->body_count == 0) {
       constructor_ast->body = (void**)safe_malloc(sizeof(void*));
@@ -774,20 +779,20 @@ void* create_constructor_ast(ParserContext* parser_context, Token* tok, wchar_t*
     constructor_ast->body_count++;
   }
 
-  consume(str, TokRBracket); // consume }
+  consume(tokenizer_context, str, TokRBracket); // consume }
 
   parser_context->current_function_name = L"";
 
   return constructor_ast;
 }
 
-void* create_new_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
+void* create_new_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, wchar_t* str) {
   NewAST* result = (NewAST*)safe_malloc(sizeof(NewAST));
 
-  Token* class_name_token = pull_token(str);
+  Token* class_name_token = pull_token(tokenizer_context, str);
   wchar_t* class_name = _wcsdup(class_name_token->str);
 
-  FunctionCallParameterContext* function_call_parameter = parse_function_call_parameter(parser_context, str);
+  FunctionCallParameterContext* function_call_parameter = parse_function_call_parameter(tokenizer_context, parser_context, str);
 
   result->TYPE = AST_New;
   result->parameter_count = function_call_parameter->parameter_count;
@@ -805,33 +810,33 @@ void* create_null_ast(Token* tok, wchar_t* str) {
   return result;
 }
 
-void* create_array_declaration_ast(ParserContext* parser_context, Token* tok, wchar_t* str) {
+void* create_array_declaration_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, wchar_t* str) {
   ArrayDeclarationAST* result = (ArrayDeclarationAST*)safe_malloc(sizeof(ArrayDeclarationAST));
   result->TYPE = AST_ArrayDeclaration;
 
   int element_count = 0;
   void** elements = NULL;
 
-  while (peek_token(str)->type != TokRBracket) {
+  while (peek_token(tokenizer_context, str)->type != TokRBracket) {
     elements = (void**)safe_realloc(elements, sizeof(void*) * (element_count + 1));
-    void* element = parse_expression(parser_context, str);
+    void* element = parse_expression(tokenizer_context, parser_context, str);
 
     elements[element_count] = element;
     element_count++;
 
-    Token* next_token = peek_token(str);
+    Token* next_token = peek_token(tokenizer_context, str);
 
     if (next_token->type == TokLBracket) {
       break;
     }
     else if (next_token->type == TokComma) {
-      consume(str, TokComma);
+      consume(tokenizer_context, str, TokComma);
     }
   }
 
   result->element_count = element_count;
   result->elements = elements;
-  consume(str, TokRBracket);
+  consume(tokenizer_context, str, TokRBracket);
 
   return result;
 }
@@ -844,29 +849,29 @@ void* create_bool_literal_ast(ParserContext* parser_context, Token* tok, const w
   return literal;
 }
 
-void* create_neg_ast(ParserContext* parser_context, Token* tok, const wchar_t* str) {
+void* create_neg_ast(TokenizerContext* tokenizer_context, ParserContext* parser_context, Token* tok, const wchar_t* str) {
   NegAST* neg = (NegAST*)safe_malloc(sizeof(NegAST));
   neg->TYPE = AST_Negative;
-  neg->ast = parse_term(parser_context, str);
+  neg->ast = parse_term(tokenizer_context, parser_context, str);
   return neg;
 }
 
-void* parse(ParserContext* parser_context, const wchar_t* str) {
-  Token* tok = pull_token(str);
+void* parse(TokenizerContext* tokenizer_context, ParserContext* parser_context, const wchar_t* str) {
+  Token* tok = pull_token(tokenizer_context, str);
 
   switch ((TokenType)tok->type) {
 
   case TokSub:
-    return create_neg_ast(parser_context, tok, str);
+    return create_neg_ast(tokenizer_context, parser_context, tok, str);
 
   case TokLBracket:
-    return create_array_declaration_ast(parser_context, tok, str);
+    return create_array_declaration_ast(tokenizer_context, parser_context, tok, str);
 
   case TokNew:
-    return create_new_ast(parser_context, tok, str);
+    return create_new_ast(tokenizer_context, parser_context, tok, str);
 
   case TokLParen:
-    return create_paren_group_ast(parser_context, tok, str);
+    return create_paren_group_ast(tokenizer_context, parser_context, tok, str);
 
   case TokTrue:
   case TokFalse:
@@ -879,30 +884,30 @@ void* parse(ParserContext* parser_context, const wchar_t* str) {
     return create_number_literal_ast(parser_context, tok, str);
 
   case TokReturn:
-    return create_return_ast(parser_context, tok, str);
+    return create_return_ast(tokenizer_context, parser_context, tok, str);
 
   case TokIdent:
-    return create_identifier_ast(parser_context, tok, str, false);
+    return create_identifier_ast(tokenizer_context, parser_context, tok, str, false);
 
   case TokFunc:
-    return create_function_declaration_ast(parser_context, tok, str);
+    return create_function_declaration_ast(tokenizer_context, parser_context, tok, str);
 
   case TokFor:
-    return create_for_statement_ast(parser_context, tok, str);
+    return create_for_statement_ast(tokenizer_context, parser_context, tok, str);
 
   case TokIf:
-    return create_if_statement_ast(parser_context, tok, str);
+    return create_if_statement_ast(tokenizer_context, parser_context, tok, str);
 
   case TokVar:
-    return create_variable_declaration_ast(parser_context, tok, str);
+    return create_variable_declaration_ast(tokenizer_context, parser_context, tok, str);
 
   case TokClass:
-    return create_class_ast(parser_context, tok, str);
+    return create_class_ast(tokenizer_context, parser_context, tok, str);
 
   case TokPrivate:
   case TokPublic:
   case TokProtected: {
-    void* element = parse(parser_context, str);
+    void* element = parse(tokenizer_context, parser_context, str);
     wchar_t* access_modifier = AM_DEFAULT;
 
     switch (tok->type)
@@ -942,7 +947,7 @@ void* parse(ParserContext* parser_context, const wchar_t* str) {
   }
 
   case TokConstructor: {
-    return create_constructor_ast(parser_context, tok, str);
+    return create_constructor_ast(tokenizer_context, parser_context, tok, str);
   }
   }
 }

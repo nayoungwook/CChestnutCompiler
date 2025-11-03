@@ -91,13 +91,24 @@ typedef struct _Token {
 } Token;
 
 typedef struct {
+  int read_index;
+  Token* token_cache;
+  int* line_index_data;
+  int* line_number_data;
+  int line_number_index;
+} TokenizerContext;
+
+TokenizerContext* create_tokenizer_context();
+
+typedef struct {
   const wchar_t* keyword;
   TokenType type;
 } KeywordEntry;
 
+wchar_t* read_file(TokenizerContext* tokenizer_context, const wchar_t* file_path);
 TokenType get_token_type_of_special_character(wchar_t* str, int* str_len, int* read_index, wchar_t* c);
 short is_special_character(const wchar_t wc);
-void update_line_number_index();
+void update_line_number_index(TokenizerContext* tokenizer_context);
 
-Token* pull_token(wchar_t* line);
-Token* peek_token(wchar_t* line);
+Token* pull_token(TokenizerContext* tokenizer_context, wchar_t* line);
+Token* peek_token(TokenizerContext* tokenizer_context, wchar_t* line);

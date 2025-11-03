@@ -29,8 +29,6 @@ typedef enum {
   AST_Negative = 21,
 }ASTType;
 
-typedef struct Type;
-
 typedef struct {
   ASTType TYPE;
   Token* number_literal_token;
