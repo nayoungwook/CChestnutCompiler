@@ -110,8 +110,8 @@ bool check_castability(ParserContext* parser_context, Type* from, Type* to) {
   return is_same_type(from, to);
 }
 
-Type* get_type(Token* tok, wchar_t* str) {
-  wchar_t* type = pull_token(str)->str;
+Type* get_type(TokenizerContext* tokenizer_context, Token* tok, wchar_t* str) {
+  wchar_t* type = pull_token(tokenizer_context, str)->str;
 
   Type* result = (Type*)safe_malloc(sizeof(Type));
   result->type_str = _wcsdup(type);
@@ -119,11 +119,11 @@ Type* get_type(Token* tok, wchar_t* str) {
   result->is_array = 0;
 
   if (!wcscmp(type, L"array")) { // for array
-    consume(str, TokLesser);
-    Type* array_element_type = get_type(tok, str);
+    consume(tokenizer_context, str, TokLesser);
+    Type* array_element_type = get_type(tokenizer_context, tok, str);
     result->array_element_type = array_element_type;
     result->is_array = 1;
-    consume(str, TokGreater);
+    consume(tokenizer_context, str, TokGreater);
   }
 
   return result;

@@ -55,7 +55,7 @@ void* parse_term(TokenizerContext* tokenizer_context, ParserContext* parser_cont
 bool is_same_type(Type* t1, Type* t2);
 bool check_castability(ParserContext* parser_context, Type* from, Type* to);
 
-Type* get_type(Token* tok, wchar_t* str);
+Type* get_type(TokenizerContext* tokenizer_context, Token* tok, wchar_t* str);
 void insert_set_symbol(Set* target_set, const wchar_t* str);
 
 FunctionData* create_function_data(SymbolTable* function_symbol_table, const wchar_t* name, Type* return_type, VariableDeclarationBundleAST* parameters);

@@ -43,7 +43,7 @@ void parse_file(IrGenContext* ir_context, ParserContext* parser_context, Tokeniz
 
   setlocale(LC_ALL, "");
 
-  print_tokens(tokenizer_context, file);
+  //  print_tokens(tokenizer_context, file);
   
   while (peek_token(tokenizer_context, file)->type != TokEOF) {
     set_file_string(parser_context, file);
@@ -101,7 +101,7 @@ int main(int arc, char* args[]) {
   TokenizerContext* tokenizer_context = create_tokenizer_context();
   ParserContext* parser_context = create_parser_context();
   IrGenContext* ir_context = create_ir_context();
-  
+
   initialize_primitive_types(parser_context);
   initialize_builtin_functions(parser_context);
   initialize_byte_table();

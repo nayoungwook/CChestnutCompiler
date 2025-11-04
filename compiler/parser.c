@@ -157,14 +157,13 @@ void* parse_expression(TokenizerContext* tokenizer_context, ParserContext* parse
     node = bin_expr;
   }
 
-  return node;
+    return node;
 }
 
 void consume(TokenizerContext* tokenizer_context, wchar_t* str, TokenType expected_type) {
   Token* tok = pull_token(tokenizer_context, str);
 
   if (tok->type != expected_type) {
-    printf("%d ", expected_type);
     handle_error(ER_UnexpectedToken, tok, L"main.cnut", str);
   }
 }
@@ -313,7 +312,7 @@ FunctionCallParameterContext* parse_function_call_parameter(TokenizerContext* to
   }
 
   consume(tokenizer_context, str, TokRParen);
-
+  
   return result;
 }
 
@@ -336,6 +335,10 @@ void* create_function_call_ast(TokenizerContext* tokenizer_context, ParserContex
   result->TYPE = AST_FunctionCall;
   result->parameter_count = function_call_parameter->parameter_count;
   result->parameters = function_call_parameter->parameters;
+
+  if(peek_token(tokenizer_context, str)->type == TokSemiColon){
+    consume(tokenizer_context, str, TokSemiColon);
+  }
 
   free_function_call_parameter(function_call_parameter);
 
@@ -448,8 +451,9 @@ void* create_function_declaration_ast(TokenizerContext* tokenizer_context, Parse
   function_declaration_ast->TYPE = AST_FunctionDeclaration;
   function_declaration_ast->body_count = 0;
   function_declaration_ast->access_modifier = AM_DEFAULT;
-
+  
   Token* function_name_token = pull_token(tokenizer_context, str);
+  
   wchar_t* function_name = function_name_token->str;
   function_declaration_ast->function_name_token = function_name_token;
 
@@ -457,10 +461,10 @@ void* create_function_declaration_ast(TokenizerContext* tokenizer_context, Parse
 
   VariableDeclarationBundleAST* parameters = create_function_parameters(tokenizer_context, tok, str);
   function_declaration_ast->parameters = parameters;
-
+  
   consume(tokenizer_context, str, TokColon); // consume :
 
-  Type* return_type_element = get_type(tok, str);
+  Type* return_type_element = get_type(tokenizer_context, tok, str);
 
   function_declaration_ast->return_type = return_type_element;
 
@@ -560,7 +564,7 @@ void* create_variable_declaration_ast(TokenizerContext* tokenizer_context, Parse
 
     consume(tokenizer_context, str, TokColon);
 
-    wchar_t* type_element = get_type(tok, str);
+    wchar_t* type_element = get_type(tokenizer_context, tok, str);
 
     tok = pull_token(tokenizer_context, str);
 
@@ -715,7 +719,7 @@ VariableDeclarationBundleAST* create_function_parameters(TokenizerContext* token
   parameters->variable_count = 0;
   parameters->variable_declarations = NULL;
   parameters->TYPE = AST_VariableDeclarationBundle;
-
+  
   while (peek_token(tokenizer_context, str)->type != TokRParen) {
     Token* parameter_name_token = pull_token(tokenizer_context, str);
     wchar_t* parameter_name = parameter_name_token->str;
@@ -723,7 +727,7 @@ VariableDeclarationBundleAST* create_function_parameters(TokenizerContext* token
 
     consume(tokenizer_context, str, TokColon); // consume :
 
-    Type* parameter_type_element = get_type(peek_token(tokenizer_context,str), str);
+    Type* parameter_type_element = get_type(tokenizer_context, peek_token(tokenizer_context, str), str);
     // assert parameter_name_token is type string for type.
 
     if (peek_token(tokenizer_context, str)->type == TokComma) {
@@ -860,7 +864,7 @@ void* parse(TokenizerContext* tokenizer_context, ParserContext* parser_context, 
   Token* tok = pull_token(tokenizer_context, str);
 
   switch ((TokenType)tok->type) {
-
+    
   case TokSub:
     return create_neg_ast(tokenizer_context, parser_context, tok, str);
 
@@ -948,6 +952,11 @@ void* parse(TokenizerContext* tokenizer_context, ParserContext* parser_context, 
 
   case TokConstructor: {
     return create_constructor_ast(tokenizer_context, parser_context, tok, str);
+  }
+
+  default: {
+    printf("error!\n");
+    handle_error(ER_UnexpectedToken, tok, parser_context->current_file_name, parser_context->file_str);
   }
   }
 }

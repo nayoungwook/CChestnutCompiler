@@ -67,7 +67,7 @@ wchar_t* read_file(TokenizerContext* tokenizer_context, const wchar_t* file_path
 
     size++;
   }
-
+  
   return str;
 }
 
@@ -319,7 +319,7 @@ get_token_type_of_special_character(wchar_t* str, int* str_len, int* read_index,
 }
 
 TokenizerContext* create_tokenizer_context(){
-  TokenizerContext* result = (TokenizerContext*)safe_malloc(sizeof(TokenizerContext*));
+  TokenizerContext* result = (TokenizerContext*)safe_malloc(sizeof(TokenizerContext));
 
   result->read_index = 0;
   result->token_cache = NULL;
@@ -415,7 +415,7 @@ Token* pull_token(TokenizerContext* tokenizer_context, wchar_t* line) {
     tok->line_start_index = tokenizer_context->line_index_data[tokenizer_context->line_number_index - 2];
     tok->line_end_index = tokenizer_context->line_index_data[tokenizer_context->line_number_index - 1];
     tok->str_index = tokenizer_context->read_index;
-    
+
     return tok;
   }
 
