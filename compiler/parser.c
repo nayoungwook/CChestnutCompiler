@@ -38,10 +38,7 @@ void* parse_term(TokenizerContext* tokenizer_context, ParserContext* parser_cont
     OperatorType op_type = (op == TokMul) ? OpMUL : OpDIV;
 
     BinExprAST* bin_expr = (BinExprAST*)safe_malloc(sizeof(BinExprAST));
-    if (!bin_expr) {
-      fprintf(stderr, "Memory allocation failed\n");
-      exit(1);
-    }
+
     bin_expr->TYPE = AST_BinExpr;
     bin_expr->left = node;
     bin_expr->right = right;
@@ -62,10 +59,7 @@ void* parse_simple_expression(TokenizerContext* tokenizer_context, ParserContext
     OperatorType op_type = (op == TokAdd) ? OpADD : OpSUB;
 
     BinExprAST* bin_expr = (BinExprAST*)safe_malloc(sizeof(BinExprAST));
-    if (!bin_expr) {
-      fprintf(stderr, "Memory allocation failed\n");
-      exit(1);
-    }
+
     bin_expr->TYPE = AST_BinExpr;
     bin_expr->left = node;
     bin_expr->right = right;
@@ -80,10 +74,7 @@ void* parse_unary_expression(TokenizerContext* tokenizer_context, ParserContext*
   if (peek_token(tokenizer_context, str) && peek_token(tokenizer_context, str)->type == TokNot) {
     pull_token(tokenizer_context, str); // Consume '!'
     UnaryExprAST* unary_expr = (UnaryExprAST*)safe_malloc(sizeof(UnaryExprAST));
-    if (!unary_expr) {
-      fprintf(stderr, "Memory allocation failed\n");
-      exit(1);
-    }
+
     unary_expr->TYPE = AST_UnaryExpr;
     unary_expr->expr = parse_unary_expression(tokenizer_context, parser_context, str);
     return unary_expr;
@@ -95,8 +86,8 @@ void* parse_compare_expression(TokenizerContext* tokenizer_context, ParserContex
   void* node = parse_unary_expression(tokenizer_context, parser_context, str);
 
   while (peek_token(tokenizer_context, str) && (peek_token(tokenizer_context, str)->type == TokEqual || peek_token(tokenizer_context, str)->type == TokNotEqual ||
-			     peek_token(tokenizer_context, str)->type == TokGreater || peek_token(tokenizer_context, str)->type == TokLesser ||
-			     peek_token(tokenizer_context, str)->type == TokEqualGreater || peek_token(tokenizer_context, str)->type == TokEqualLesser)) {
+						peek_token(tokenizer_context, str)->type == TokGreater || peek_token(tokenizer_context, str)->type == TokLesser ||
+						peek_token(tokenizer_context, str)->type == TokEqualGreater || peek_token(tokenizer_context, str)->type == TokEqualLesser)) {
     Token* operator_token = pull_token(tokenizer_context, str);
     TokenType op = operator_token->type;
     void* right = parse_unary_expression(tokenizer_context, parser_context, str);
@@ -112,10 +103,7 @@ void* parse_compare_expression(TokenizerContext* tokenizer_context, ParserContex
     }
 
     BinExprAST* bin_expr = (BinExprAST*)safe_malloc(sizeof(BinExprAST));
-    if (!bin_expr) {
-      fprintf(stderr, "Memory allocation failed\n");
-      exit(1);
-    }
+
     bin_expr->TYPE = AST_BinExpr;
     bin_expr->left = node;
     bin_expr->right = right;
@@ -145,10 +133,7 @@ void* parse_expression(TokenizerContext* tokenizer_context, ParserContext* parse
     }
 
     BinExprAST* bin_expr = (BinExprAST*)safe_malloc(sizeof(BinExprAST));
-    if (!bin_expr) {
-      fprintf(stderr, "Memory allocation failed\n");
-      exit(1);
-    }
+
     bin_expr->TYPE = AST_BinExpr;
     bin_expr->left = node;
     bin_expr->right = right;
@@ -157,7 +142,7 @@ void* parse_expression(TokenizerContext* tokenizer_context, ParserContext* parse
     node = bin_expr;
   }
 
-    return node;
+  return node;
 }
 
 void consume(TokenizerContext* tokenizer_context, wchar_t* str, TokenType expected_type) {
@@ -205,8 +190,13 @@ void* create_if_statement_ast(TokenizerContext* tokenizer_context, ParserContext
   consume(tokenizer_context, str, TokLBracket); // consume {
 
   while (peek_token(tokenizer_context, str)->type != TokRBracket) {
-    void* body_element = parse_expression(tokenizer_context, parser_context, str);
+    Token* body_token = peek_token(tokenizer_context, str);
+    void* body_element = parse(tokenizer_context, parser_context, str);
 
+    if(body_token->type == TokIdent){
+      consume(tokenizer_context, str, TokSemiColon);
+    }
+    
     if (if_statement->body_count == 0) {
       if_statement->body = (void**)safe_malloc(sizeof(void*));
     }
@@ -275,6 +265,8 @@ void* create_return_ast(TokenizerContext* tokenizer_context, ParserContext* pars
   ((ReturnAST*)result)->expression = expression;
   ((ReturnAST*)result)->TYPE = AST_Return;
 
+  consume(tokenizer_context, str, TokSemiColon);
+  
   return result;
 }
 
@@ -335,10 +327,6 @@ void* create_function_call_ast(TokenizerContext* tokenizer_context, ParserContex
   result->TYPE = AST_FunctionCall;
   result->parameter_count = function_call_parameter->parameter_count;
   result->parameters = function_call_parameter->parameters;
-
-  if(peek_token(tokenizer_context, str)->type == TokSemiColon){
-    consume(tokenizer_context, str, TokSemiColon);
-  }
 
   free_function_call_parameter(function_call_parameter);
 
@@ -471,8 +459,13 @@ void* create_function_declaration_ast(TokenizerContext* tokenizer_context, Parse
   consume(tokenizer_context, str, TokLBracket); // consume {
 
   while (peek_token(tokenizer_context, str)->type != TokRBracket) {
+    Token* body_token = peek_token(tokenizer_context, str);
     void* body_element = parse(tokenizer_context, parser_context, str);
 
+    if(body_token->type == TokIdent){
+      consume(tokenizer_context, str, TokSemiColon);
+    }
+ 
     if (function_declaration_ast->body_count == 0) {
       function_declaration_ast->body = (void**)safe_malloc(sizeof(void*));
     }
@@ -532,7 +525,12 @@ void* create_for_statement_ast(TokenizerContext* tokenizer_context, ParserContex
   consume(tokenizer_context, str, TokLBracket); // consume {
 
   while (peek_token(tokenizer_context, str)->type != TokRBracket) {
+    Token* body_token = peek_token(tokenizer_context, str);
     void* body_element = parse(tokenizer_context, parser_context, str);
+
+    if(body_token->type == TokIdent){
+      consume(tokenizer_context, str, TokSemiColon);
+    }
 
     if (for_statement->body_count == 0) {
       for_statement->body = (void**)safe_malloc(sizeof(void*));
@@ -667,6 +665,7 @@ void* create_class_ast(TokenizerContext* tokenizer_context, ParserContext* parse
 
   while (peek_token(tokenizer_context, str)->type != TokRBracket) {
     void* body_element = parse(tokenizer_context, parser_context, str);
+
     ASTType body_type = *((ASTType*)body_element);
 
     switch (body_type) {
@@ -769,7 +768,12 @@ void* create_constructor_ast(TokenizerContext* tokenizer_context, ParserContext*
   consume(tokenizer_context, str, TokLBracket); // consume {
 
   while (peek_token(tokenizer_context, str)->type != TokRBracket) {
+    Token* body_token = peek_token(tokenizer_context, str);
     void* body_element = parse(tokenizer_context, parser_context, str);
+
+    if(body_token->type == TokIdent){
+      consume(tokenizer_context, str, TokSemiColon);
+    }
 
     if (constructor_ast->body_count == 0) {
       constructor_ast->body = (void**)safe_malloc(sizeof(void*));
@@ -955,7 +959,6 @@ void* parse(TokenizerContext* tokenizer_context, ParserContext* parser_context, 
   }
 
   default: {
-    printf("error!\n");
     handle_error(ER_UnexpectedToken, tok, parser_context->current_file_name, parser_context->file_str);
   }
   }

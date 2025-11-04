@@ -1,6 +1,7 @@
 #pragma once
 
 #include "token.h"
+#include <wchar.h>
 
 typedef enum _ErrorCode {
   ER_Terminate,

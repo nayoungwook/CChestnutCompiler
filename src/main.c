@@ -46,6 +46,7 @@ void parse_file(IrGenContext* ir_context, ParserContext* parser_context, Tokeniz
   //  print_tokens(tokenizer_context, file);
   
   while (peek_token(tokenizer_context, file)->type != TokEOF) {
+    printf("%d\n", peek_token(tokenizer_context, file)->type);
     set_file_string(parser_context, file);
     void* ast = parse(tokenizer_context, parser_context, file);
 
@@ -73,6 +74,8 @@ void parse_file(IrGenContext* ir_context, ParserContext* parser_context, Tokeniz
       ast_count++;
     }
   }
+
+  printf("parsing done :D\n");
   
   int i = 0;
   

@@ -14,6 +14,7 @@ ErrorMessageEntry error_messages[] = {
 
 const wchar_t* get_error_message(ErrorCode error_code, Token* error_token) {
 
+  wchar_t* complete_error_message_buffer = (wchar_t*) safe_malloc(sizeof(wchar_t) * 512);
   wchar_t* error_message = L"";
 
   int i;
@@ -24,11 +25,13 @@ const wchar_t* get_error_message(ErrorCode error_code, Token* error_token) {
     }
   }
 
-  return error_message;
+  swprintf(complete_error_message_buffer, error_message, error_token->str);
+
+  return complete_error_message_buffer;
 }
 
 void handle_error(ErrorCode error_code, Token* error_token, const wchar_t* file_name, const wchar_t* str) {
-  wprintf(L"Chestnut Compile Error. : %d\n", error_code);
+  wprintf(L"Chestnut Compile Error.\n", error_code);
   wprintf(L"=======================\n");
 
   wprintf(L"%s\n\n", get_error_message(error_code, error_token));
