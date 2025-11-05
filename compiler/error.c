@@ -9,6 +9,7 @@ ErrorMessageEntry error_messages[] = {
   {ER_FailedToFindAttribute,  L"Failed to find attribute : %s."},
   {ER_TypeUnmatch,  L"Type unmatch error : %s."},
   {ER_TypeNotExist,  L"Type not exist : %s."},
+  {ER_UnableToGetErrorToken, L"Unable to get error token : %s."},
   {ER_Terminate,  NULL},
 };
 
@@ -20,7 +21,7 @@ const wchar_t* get_error_message(ErrorCode error_code, Token* error_token) {
   int i;
   for (i = 0; i < error_messages[i].err_code != ER_Terminate; i++) {
     if (error_messages[i].err_code == error_code) {
-      error_message = _wcsdup(error_messages[i].str);
+      error_message = wcsdup(error_messages[i].str);
       break;
     }
   }

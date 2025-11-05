@@ -11,7 +11,7 @@
 #define AM_PRIVATE 3
 #define AM_PROTECTED 4
 
-#define VARIABLE_ARGUMENTS -1
+#define POSITIONAL_ARGUMENTS -1
 
 typedef struct _ParserContext {
   wchar_t* current_class;

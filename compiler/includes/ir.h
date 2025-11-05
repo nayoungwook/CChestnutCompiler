@@ -49,7 +49,7 @@ Token* get_token_of_ast(void* attribute);
 Type* infer_type(IrGenContext* ir_context, ParserContext* parser_context, void* ast, wchar_t* search_point_class_name);
 
 void check_function_call_condition
-(IrGenContext* ir_context, ParserContext* parser_context, FunctionData* function_data, const void** parameters, int parameter_count);
+(IrGenContext* ir_context, ParserContext* parser_context, FunctionData* function_data, void** parameters, int parameter_count);
 void new_line(StringBuilder* string_builder);
 Type* get_type_of_last_element(IrGenContext* ir_context, ParserContext* parser_context, void* ast, const wchar_t* search_point_class_name);
 

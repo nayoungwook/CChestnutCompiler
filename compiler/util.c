@@ -4,7 +4,7 @@ Type* clone_type(Type* type) {
   Type* result = (Type*)safe_malloc(sizeof(Type));
   result->array_element_type = type->array_element_type;
   result->is_array = type->is_array;
-  result->type_str = _wcsdup(type->type_str);
+  result->type_str = wcsdup(type->type_str);
   return result;
 }
 

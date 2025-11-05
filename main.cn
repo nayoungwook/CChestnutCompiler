@@ -1,30 +1,21 @@
 
-func fibo(n: int, dp: array<int>) : int {
-  if(n == 1 || n == 2){
-    return 1;
+class Bar extends Foo {
+  private var k: float = 0;
+  constructor(){
+    pt = 4;
   }
+}
 
-  if(dp[n] != -1){
-    return dp[n];
-  }
+class Foo {
+  private var pt: int = 0;
+  private var a: int = 0;
+}
 
-  var result: int = fibo(n - 1, dp) + fibo(n - 2, dp); 
+func test(foo: Foo): void {
 
-  dp[n] = result;
-  
-  return result;
 }
 
 func main(): void {
-  var dp: array<int>;
-
-  for(var i:int =0; i<100; i++){
-    dp[i] = -1;
-  }
-  
-  for(var i:int =0; i<10; i++){
-    print(i, " ");
-  }
-  
-  fibo(100, dp);
+  var bar: Bar = new Bar();
+  test(bar);
 }

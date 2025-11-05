@@ -1,7 +1,7 @@
 #include "includes/parser.h"
 
 void set_file_string(ParserContext* parser_context, const wchar_t* str) {
-  parser_context->file_str = _wcsdup(str);
+  parser_context->file_str = wcsdup(str);
 }
 
 ParserContext* create_parser_context() {
@@ -309,11 +309,6 @@ FunctionCallParameterContext* parse_function_call_parameter(TokenizerContext* to
 }
 
 void free_function_call_parameter(FunctionCallParameterContext* function_call_parameter) {
-  int i;
-  for(i=0; i<function_call_parameter->parameter_count; i++){
-    free(function_call_parameter->parameters[i]);
-  }
-      
   free(function_call_parameter);
 }
 
@@ -322,7 +317,8 @@ void* create_function_call_ast(TokenizerContext* tokenizer_context, ParserContex
 
   FunctionCallParameterContext* function_call_parameter = parse_function_call_parameter(tokenizer_context, parser_context, str);
 
-  wchar_t* function_name = _wcsdup(tok->str);
+  wchar_t* function_name = wcsdup(tok->str);
+
   result->function_name_token = tok;
   result->TYPE = AST_FunctionCall;
   result->parameter_count = function_call_parameter->parameter_count;
@@ -445,7 +441,7 @@ void* create_function_declaration_ast(TokenizerContext* tokenizer_context, Parse
   wchar_t* function_name = function_name_token->str;
   function_declaration_ast->function_name_token = function_name_token;
 
-  parser_context->current_function_name = _wcsdup(function_name);
+  parser_context->current_function_name = wcsdup(function_name);
 
   VariableDeclarationBundleAST* parameters = create_function_parameters(tokenizer_context, tok, str);
   function_declaration_ast->parameters = parameters;
@@ -642,7 +638,7 @@ void* create_class_ast(TokenizerContext* tokenizer_context, ParserContext* parse
   wchar_t* class_name = class_name_token->str;
 
   Token* parent_name_token = get_parent_name(tokenizer_context, str);
-  wchar_t* parent_name = parent_name_token == NULL ? L"" : _wcsdup(parent_name_token->str);
+  wchar_t* parent_name = parent_name_token == NULL ? L"" : wcsdup(parent_name_token->str);
 
   ClassAST* class_ast = (ClassAST*)safe_malloc(sizeof(ClassAST));
 
@@ -798,7 +794,7 @@ void* create_new_ast(TokenizerContext* tokenizer_context, ParserContext* parser_
   NewAST* result = (NewAST*)safe_malloc(sizeof(NewAST));
 
   Token* class_name_token = pull_token(tokenizer_context, str);
-  wchar_t* class_name = _wcsdup(class_name_token->str);
+  wchar_t* class_name = wcsdup(class_name_token->str);
 
   FunctionCallParameterContext* function_call_parameter = parse_function_call_parameter(tokenizer_context, parser_context, str);
 

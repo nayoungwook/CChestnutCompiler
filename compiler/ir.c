@@ -18,11 +18,11 @@ StringBuilder* create_string_builder() {
 }
 
 void append_integer(StringBuilder* string_builder, int integer) {
-    wchar_t* buf = (wchar_t*)safe_malloc(64 * sizeof(wchar_t));
+  wchar_t* buf = (wchar_t*)safe_malloc(64 * sizeof(wchar_t));
 
-    swprintf(buf, L"%d", integer);
+  swprintf(buf, L"%d", integer);
 
-    append_string(string_builder, buf);
+  append_string(string_builder, buf);
 }
 
 void append_string(StringBuilder* string_builder, const wchar_t* ctx) {
@@ -36,29 +36,28 @@ void append_string(StringBuilder* string_builder, const wchar_t* ctx) {
   wchar_t* result = (wchar_t*)safe_malloc(new_length * sizeof(wchar_t));
 
   if (string_builder->str) {
-    wcscpy_s(result, new_length, string_builder->str);
+    wcscpy(result, string_builder->str);
     free(string_builder->str);
   }
   else {
     result[0] = L'\0';
   }
 
-  wcscat_s(result, new_length, ctx);
+  wcscat(result, ctx);
 
   result[original_length + append_length] = L' ';
 
   result[original_length + append_length + 1] = L'\0';
 
   string_builder->str = result;
-
 }
 
 void initialize_byte_table() {
   ir_byte_table = create_symbol_table();
 
-  insert_ir_symbol(ir_byte_table, create_ir_data(L"{", (int)ir_byte_table->size));
-  insert_ir_symbol(ir_byte_table, create_ir_data(L"}", (int)ir_byte_table->size));
-  insert_ir_symbol(ir_byte_table, create_ir_data(L".", (int)ir_byte_table->size));
+  //  insert_ir_symbol(ir_byte_table, create_ir_data(L"{", (int)ir_byte_table->size));
+  //  insert_ir_symbol(ir_byte_table, create_ir_data(L"}", (int)ir_byte_table->size));
+  //  insert_ir_symbol(ir_byte_table, create_ir_data(L".", (int)ir_byte_table->size));
 }
 
 int get_prev_variable_index_size(SymbolTable* variable_symbol_table) {
@@ -301,7 +300,7 @@ FunctionData* find_function_data(ParserContext* parser_context, Token* tok, cons
 }
 
 bool check_accessibility(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, int access_modifier) {
-  if (access_modifier == AM_PUBLIC)return true;
+  if (access_modifier == AM_PUBLIC) return true;
 
   int find_variable_in_class = wcscmp(target_class_name, ir_context->current_class) == 0;
 
@@ -311,11 +310,10 @@ bool check_accessibility(IrGenContext* ir_context, ParserContext* parser_context
   else {
     if (wcscmp(ir_context->current_class, L"") == 0) {
       return false;
-    }
-    else {
-      int is_parent = check_castability(parser_context, target_class_name, ir_context->current_class);
+    } else {
+      //      int is_parent = check_castability(parser_context, to_symbol->data);
 
-      return access_modifier == AM_PROTECTED && is_parent;
+      return access_modifier == AM_PROTECTED;
     }
   }
 }
@@ -346,23 +344,19 @@ Token* get_token_of_ast(void* attribute) {
     break;
   }
 
-  case AST_ArrayAccess: {
+  default:{
     break;
   }
+
+    return wrong_token;
   }
-
-  return wrong_token;
 }
-
 void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, void* attribute) {
   Symbol* target_class_symbol = find_symbol(parser_context->class_symbol_table, target_class_name);
 
   if (target_class_symbol == NULL) {
     handle_error(ER_FailedToFindAttribute, get_token_of_ast(attribute), parser_context->current_file_name, parser_context->file_str);
   }
-
-  ClassData* target_class = target_class_symbol->data;
-  Symbol* member_symbol = NULL;
 
   switch (*((ASTType*)attribute)) {
   case AST_Identifier: {
@@ -407,7 +401,7 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
     }
 
     append_string(ir_context->string_builder, L"@attr_inc");
-    append_integer(ir_context->string_builder, member_variable_data->index);
+    append_integer(ir_context->string_builder, member_variable_index);
     new_line(ir_context->string_builder);
 
     break;
@@ -430,7 +424,7 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
     }
 
     append_string(ir_context->string_builder, L"@attr_dec");
-    append_integer(ir_context->string_builder, member_variable_data->index);
+    append_integer(ir_context->string_builder, member_variable_index);
     new_line(ir_context->string_builder);
 
     break;
@@ -487,6 +481,12 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
     }
     break;
   }
+
+  default: {
+    printf("Error at ir.c\n");
+    exit(1);
+    break;
+  }
   }
 }
 
@@ -507,7 +507,6 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
   case AST_Identifier: {
     if (((IdentifierAST*)left_ast)->attribute == NULL) {
       IdentifierAST* identifier_ast = (IdentifierAST*)left_ast;
-      wchar_t store_str_buffer[128];
 
       Symbol* local_symbol = find_symbol(parser_context->variable_symbol_table, identifier_ast->identifier->str);
 
@@ -532,8 +531,6 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
       IdentifierAST* identifier_ast = ((ArrayAccessAST*)left_ast)->target_array;
 
       create_ir(ir_context, parser_context, identifier_ast);
-
-      wchar_t store_str_buffer[128];
 
       int i;
       int access_count = ((ArrayAccessAST*)left_ast)->access_count;
@@ -641,7 +638,6 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
     free(target_class_type);
 
     Symbol* target_class_symbol = find_symbol(parser_context->class_symbol_table, target_class_name);
-    ClassData* target_class = target_class_symbol->data;
 
     int member_variable_index = get_member_variable_index(parser_context, target_class_name, ((IdentifierAST*)last_ast)->identifier->str);
     VariableData* member_variable_data = get_member_variable_data(parser_context, target_class_name, ((IdentifierAST*)last_ast)->identifier->str);
@@ -675,7 +671,7 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
     ArrayAccessAST* array_access_last_ast = (ArrayAccessAST*)last_ast;
 
     append_string(ir_context->string_builder, L"@attr");
-    append_integer(ir_context->string_builder, member_variable_data);
+    append_integer(ir_context->string_builder, member_variable_index);
     new_line(ir_context->string_builder);
 
     wchar_t store_str_buffer[128];
@@ -698,8 +694,8 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
   }
 }
 
-void check_function_call_condition(IrGenContext* ir_context, ParserContext* parser_context, FunctionData* function_data, const void** parameters, int parameter_count) {
-  if (function_data->parameter_types == VARIABLE_ARGUMENTS) {// pass the case for the variable arguments
+void check_function_call_condition(IrGenContext* ir_context, ParserContext* parser_context, FunctionData* function_data, void** parameters, int parameter_count) {
+  if (function_data->parameter_count == POSITIONAL_ARGUMENTS) {// pass the case for the variable arguments
     return;
   }
 
@@ -956,8 +952,6 @@ void create_number_literal_ir(IrGenContext* ir_context, ParserContext* parser_co
 }
 
 void create_constructor_ir(IrGenContext* ir_context, ParserContext* parser_context, ConstructorAST* constructor_ast) {
-  wchar_t* parameter_buffer = L"";
-
   append_string(ir_context->string_builder, L"$constructor");
 
   if (constructor_ast->parameters) {

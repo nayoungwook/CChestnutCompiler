@@ -2,6 +2,7 @@
 
 #include "token.h"
 #include <wchar.h>
+#include <stdio.h>
 
 typedef enum _ErrorCode {
   ER_Terminate,
@@ -16,6 +17,7 @@ typedef enum _ErrorCode {
   ER_FailedToFindAttribute,
   ER_TypeUnmatch,
   ER_TypeNotExist,
+  ER_UnableToGetErrorToken,
 } ErrorCode;
 
 typedef struct _ErrorMessageEntry {

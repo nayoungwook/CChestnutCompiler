@@ -31,6 +31,122 @@ void initialize_primitive_types(ParserContext* parser_context) {
   insert_set_symbol(parser_context->primitive_types, L"bool");
   insert_set_symbol(parser_context->primitive_types, L"char");
 }
+void print_indent(int depth) {
+    for(int i=0;i<depth;i++) wprintf(L"  ");
+}
+
+void print_AST(void* ast_ptr, int depth) {
+    if (!ast_ptr) return;
+    ASTType type = *((ASTType*)ast_ptr);
+    print_indent(depth);
+    switch(type){
+        case AST_NumberLiteral: {
+            NumberLiteralAST* n = (NumberLiteralAST*)ast_ptr;
+            wprintf(L"NumberLiteral: %ls (type: %ls)\n", n->number_literal_token?n->number_literal_token->str:L"(null)", n->numeric_type?n->numeric_type:L"(null)");
+            break;
+        }
+        case AST_Identifier: {
+            IdentifierAST* n = (IdentifierAST*)ast_ptr;
+            wprintf(L"Identifier: %ls\n", n->identifier?n->identifier->str:L"(null)");
+            if(n->attribute) print_AST(n->attribute, depth+1);
+            break;
+        }
+        case AST_BinExpr: {
+            BinExprAST* n = (BinExprAST*)ast_ptr;
+            wprintf(L"BinExpr: (op=%d)\n", n->opType);
+            print_AST(n->left, depth+1);
+            print_AST(n->right, depth+1);
+            break;
+        }
+        case AST_UnaryExpr: {
+            UnaryExprAST* n = (UnaryExprAST*)ast_ptr;
+            wprintf(L"UnaryExpr\n");
+            print_AST(n->expr, depth+1);
+            break;
+        }
+        case AST_VariableDeclaration: {
+            VariableDeclarationAST* n = (VariableDeclarationAST*)ast_ptr;
+            wprintf(L"VariableDecl: %ls\n", n->variable_name_token?n->variable_name_token->str:L"(null)");
+            if(n->declaration) print_AST(n->declaration, depth+1);
+            break;
+        }
+        case AST_VariableDeclarationBundle: {
+            VariableDeclarationBundleAST* n = (VariableDeclarationBundleAST*)ast_ptr;
+            wprintf(L"VariableDeclBundle\n");
+            for(int i=0;i<n->variable_count;i++)
+                print_AST(n->variable_declarations[i], depth+1);
+            break;
+        }
+        case AST_StringLiteral: {
+            StringLiteralAST* n = (StringLiteralAST*)ast_ptr;
+            wprintf(L"StringLiteral: %ls\n", n->string_literal_token?n->string_literal_token->str:L"(null)");
+            break;
+        }
+        case AST_IfStatement: {
+            IfStatementAST* n = (IfStatementAST*)ast_ptr;
+            wprintf(L"IfStatement (type=%d)\n", n->if_type);
+            print_AST(n->condition, depth+1);
+            for(int i=0;i<n->body_count;i++)
+                print_AST(n->body[i], depth+1);
+            if(n->next_statement) print_AST(n->next_statement, depth+1);
+            break;
+        }
+        case AST_FunctionDeclaration: {
+            FunctionDeclarationAST* n = (FunctionDeclarationAST*)ast_ptr;
+            wprintf(L"FunctionDecl: %ls\n", n->function_name_token?n->function_name_token->str:L"(null)");
+            print_AST(n->parameters, depth+1);
+            for(int i=0;i<n->body_count;i++)
+                print_AST(n->body[i], depth+1);
+            break;
+        }
+        case AST_FunctionCall: {
+            FunctionCallAST* n = (FunctionCallAST*)ast_ptr;
+            wprintf(L"FunctionCall: %ls\n", n->function_name_token?n->function_name_token->str:L"(null)");
+            for(int i=0;i<n->parameter_count;i++)
+                print_AST(n->parameters[i], depth+1);
+            if(n->attribute) print_AST(n->attribute, depth+1);
+            break;
+        }
+        case AST_ArrayDeclaration: {
+            ArrayDeclarationAST* n = (ArrayDeclarationAST*)ast_ptr;
+            wprintf(L"ArrayDecl (count=%d)\n", n->element_count);
+            for(int i=0;i<n->element_count;i++)
+                print_AST(n->elements[i], depth+1);
+            break;
+        }
+        case AST_ArrayAccess: {
+            ArrayAccessAST* n = (ArrayAccessAST*)ast_ptr;
+            wprintf(L"ArrayAccess\n");
+            print_AST(n->target_array, depth+1);
+            for(int i=0;i<n->access_count;i++)
+                print_AST(n->indexes[i], depth+1);
+            if(n->attribute) print_AST(n->attribute, depth+1);
+            break;
+        }
+        case AST_Class: {
+            ClassAST* n = (ClassAST*)ast_ptr;
+            wprintf(L"Class: %ls\n", n->class_name_token?n->class_name_token->str:L"(null)");
+            if(n->parent_class_name_token)
+                print_indent(depth+1),wprintf(L"Parent: %ls\n", n->parent_class_name_token->str);
+            for(int i=0;i<n->member_variable_bundle_count;i++)
+                print_AST(n->member_variables[i], depth+1);
+            for(int i=0;i<n->member_function_count;i++)
+                print_AST(n->member_functions[i], depth+1);
+            if(n->constructor) print_AST(n->constructor, depth+1);
+            break;
+        }
+        case AST_Return: {
+            ReturnAST* n = (ReturnAST*)ast_ptr;
+            wprintf(L"Return\n");
+            print_AST(n->expression, depth+1);
+            break;
+        }
+        // ... 나머지 타입(For, Increase, Decrease 등)은 위 스타일로 추가 ...
+        default:
+            wprintf(L"Unknown AST Type: %d\n", type);
+            break;
+    }
+}
 
 void parse_file(IrGenContext* ir_context, ParserContext* parser_context, TokenizerContext* tokenizer_context, const wchar_t* file_name) {
   wchar_t* file = read_file(tokenizer_context, file_name);
@@ -46,7 +162,6 @@ void parse_file(IrGenContext* ir_context, ParserContext* parser_context, Tokeniz
   //  print_tokens(tokenizer_context, file);
   
   while (peek_token(tokenizer_context, file)->type != TokEOF) {
-    printf("%d\n", peek_token(tokenizer_context, file)->type);
     set_file_string(parser_context, file);
     void* ast = parse(tokenizer_context, parser_context, file);
 
@@ -85,7 +200,6 @@ void parse_file(IrGenContext* ir_context, ParserContext* parser_context, Tokeniz
 
   for (i = 0; i < ast_count; i++) {
     create_ir(ir_context, parser_context, asts[i]);
-    
   }
 
 #ifdef DEBUG_VIEW_IR
