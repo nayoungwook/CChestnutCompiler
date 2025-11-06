@@ -9,8 +9,6 @@
 #include <string.h>
 #include <wchar.h>
 
-#define IDENTIFIER_NOT_FOUND -1
-
 typedef struct _StringBuilder {
   wchar_t* str;
 } StringBuilder;
@@ -38,6 +36,7 @@ void close_scope(ParserContext* parser_context);
 
 int get_prev_variable_index_size(SymbolTable* variable_symbol_table);
 bool check_accessibility(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, int access_modifier);
+bool check_instanceof(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name);
 
 void check_type_of_variable_declaration(IrGenContext* ir_context, ParserContext* parser_context, VariableDeclarationAST* variable_declaration_ast);;
 
@@ -61,15 +60,15 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
 
 IrData* create_ir_data(const wchar_t* name, int data);
 
-int get_member_variable_index(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* ident);
 int get_parent_member_variable_count(ParserContext* parser_context, const wchar_t* class_name);
 
+VariableData* get_member_variable_data(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* class_name, const wchar_t* variable_name);
 int get_member_function_index(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* function_name);
 int get_parent_member_function_count(ParserContext* parser_context, const wchar_t* class_name);
 
 FunctionData* get_member_function_data(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* function_name);
 FunctionData* find_function_data(ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* function_name, FunctionCallAST* function_call_ast);
-VariableData* find_variable_data(ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* identifier);
+VariableData* find_variable_data(IrGenContext* ir_context, ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* identifier);
 
 void create_variable_initializer(IrGenContext* ir_context, ParserContext* parser_context, Type* variable_type);
 

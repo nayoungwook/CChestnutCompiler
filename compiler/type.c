@@ -79,8 +79,8 @@ bool check_castability(ParserContext* parser_context, Type* from, Type* to) {
 
  class_type_check:{
   
-    ClassData* from_type = ((ClassData*)from_symbol->data);
-    ClassData* to_type = ((ClassData*)to_symbol->data);
+    ClassData* from_type = (ClassData*)(from_symbol->data);
+    ClassData* to_type = (ClassData*)(to_symbol->data);
     while (1) {
       // to -> next search find from.
       // up casting.

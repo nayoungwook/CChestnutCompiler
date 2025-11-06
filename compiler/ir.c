@@ -128,7 +128,7 @@ FunctionData* get_member_function_data(ParserContext* parser_context, const wcha
 int get_member_function_index(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* function_name) {
   Symbol* class_symbol = find_symbol(parser_context->class_symbol_table, class_name);
 
-  if (class_symbol == NULL) return IDENTIFIER_NOT_FOUND;
+  if (class_symbol == NULL) return -1;
 
   ClassData* class_data = class_symbol->data;
 
@@ -142,12 +142,12 @@ int get_member_function_index(ParserContext* parser_context, const wchar_t* clas
       return get_member_function_index(parser_context, class_data->parent_class_name, function_name);
     }
 
-    return IDENTIFIER_NOT_FOUND;
+    return -1;
   }
-  return IDENTIFIER_NOT_FOUND;
+  return -1;
 }
 
-VariableData* get_member_variable_data(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* variable_name) {
+VariableData* get_member_variable_data(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* class_name, const wchar_t* variable_name) {
   Symbol* class_symbol = find_symbol(parser_context->class_symbol_table, class_name);
 
   if (class_symbol == NULL) return NULL;
@@ -157,38 +157,21 @@ VariableData* get_member_variable_data(ParserContext* parser_context, const wcha
   Symbol* member_symbol = find_symbol(class_data->member_variables, variable_name);
   if (member_symbol != NULL) {
     VariableData* variable_data = member_symbol->data;
+
+    bool accessibility = check_accessibility(ir_context, parser_context, class_name, variable_data->access_modifier);
+
+    if(accessibility) return NULL;
+    
     return variable_data;
   }
   else {
     if (wcscmp(class_data->parent_class_name, L"") != 0) {
-      return get_member_variable_data(parser_context, class_data->parent_class_name, variable_name);
+      return get_member_variable_data(ir_context, parser_context, class_data->parent_class_name, variable_name);
     }
 
     return NULL;
   }
   return NULL;
-}
-
-int get_member_variable_index(ParserContext* parser_context, const wchar_t* class_name, const wchar_t* variable_name) {
-  Symbol* class_symbol = find_symbol(parser_context->class_symbol_table, class_name);
-
-  if (class_symbol == NULL) return IDENTIFIER_NOT_FOUND;
-
-  ClassData* class_data = class_symbol->data;
-
-  Symbol* member_symbol = find_symbol(class_data->member_variables, variable_name);
-  if (member_symbol != NULL) {
-    VariableData* variable_data = member_symbol->data;
-    return variable_data->index + get_parent_member_variable_count(parser_context, class_name);
-  }
-  else {
-    if (wcscmp(class_data->parent_class_name, L"") != 0) {
-      return get_member_variable_index(parser_context, class_data->parent_class_name, variable_name);
-    }
-
-    return IDENTIFIER_NOT_FOUND;
-  }
-  return IDENTIFIER_NOT_FOUND;
 }
 
 int get_parent_member_variable_count(ParserContext* parser_context, const wchar_t* class_name) {
@@ -263,11 +246,11 @@ void create_class_constructor_ir(IrGenContext* ir_context, ParserContext* parser
   close_scope(parser_context);
 }
 
-VariableData* find_variable_data(ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* identifier) {
+VariableData* find_variable_data(IrGenContext* ir_context, ParserContext* parser_context, Token* tok, const wchar_t* class_name, const wchar_t* identifier) {
   Symbol* local_symbol = find_symbol(parser_context->variable_symbol_table, identifier);
   VariableData* result = NULL;
   if (local_symbol == NULL) {
-    result = get_member_variable_data(parser_context, class_name, identifier);
+    result = get_member_variable_data(ir_context, parser_context, class_name, identifier);
   }
   else {
     result = local_symbol->data;
@@ -299,10 +282,27 @@ FunctionData* find_function_data(ParserContext* parser_context, Token* tok, cons
   return result;
 }
 
+bool check_instanceof(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name){
+  if(wcscmp(ir_context->current_class, L"") == 0) return false;
+  if(wcscmp(target_class_name, ir_context->current_class) == 0) return true;
+  
+  Symbol* target_class_symbol = find_symbol(parser_context->class_symbol_table, target_class_name);
+  Symbol* current_class_symbol = find_symbol(parser_context->class_symbol_table, ir_context->current_class);
+
+  ClassData* target_class_data = (ClassData*)(target_class_symbol->data);
+  ClassData* current_class_data = (ClassData*)(current_class_symbol->data);
+
+  if(wcscmp(target_class_data->parent_class_name, L"") != 0){
+    return check_instanceof(ir_context, parser_context, target_class_data->parent_class_name);
+  }
+
+  return false;
+}
+
 bool check_accessibility(IrGenContext* ir_context, ParserContext* parser_context, const wchar_t* target_class_name, int access_modifier) {
   if (access_modifier == AM_PUBLIC) return true;
 
-  int find_variable_in_class = wcscmp(target_class_name, ir_context->current_class) == 0;
+  bool find_variable_in_class = wcscmp(target_class_name, ir_context->current_class) == 0;
 
   if (find_variable_in_class) {
     return true;
@@ -311,9 +311,9 @@ bool check_accessibility(IrGenContext* ir_context, ParserContext* parser_context
     if (wcscmp(ir_context->current_class, L"") == 0) {
       return false;
     } else {
-      //      int is_parent = check_castability(parser_context, to_symbol->data);
+      bool instanceof = check_instanceof(ir_context, parser_context, target_class_name);
 
-      return access_modifier == AM_PROTECTED;
+      return access_modifier == AM_PROTECTED && instanceof;
     }
   }
 }
@@ -360,21 +360,14 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
 
   switch (*((ASTType*)attribute)) {
   case AST_Identifier: {
-    int member_variable_index = get_member_variable_index(parser_context, target_class_name, ((IdentifierAST*)attribute)->identifier->str);
-    VariableData* member_variable_data = get_member_variable_data(parser_context, target_class_name, ((IdentifierAST*)attribute)->identifier->str);
+    VariableData* member_variable_data = get_member_variable_data(ir_context, parser_context, target_class_name, ((IdentifierAST*)attribute)->identifier->str);
 
     if (member_variable_data == NULL) {
       handle_error(ER_FailedToFindMemberVariable, get_token_of_ast(attribute), parser_context->current_file_name, parser_context->file_str);
     }
 
-    if (!check_accessibility(ir_context, parser_context, target_class_name, member_variable_data->access_modifier)) {
-      // handle error
-      printf("Unable to access variable : %S. access modifier of %S is %d.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
-      exit(1);
-    }
-
     append_string(ir_context->string_builder, L"@attr");
-    append_integer(ir_context->string_builder, member_variable_index);
+    append_integer(ir_context->string_builder, member_variable_data->index);
     new_line(ir_context->string_builder);
 
     if (((IdentifierAST*)attribute)->attribute != NULL) {
@@ -387,21 +380,14 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
   case AST_IdentIncrease: {
     IdentIncreaseAST* ident_increase_ast = (IdentIncreaseAST*)attribute;
 
-    int member_variable_index = get_member_variable_index(parser_context, target_class_name, ((IdentIncreaseAST*)attribute)->identifier->str);
-    VariableData* member_variable_data = get_member_variable_data(parser_context, target_class_name, ((IdentIncreaseAST*)attribute)->identifier->str);
+    VariableData* member_variable_data = get_member_variable_data(ir_context, parser_context, target_class_name, ((IdentIncreaseAST*)attribute)->identifier->str);
 
     if (member_variable_data == NULL) {
       handle_error(ER_FailedToFindMemberVariable, get_token_of_ast(attribute), parser_context->current_file_name, parser_context->file_str);
     }
 
-    if (!check_accessibility(ir_context, parser_context, target_class_name, member_variable_data->access_modifier)) {
-      // handle error
-      printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
-      exit(1);
-    }
-
     append_string(ir_context->string_builder, L"@attr_inc");
-    append_integer(ir_context->string_builder, member_variable_index);
+    append_integer(ir_context->string_builder, member_variable_data->index);
     new_line(ir_context->string_builder);
 
     break;
@@ -410,21 +396,14 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
   case AST_IdentDecrease: {
     IdentDecreaseAST* ident_decrease_ast = (IdentDecreaseAST*)attribute;
 
-    int member_variable_index = get_member_variable_index(parser_context, target_class_name, ((IdentDecreaseAST*)attribute)->identifier->str);
-    VariableData* member_variable_data = get_member_variable_data(parser_context, target_class_name, ((IdentDecreaseAST*)attribute)->identifier->str);
+    VariableData* member_variable_data = get_member_variable_data(ir_context, parser_context, target_class_name, ((IdentDecreaseAST*)attribute)->identifier->str);
 
     if (member_variable_data == NULL) {
       handle_error(ER_FailedToFindMemberVariable, get_token_of_ast(attribute), parser_context->current_file_name, parser_context->file_str);
     }
 
-    if (!check_accessibility(ir_context, parser_context, target_class_name, member_variable_data->access_modifier)) {
-      // handle error
-      printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
-      exit(1);
-    }
-
     append_string(ir_context->string_builder, L"@attr_dec");
-    append_integer(ir_context->string_builder, member_variable_index);
+    append_integer(ir_context->string_builder, member_variable_data);
     new_line(ir_context->string_builder);
 
     break;
@@ -442,12 +421,6 @@ void create_attribute_ir(IrGenContext* ir_context, ParserContext* parser_context
     append_string(ir_context->string_builder, L"@attr_call");
     append_integer(ir_context->string_builder, member_function_index);
     append_integer(ir_context->string_builder, function_call_ast->parameter_count);
-
-    if (!check_accessibility(ir_context, parser_context, target_class_name, member_function_data->access_modifier)) {
-      // handle error
-      printf("Unable to access function : %S. access modifier of %S is %S.", member_function_data->name, member_function_data->name, member_function_data->access_modifier);
-      exit(1);
-    }
 
     check_function_call_condition(ir_context, parser_context, member_function_data, function_call_ast->parameters, function_call_ast->parameter_count);
 
@@ -511,9 +484,12 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
       Symbol* local_symbol = find_symbol(parser_context->variable_symbol_table, identifier_ast->identifier->str);
 
       if (local_symbol == NULL) {
-	int id = get_member_variable_index(parser_context, ir_context->current_class, identifier_ast->identifier->str);
+	VariableData* data = get_member_variable_data(ir_context, parser_context, ir_context->current_class, identifier_ast->identifier->str);
+	if(data == NULL){
+	  handle_error(ER_FailedToFindVariable, get_token_of_ast(left_ast), parser_context->current_file_name, parser_context->file_str);
+	}
 	append_string(ir_context->string_builder, L"@mstore");
-	append_integer(ir_context->string_builder, id);
+	append_integer(ir_context->string_builder, data->index);
       }
       else {
 	append_string(ir_context->string_builder, L"@store");
@@ -639,17 +615,13 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
 
     Symbol* target_class_symbol = find_symbol(parser_context->class_symbol_table, target_class_name);
 
-    int member_variable_index = get_member_variable_index(parser_context, target_class_name, ((IdentifierAST*)last_ast)->identifier->str);
-    VariableData* member_variable_data = get_member_variable_data(parser_context, target_class_name, ((IdentifierAST*)last_ast)->identifier->str);
-
-    if (!check_accessibility(ir_context, parser_context, target_class_name, member_variable_data->access_modifier)) {
-      // handle error
-      printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
-      exit(1);
+    VariableData* member_variable_data = get_member_variable_data(ir_context, parser_context, target_class_name, ((IdentifierAST*)last_ast)->identifier->str);
+    if(member_variable_data == NULL){
+      handle_error(ER_FailedToFindMemberVariable, get_token_of_ast(last_ast), parser_context->current_file_name, parser_context->file_str);
     }
-
+    
     append_string(ir_context->string_builder, L"@attr_store");
-    append_integer(ir_context->string_builder, member_variable_index);
+    append_integer(ir_context->string_builder, member_variable_data->index);
     new_line(ir_context->string_builder);
 
     break;
@@ -659,19 +631,12 @@ void create_assign_ir(IrGenContext* ir_context, ParserContext* parser_context, v
     Symbol* target_class_symbol = find_symbol(parser_context->class_symbol_table, target_class_name);
     ClassData* target_class = target_class_symbol->data;
 
-    int member_variable_index = get_member_variable_index(parser_context, target_class_name, ((ArrayAccessAST*)last_ast)->target_array->identifier->str);
-    VariableData* member_variable_data = get_member_variable_data(parser_context, target_class_name, ((ArrayAccessAST*)last_ast)->target_array->identifier->str);
-
-    if (!check_accessibility(ir_context, parser_context, target_class_name, member_variable_data->access_modifier)) {
-      // handle error
-      printf("Unable to access variable : %S. access modifier of %S is %S.", member_variable_data->name, member_variable_data->name, member_variable_data->access_modifier);
-      exit(1);
-    }
+    VariableData* member_variable_data = get_member_variable_data(ir_context, parser_context, target_class_name, ((ArrayAccessAST*)last_ast)->target_array->identifier->str);
 
     ArrayAccessAST* array_access_last_ast = (ArrayAccessAST*)last_ast;
 
     append_string(ir_context->string_builder, L"@attr");
-    append_integer(ir_context->string_builder, member_variable_index);
+    append_integer(ir_context->string_builder, member_variable_data->index);
     new_line(ir_context->string_builder);
 
     wchar_t store_str_buffer[128];
@@ -829,7 +794,7 @@ void create_identifier_ir(IrGenContext* ir_context, ParserContext* parser_contex
   }
   else {
     Symbol* local_symbol = find_symbol(parser_context->variable_symbol_table, identifier_ast->identifier->str);
-    VariableData* variable_data = find_variable_data(parser_context, identifier_ast->identifier, ir_context->current_class, identifier_ast->identifier->str);
+    VariableData* variable_data = find_variable_data(ir_context, parser_context, identifier_ast->identifier, ir_context->current_class, identifier_ast->identifier->str);
     int variable_exist_in_local_area = local_symbol != NULL;
 
     if (variable_exist_in_local_area) {
@@ -837,9 +802,12 @@ void create_identifier_ir(IrGenContext* ir_context, ParserContext* parser_contex
       append_integer(ir_context->string_builder, ((VariableData*)local_symbol->data)->index);
     }
     else {
-      int member_id = get_member_variable_index(parser_context, ir_context->current_class, identifier_ast->identifier->str);
+      VariableData* data = get_member_variable_data(ir_context, parser_context, ir_context->current_class, identifier_ast->identifier->str);
+      if(data == NULL){
+	handle_error(ER_FailedToFindVariable, get_token_of_ast(identifier_ast), parser_context->current_file_name, parser_context->file_str);
+      }
       append_string(ir_context->string_builder, L"@mload");
-      append_integer(ir_context->string_builder, member_id);
+      append_integer(ir_context->string_builder, data->index);
     }
   }
   new_line(ir_context->string_builder);
@@ -1098,13 +1066,17 @@ void create_variable_declaration_ir(IrGenContext* ir_context, ParserContext* par
   int is_member_variable = ir_context->is_class_initializer;
 
   if (is_member_variable) {
-    data = get_member_variable_data(parser_context, ir_context->current_class, variable_declaration_ast->variable_name_token->str);
+    data = get_member_variable_data(ir_context, parser_context, ir_context->current_class, variable_declaration_ast->variable_name_token->str);
   }
   else {
     data = create_variable_data(parser_context->variable_symbol_table, variable_declaration_ast->variable_type, variable_declaration_ast->variable_name_token->str, variable_declaration_ast->access_modifier);
     insert_symbol(parser_context->variable_symbol_table, variable_declaration_ast->variable_name_token->str, data);
   }
 
+  if(data == NULL){
+    handle_error(ER_FailedToFindVariable, get_token_of_ast(variable_declaration_ast), parser_context->current_file_name, parser_context->file_str);
+  }
+  
   if (variable_declaration_ast->declaration) {
     create_ir(ir_context, parser_context, variable_declaration_ast->declaration);
 
@@ -1136,7 +1108,7 @@ void create_variable_declaration_ir(IrGenContext* ir_context, ParserContext* par
 }
 
 void create_ident_increase_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentIncreaseAST* ident_increase_ast) {
-  VariableData* variable_data = find_variable_data(parser_context, ident_increase_ast->identifier, ir_context->current_class, ident_increase_ast->identifier->str);
+  VariableData* variable_data = find_variable_data(ir_context, parser_context, ident_increase_ast->identifier, ir_context->current_class, ident_increase_ast->identifier->str);
 
   append_string(ir_context->string_builder, L"@inc");
   append_integer(ir_context->string_builder, variable_data->index);
@@ -1144,7 +1116,7 @@ void create_ident_increase_ir(IrGenContext* ir_context, ParserContext* parser_co
 }
 
 void create_ident_decrease_ir(IrGenContext* ir_context, ParserContext* parser_context, IdentDecreaseAST* ident_decrease_ast) {
-  VariableData* variable_data = find_variable_data(parser_context, ident_decrease_ast->identifier, ir_context->current_class, ident_decrease_ast->identifier->str);
+  VariableData* variable_data = find_variable_data(ir_context, parser_context, ident_decrease_ast->identifier, ir_context->current_class, ident_decrease_ast->identifier->str);
 
   append_string(ir_context->string_builder, L"@dec");
   append_integer(ir_context->string_builder, variable_data->index);
